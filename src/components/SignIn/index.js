@@ -28,21 +28,30 @@ class SignInForm extends Component {
   }
 
   render() {
+    const {
+      email,
+      password,
+    } = this.state;
+
+    const isInvalid =
+      password === '' ||
+      email === '';
+
     return (
       <form onSubmit={this.onSubmit}>
         <input
-          value={this.state.email}
+          value={email}
           onChange={event => this.setState(() => ({ email: event.target.value }))}
           type="text"
           placeholder="Email Address"
         />
         <input
-          value={this.state.password}
+          value={password}
           onChange={event => this.setState(() => ({ password: event.target.value }))}
           type="password"
           placeholder="Password"
         />
-        <button type="submit">
+        <button disabled={isInvalid} type="submit">
           Sign In
         </button>
       </form>

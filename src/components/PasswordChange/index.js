@@ -17,21 +17,30 @@ class PasswordChangeForm extends Component {
   }
 
   render() {
+    const {
+      passwordOne,
+      passwordTwo,
+    } = this.state;
+
+    const isInvalid =
+      passwordOne !== passwordTwo ||
+      passwordOne === '';
+
     return (
       <form onSubmit={this.onSubmit}>
         <input
-          value={this.state.passwordOne}
+          value={passwordOne}
           onChange={event => this.setState(() => ({ email: event.target.value }))}
           type="password"
           placeholder="New Password"
         />
         <input
-          value={this.state.passwordTwo}
+          value={passwordTwo}
           onChange={event => this.setState(() => ({ email: event.target.value }))}
           type="password"
           placeholder="Confirm New Password"
         />
-        <button type="submit">
+        <button  disabled={isInvalid} type="submit">
           Reset My Password
         </button>
       </form>
