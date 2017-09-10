@@ -7,6 +7,10 @@ const SignUpPage = () =>
     <SignUpForm />
   </div>
 
+const updateByPropertyName = (propertyName, value) => () => ({
+  [propertyName]: value,
+});
+
 class SignUpForm extends Component {
   constructor(props) {
     super(props);
@@ -42,25 +46,25 @@ class SignUpForm extends Component {
       <form onSubmit={this.onSubmit}>
         <input
           value={username}
-          onChange={event => this.setState(() => ({ username: event.target.value }))}
+          onChange={event => this.setState(updateByPropertyName('username', event.target.value))}
           type="text"
           placeholder="Full Name"
         />
         <input
           value={email}
-          onChange={event => this.setState(() => ({ email: event.target.value }))}
+          onChange={event => this.setState(updateByPropertyName('email', event.target.value))}
           type="text"
           placeholder="Email Address"
         />
         <input
           value={passwordOne}
-          onChange={event => this.setState(() => ({ passwordOne: event.target.value }))}
+          onChange={event => this.setState(updateByPropertyName('passwordOne', event.target.value))}
           type="password"
           placeholder="Password"
         />
         <input
           value={passwordTwo}
-          onChange={event => this.setState(() => ({ passwordTwo: event.target.value }))}
+          onChange={event => this.setState(updateByPropertyName('passwordTwo', event.target.value))}
           type="password"
           placeholder="Confirm Password"
         />

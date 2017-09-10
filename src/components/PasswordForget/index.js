@@ -7,6 +7,10 @@ const PasswordForgetPage = () =>
     <PasswordForgetForm />
   </div>
 
+const updateByPropertyName = (propertyName, value) => () => ({
+  [propertyName]: value,
+});
+
 class PasswordForgetForm extends Component {
   constructor(props) {
     super(props);
@@ -31,7 +35,7 @@ class PasswordForgetForm extends Component {
       <form onSubmit={this.onSubmit}>
         <input
           value={this.state.email}
-          onChange={event => this.setState(() => ({ email: event.target.value }))}
+          onChange={event => this.setState(updateByPropertyName('email', event.target.value))}
           type="text"
           placeholder="Email Address"
         />

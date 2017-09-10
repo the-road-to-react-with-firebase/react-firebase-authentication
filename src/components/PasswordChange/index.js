@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
 
+const updateByPropertyName = (propertyName, value) => () => ({
+  [propertyName]: value,
+});
+
 class PasswordChangeForm extends Component {
   constructor(props) {
     super(props);
@@ -30,17 +34,17 @@ class PasswordChangeForm extends Component {
       <form onSubmit={this.onSubmit}>
         <input
           value={passwordOne}
-          onChange={event => this.setState(() => ({ email: event.target.value }))}
+          onChange={event => this.setState(updateByPropertyName('passwordOne', event.target.value))}
           type="password"
           placeholder="New Password"
         />
         <input
           value={passwordTwo}
-          onChange={event => this.setState(() => ({ email: event.target.value }))}
+          onChange={event => this.setState(updateByPropertyName('passwordTwo', event.target.value))}
           type="password"
           placeholder="Confirm New Password"
         />
-        <button  disabled={isInvalid} type="submit">
+        <button disabled={isInvalid} type="submit">
           Reset My Password
         </button>
       </form>
