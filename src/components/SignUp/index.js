@@ -12,6 +12,7 @@ class SignUpForm extends Component {
     super(props);
 
     this.state = {
+      username: '',
       email: '',
       passwordOne: '',
       passwordTwo: '',
@@ -27,6 +28,12 @@ class SignUpForm extends Component {
   render() {
     return (
       <form onSubmit={this.onSubmit}>
+        <input
+          value={this.state.username}
+          onChange={event => this.setState(() => ({ username: event.target.value }))}
+          type="text"
+          placeholder="Full Name"
+        />
         <input
           value={this.state.email}
           onChange={event => this.setState(() => ({ email: event.target.value }))}
