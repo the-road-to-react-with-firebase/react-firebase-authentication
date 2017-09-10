@@ -11,6 +11,7 @@ import SignInPage from '../SignIn';
 import PasswordForgetPage from '../PasswordForget';
 import HomePage from '../Home';
 import AccountPage from '../Account';
+import SignOutButton from '../SignOut';
 
 import './index.css';
 
@@ -67,9 +68,10 @@ Navigation.contextTypes = {
 
 const NavigationAuth = () =>
   <ul>
-  <li><Link to="/">Landing</Link></li>
+    <li><Link to="/">Landing</Link></li>
     <li><Link to="/home">Home</Link></li>
     <li><Link to="/account">Account</Link></li>
+    <li><SignOutButton /></li>
   </ul>
 
 const NavigationNonAuth = () =>
