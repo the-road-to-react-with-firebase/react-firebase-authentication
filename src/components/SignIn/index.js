@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
-import SignUpLink from '../SignUp';
-import PasswordForgetLink from '../PasswordForget';
+import { SignUpLink } from '../SignUp';
+import { PasswordForgetLink } from '../PasswordForget';
 
 const SignInPage = () =>
   <div>
