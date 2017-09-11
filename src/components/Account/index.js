@@ -2,6 +2,7 @@ import React from 'react';
 
 import { PasswordForgetForm } from '../PasswordForget';
 import PasswordChangeForm from '../PasswordChange';
+import withAuthorization from '../Session/withAuthorization';
 
 const AccountPage = (props, { authUser }) =>
   <div>
@@ -10,4 +11,4 @@ const AccountPage = (props, { authUser }) =>
     <PasswordChangeForm />
   </div>
 
-export default AccountPage;
+export default withAuthorization(true)(AccountPage);
