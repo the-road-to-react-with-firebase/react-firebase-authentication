@@ -8,7 +8,7 @@
 * uses:
   * only React (create-react-app)
   * firebase
-  * react-router
+  * react-router .v4
   * no Redux/MobX
 * features:
   * Sign In
@@ -16,7 +16,7 @@
   * Sign Out
   * Password Forget
   * Password Change
-  * User Database
+  * Database: Users
 
 ## Installation
 
