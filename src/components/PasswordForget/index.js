@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
+import { auth } from '../../firebase';
+
 const PasswordForgetPage = () =>
   <div>
     <h1>PasswordForget</h1>
@@ -11,23 +13,37 @@ const updateByPropertyName = (propertyName, value) => () => ({
   [propertyName]: value,
 });
 
+const INITIAL_STATE = {
+  email: '',
+  error: null,
+};
+
 class PasswordForgetForm extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      email: '',
-    };
+    this.state = { ...INITIAL_STATE };
   }
 
   onSubmit = (event) => {
-    // do firebase password forget
+    const { email } = this.state;
+
+    auth.doPasswordReset(email)
+      .then(() => {
+        this.setState(() => ({ ...INITIAL_STATE }));
+      })
+      .catch(error => {
+        this.setState(updateByPropertyName('error', error));
+      });
 
     event.preventDefault();
   }
 
   render() {
-    const { email } = this.state;
+    const {
+      email,
+      error,
+    } = this.state;
 
     const isInvalid = email === '';
 
@@ -42,6 +58,8 @@ class PasswordForgetForm extends Component {
         <button disabled={isInvalid} type="submit">
           Reset My Password
         </button>
+
+        { error && <p>{error.message}</p> }
       </form>
     );
   }

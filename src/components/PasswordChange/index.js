@@ -1,21 +1,33 @@
 import React, { Component } from 'react';
 
+import { auth } from '../../firebase';
+
 const updateByPropertyName = (propertyName, value) => () => ({
   [propertyName]: value,
 });
+
+const INITIAL_STATE = {
+  passwordOne: '',
+  passwordTwo: '',
+};
 
 class PasswordChangeForm extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      passwordOne: '',
-      passwordTwo: '',
-    };
+    this.state = { ...INITIAL_STATE };
   }
 
   onSubmit = (event) => {
-    // do firebase password change
+    const { passwordOne } = this.state;
+
+    auth.doPasswordUpdate(passwordOne)
+      .then(() => {
+        this.setState(() => ({ ...INITIAL_STATE }));
+      })
+      .catch(error => {
+        this.setState(updateByPropertyName('error', error));
+      });
 
     event.preventDefault();
   }
@@ -24,6 +36,7 @@ class PasswordChangeForm extends Component {
     const {
       passwordOne,
       passwordTwo,
+      error,
     } = this.state;
 
     const isInvalid =
@@ -47,6 +60,8 @@ class PasswordChangeForm extends Component {
         <button disabled={isInvalid} type="submit">
           Reset My Password
         </button>
+
+        { error && <p>{error.message}</p> }
       </form>
     );
   }

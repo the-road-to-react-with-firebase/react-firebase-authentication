@@ -1,7 +1,31 @@
-# Installation
+# react-firebase-authentication
+
+Found in [Taming the State in React](https://roadtoreact.com/course-details?courseId=TAMING_THE_STATE)
+
+* uses:
+ * only React with create-react-app
+ * firebase
+ * react-router
+ * no Redux/MobX
+* features:
+ * Sign In
+ * Sign Up
+ * Sign Out
+ * Password Forget
+ * Password Change
+ * User Database
+
+## Installation
 
 * `git clone git@github.com:rwieruch/react-firebase-authentication.git`
 * `cd react-firebase-authentication`
 * `npm install`
 * `npm start`
 * visit http://localhost:3000/
+* Use your own Firebase Credentials
+
+### Use your own Firebase Credentials
+
+* visit https://firebase.google.com/ and create a Firebase App
+* copy and paste your Credentials from your Firebase App into src/firebase/firebase.js
+* activate Email/Password Sign-In Method in your Firebase App
