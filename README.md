@@ -1,19 +1,22 @@
 # react-firebase-authentication
 
-Found in [Taming the State in React](https://roadtoreact.com/course-details?courseId=TAMING_THE_STATE)
+* Found in [Taming the State in React](https://roadtoreact.com/course-details?courseId=TAMING_THE_STATE)
+* [Live](https://react-firebase-authentication.wieruch.com/)
+
+## Features
 
 * uses:
- * only React with create-react-app
- * firebase
- * react-router
- * no Redux/MobX
+  * only React (create-react-app)
+  * firebase
+  * react-router
+  * no Redux/MobX
 * features:
- * Sign In
- * Sign Up
- * Sign Out
- * Password Forget
- * Password Change
- * User Database
+  * Sign In
+  * Sign Up
+  * Sign Out
+  * Password Forget
+  * Password Change
+  * User Database
 
 ## Installation
 
