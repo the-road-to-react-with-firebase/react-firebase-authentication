@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import { PasswordForgetForm } from '../PasswordForget';
 import PasswordChangeForm from '../PasswordChange';
@@ -10,5 +11,9 @@ const AccountPage = (props, { authUser }) =>
     <PasswordForgetForm />
     <PasswordChangeForm />
   </div>
+
+AccountPage.contextTypes = {
+  authUser: PropTypes.object,
+};
 
 export default withAuthorization(true)(AccountPage);
