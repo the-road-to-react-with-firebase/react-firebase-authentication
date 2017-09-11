@@ -1,21 +1,21 @@
 import * as firebase from 'firebase';
 
 const prodConfig = {
-  apiKey: process.env.FIREBASE_API_LIVE,
-  authDomain: process.env.FIREBASE_AUTH_LIVE,
-  databaseURL: process.env.FIREBASE_DB_LIVE,
-  projectId: process.env.FIREBASE_PID_LIVE,
+  apiKey: 'AIzaSyBtxDyenAXZ3phPeXcsZs6hoIXa7n33NtQ',
+  authDomain: 'react-firebase-authentic-d64f8.firebaseapp.com',
+  databaseURL: 'https://react-firebase-authentic-d64f8.firebaseio.com',
+  projectId: 'react-firebase-authentic-d64f8',
   storageBucket: '',
-  messagingSenderId: process.env.FIREBASE_MSID_LIVE
+  messagingSenderId: '705898054501'
 };
 
 const devConfig = {
-  apiKey: process.env.FIREBASE_API_TEST,
-  authDomain: process.env.FIREBASE_AUTH_TEST,
-  databaseURL: process.env.FIREBASE_DB_TEST,
-  projectId: process.env.FIREBASE_PID_TEST,
+  apiKey: 'AIzaSyBtxDyenAXZ3phPeXcsZs6hoIXa7n33NtQ',
+  authDomain: 'react-firebase-authentic-d64f8.firebaseapp.com',
+  databaseURL: 'https://react-firebase-authentic-d64f8.firebaseio.com',
+  projectId: 'react-firebase-authentic-d64f8',
   storageBucket: '',
-  messagingSenderId: process.env.FIREBASE_MSID_TEST
+  messagingSenderId: '705898054501'
 };
 
 const config = process.env.NODE_ENV === 'production'

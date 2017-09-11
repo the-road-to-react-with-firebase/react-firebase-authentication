@@ -12,6 +12,7 @@ import PasswordForgetPage from '../PasswordForget';
 import HomePage from '../Home';
 import AccountPage from '../Account';
 import SignOutButton from '../SignOut';
+import { auth } from '../../firebase';
 
 import './index.css';
 
@@ -28,6 +29,19 @@ class App extends Component {
     return {
       authUser: this.state.authUser,
     };
+  }
+
+  componentDidMount() {
+    auth.onAuthStateChanged(authUser => {
+      authUser
+        ? this.setState(() => ({ authUser }))
+        : this.setState(() => ({ authUser: null }));
+
+      // TODO
+      // (!authUser && isProtected)
+      //   ? Router.push(routes.HOME)
+      //   : null;
+    });
   }
 
   render() {
