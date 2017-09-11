@@ -29,6 +29,10 @@ const App = () =>
       <Route exact path={routes.PASSWORD_FORGET} component={PasswordForgetPage} />
       <Route exact path={routes.HOME} component={HomePage} />
       <Route exact path={routes.ACCOUNT} component={AccountPage} />
+
+      <hr/>
+
+      <p>Built in <a href="https://roadtoreact.com/course-details?courseId=TAMING_THE_STATE">Taming the State in React</a></p>
     </div>
   </Router>
 

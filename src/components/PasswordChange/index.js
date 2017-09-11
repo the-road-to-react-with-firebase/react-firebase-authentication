@@ -9,6 +9,7 @@ const updateByPropertyName = (propertyName, value) => () => ({
 const INITIAL_STATE = {
   passwordOne: '',
   passwordTwo: '',
+  error: null,
 };
 
 class PasswordChangeForm extends Component {
