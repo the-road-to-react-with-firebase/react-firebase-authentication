@@ -39,7 +39,7 @@ const UserList = ({ users }) =>
   <div>
     <h2>List of App Users (Saved on Sign Up)</h2>
     {users.map(user =>
-      <div key={user.index}>{user.username} {user.email}</div>
+      <div key={user.index}>{user.username} ({user.index})</div>
     )}
   </div>
 
