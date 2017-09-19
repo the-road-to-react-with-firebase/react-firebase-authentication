@@ -24,12 +24,14 @@ class HomePage extends Component {
   }
 
   render() {
+    const { users } = this.state;
+
     return (
       <div>
         <h1>Home</h1>
         <p>The Home Page is accessible by every signed in user.</p>
 
-        { !!this.state.users.length && <UserList users={this.state.users} /> }
+        { !!users.length && <UserList users={users} /> }
       </div>
     );
   }
@@ -37,9 +39,9 @@ class HomePage extends Component {
 
 const UserList = ({ users }) =>
   <div>
-    <h2>List of App Users (Saved on Sign Up)</h2>
+    <h2>List of App User IDs (Saved on Sign Up in Firebase Database)</h2>
     {users.map(user =>
-      <div key={user.index}>{user.username} ({user.index})</div>
+      <div key={user.index}>{user.index}</div>
     )}
   </div>
 
