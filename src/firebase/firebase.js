@@ -1,21 +1,21 @@
 import * as firebase from 'firebase';
 
 const prodConfig = {
-  apiKey: 'AIzaSyBtxDyenAXZ3phPeXcsZs6hoIXa7n33NtQ',
-  authDomain: 'react-firebase-authentic-d64f8.firebaseapp.com',
-  databaseURL: 'https://react-firebase-authentic-d64f8.firebaseio.com',
-  projectId: 'react-firebase-authentic-d64f8',
+  apiKey: YOUR_API_KEY,
+  authDomain: YOUR_AUTH_DOMAIN,
+  databaseURL: YOUR_DATABASE_URL,
+  projectId: YOUR_PROJECT_ID,
   storageBucket: '',
-  messagingSenderId: '705898054501'
+  messagingSenderId: YOUR_MESSAGING_SENDER_ID,
 };
 
 const devConfig = {
-  apiKey: 'AIzaSyBtxDyenAXZ3phPeXcsZs6hoIXa7n33NtQ',
-  authDomain: 'react-firebase-authentic-d64f8.firebaseapp.com',
-  databaseURL: 'https://react-firebase-authentic-d64f8.firebaseio.com',
-  projectId: 'react-firebase-authentic-d64f8',
+  apiKey: YOUR_API_KEY,
+  authDomain: YOUR_AUTH_DOMAIN,
+  databaseURL: YOUR_DATABASE_URL,
+  projectId: YOUR_PROJECT_ID,
   storageBucket: '',
-  messagingSenderId: '705898054501'
+  messagingSenderId: YOUR_MESSAGING_SENDER_ID,
 };
 
 const config = process.env.NODE_ENV === 'production'
