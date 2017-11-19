@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 
 import { firebase } from '../../firebase';
@@ -9,17 +10,19 @@ const withAuthorization = (needsAuthorization) => (Component) => {
     componentDidMount() {
       firebase.auth.onAuthStateChanged(authUser => {
         if (!authUser && needsAuthorization) {
-          this.props.history.push(routes.SIGN_IN)
+          this.props.history.push(routes.SIGN_IN);
         }
       });
     }
 
     render() {
-      return (
-        <Component />
-      );
+      return this.context.authUser ? <Component /> : null;
     }
   }
+
+  WithAuthorization.contextTypes = {
+    authUser: PropTypes.object,
+  };
 
   return withRouter(WithAuthorization);
 }
