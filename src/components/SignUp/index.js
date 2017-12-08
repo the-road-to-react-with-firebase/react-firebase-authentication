@@ -76,7 +76,8 @@ class SignUpForm extends Component {
     const isInvalid =
       passwordOne !== passwordTwo ||
       passwordOne === '' ||
-      username === '';
+      username === '' ||
+      email === '';
 
     return (
       <form onSubmit={this.onSubmit}>
@@ -118,7 +119,7 @@ const SignUpLink = () =>
   <p>
     Don't have an account?
     {' '}
-    <Link to="/signup">Sign Up</Link>
+    <Link to={routes.SIGN_UP}>Sign Up</Link>
   </p>
 
 export default withRouter(SignUpPage);
