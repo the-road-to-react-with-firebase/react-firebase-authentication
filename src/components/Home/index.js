@@ -45,4 +45,6 @@ const UserList = ({ users }) =>
     )}
   </div>
 
-export default withAuthorization(true)(HomePage);
+const authCondition = (authUser) => !!authUser;
+
+export default withAuthorization(authCondition)(HomePage);

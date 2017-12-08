@@ -16,4 +16,6 @@ AccountPage.contextTypes = {
   authUser: PropTypes.object,
 };
 
-export default withAuthorization(true)(AccountPage);
+const authCondition = (authUser) => !!authUser;
+
+export default withAuthorization(authCondition)(AccountPage);
