@@ -8,7 +8,7 @@ class HomePage extends Component {
     super(props);
 
     this.state = {
-      users: []
+      users: {}
     };
   }
 
