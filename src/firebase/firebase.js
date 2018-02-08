@@ -1,21 +1,21 @@
 import * as firebase from 'firebase';
 
 const prodConfig = {
-  apiKey: YOUR_API_KEY,
-  authDomain: YOUR_AUTH_DOMAIN,
-  databaseURL: YOUR_DATABASE_URL,
-  projectId: YOUR_PROJECT_ID,
-  storageBucket: '',
-  messagingSenderId: YOUR_MESSAGING_SENDER_ID,
+  apiKey: "AIzaSyD-ZVQwhXGsrl1SL_xuESUz50jhcG03OCA",
+  authDomain: "gatsbyjs-2c8c4.firebaseapp.com",
+  databaseURL: "https://gatsbyjs-2c8c4.firebaseio.com",
+  projectId: "gatsbyjs-2c8c4",
+  storageBucket: "gatsbyjs-2c8c4.appspot.com",
+  messagingSenderId: "591839666224"
 };
 
 const devConfig = {
-  apiKey: YOUR_API_KEY,
-  authDomain: YOUR_AUTH_DOMAIN,
-  databaseURL: YOUR_DATABASE_URL,
-  projectId: YOUR_PROJECT_ID,
-  storageBucket: '',
-  messagingSenderId: YOUR_MESSAGING_SENDER_ID,
+  apiKey: "AIzaSyD-ZVQwhXGsrl1SL_xuESUz50jhcG03OCA",
+  authDomain: "gatsbyjs-2c8c4.firebaseapp.com",
+  databaseURL: "https://gatsbyjs-2c8c4.firebaseio.com",
+  projectId: "gatsbyjs-2c8c4",
+  storageBucket: "gatsbyjs-2c8c4.appspot.com",
+  messagingSenderId: "591839666224"
 };
 
 const config = process.env.NODE_ENV === 'production'
