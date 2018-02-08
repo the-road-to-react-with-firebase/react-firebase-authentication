@@ -8,7 +8,9 @@
     "react": "^16.1.1",
     "react-dom": "^16.1.1",
     "react-router-dom": "^4.2.2",
-    "react-scripts": "1.0.17"
+    "react-scripts": "1.0.17",
+    "semantic-ui-css": "^2.2.14",
+    "semantic-ui-react": "^0.78.2"
   },
   "scripts": {
     "start": "react-scripts start",

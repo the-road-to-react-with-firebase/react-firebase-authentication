@@ -7,9 +7,10 @@ import {
 import { auth, db } from '../../firebase';
 import * as routes from '../../constants/routes';
 
+import { Button, Form, Grid, Header, Image, Segment } from 'semantic-ui-react'
+
 const SignUpPage = ({ history }) =>
   <div>
-    <h1>SignUp</h1>
     <SignUpForm history={history} />
   </div>
 
@@ -80,37 +81,77 @@ class SignUpForm extends Component {
       email === '';
 
     return (
-      <form onSubmit={this.onSubmit}>
-        <input
-          value={username}
-          onChange={event => this.setState(updateByPropertyName('username', event.target.value))}
-          type="text"
-          placeholder="Full Name"
-        />
-        <input
-          value={email}
-          onChange={event => this.setState(updateByPropertyName('email', event.target.value))}
-          type="text"
-          placeholder="Email Address"
-        />
-        <input
-          value={passwordOne}
-          onChange={event => this.setState(updateByPropertyName('passwordOne', event.target.value))}
-          type="password"
-          placeholder="Password"
-        />
-        <input
-          value={passwordTwo}
-          onChange={event => this.setState(updateByPropertyName('passwordTwo', event.target.value))}
-          type="password"
-          placeholder="Confirm Password"
-        />
-        <button disabled={isInvalid} type="submit">
-          Sign Up
-        </button>
-
-        { error && <p>{error.message}</p> }
-      </form>
+      <div className='login-form'>
+        {/*
+          Heads up! The styles below are necessary for the correct render of this example.
+          You can do same with CSS, the main idea is that all the elements up to the `Grid`
+          below must have a height of 100%.
+        */}
+        <style>{`
+          body > div,
+          body > div > div,
+          body > div > div > div.login-form {
+            height: 100%;
+          }
+        `}</style>
+        <Grid
+          textAlign='center'
+          style={{ height: '100%' }}
+          verticalAlign='middle'
+        >
+          <Grid.Column style={{ maxWidth: 450 }}>
+            <Header as='h2' color='teal' textAlign='center'>
+              <Image src='/logo.png' />
+              {' '}Sign Up
+            </Header>
+            <Form size='large' onSubmit={this.onSubmit}>
+              <Segment stacked>
+                <Form.Input
+                  fluid
+                  icon='user'
+                  iconPosition='left'
+                  placeholder='User Name'
+                  value={username}
+                  onChange={event => this.setState(updateByPropertyName('username', event.target.value))}
+                  type="text"
+                />
+                <Form.Input
+                  fluid
+                  icon='mail'
+                  iconPosition='left'
+                  placeholder="Email Address"
+                  value={email}
+                  onChange={event => this.setState(updateByPropertyName('email', event.target.value))}
+                  type="text"
+                />
+                <Form.Input
+                  fluid
+                  icon='lock'
+                  iconPosition='left'
+                  value={passwordOne}
+                  onChange={event => this.setState(updateByPropertyName('passwordOne', event.target.value))}
+                  type="password"
+                  placeholder="Password"
+                />
+                <Form.Input
+                  fluid
+                  icon='lock'
+                  iconPosition='left'
+                  value={passwordTwo}
+                  onChange={event => this.setState(updateByPropertyName('passwordTwo', event.target.value))}
+                  type="password"
+                  placeholder="Confirm Password"
+                />
+                
+                <Button disabled={isInvalid} type="submit">
+                  Sign Up
+                </Button>
+              </Segment>
+            </Form>
+            { error && <p>{error.message}</p> }
+          </Grid.Column>
+        </Grid>
+      </div>
     );
   }
 }
