@@ -4,6 +4,7 @@
 
 * Found in [Taming the State in React](https://roadtoreact.com/course-details?courseId=TAMING_THE_STATE)
 * [Live](https://react-firebase-authentication.wieruch.com/)
+* [Tutorial](https://www.robinwieruch.de/complete-firebase-authentication-react-tutorial/)
 
 ## Features
 
