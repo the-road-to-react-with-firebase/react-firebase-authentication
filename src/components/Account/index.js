@@ -1,20 +1,20 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
+import AuthUserContext from '../Session/AuthUserContext';
 import { PasswordForgetForm } from '../PasswordForget';
 import PasswordChangeForm from '../PasswordChange';
 import withAuthorization from '../Session/withAuthorization';
 
-const AccountPage = (props, { authUser }) =>
-  <div>
-    <h1>Account: {authUser.email}</h1>
-    <PasswordForgetForm />
-    <PasswordChangeForm />
-  </div>
-
-AccountPage.contextTypes = {
-  authUser: PropTypes.object,
-};
+const AccountPage = () =>
+  <AuthUserContext.Consumer>
+    {authUser =>
+      <div>
+        <h1>Account: {authUser.email}</h1>
+        <PasswordForgetForm />
+        <PasswordChangeForm />
+      </div>
+    }
+  </AuthUserContext.Consumer>
 
 const authCondition = (authUser) => !!authUser;
 
