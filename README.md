@@ -10,7 +10,7 @@
 
 * uses:
   * only React (create-react-app)
-  * firebase 4.3.1
+  * firebase 5.0.0
   * react-router 4.2.0
   * no Redux/MobX
   * [React's 16.3 context API](https://reactjs.org/blog/2018/03/29/react-v-16-3.html)
