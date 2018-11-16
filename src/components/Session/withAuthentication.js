@@ -1,7 +1,7 @@
 import React from 'react';
 
 import AuthUserContext from './AuthUserContext';
-import { firebase, db } from '../../firebase';
+import authUserListener from './authUserListener';
 
 const withAuthentication = Component =>
   class WithAuthentication extends React.Component {
@@ -14,23 +14,10 @@ const withAuthentication = Component =>
     }
 
     componentDidMount() {
-      this.listener = firebase.auth.onAuthStateChanged(authUser => {
-        if (authUser) {
-          db.onceGetUser(authUser.uid).then(snapshot => {
-            let dbUser = snapshot.val();
-
-            if (!dbUser.roles) {
-              dbUser.roles = [];
-            }
-
-            authUser = { ...authUser, ...dbUser };
-
-            this.setState({ authUser });
-          });
-        } else {
-          this.setState({ authUser: null });
-        }
-      });
+      this.listener = authUserListener(
+        authUser => this.setState({ authUser }),
+        () => this.setState({ authUser: null }),
+      );
     }
 
     componentWillUnmount() {
