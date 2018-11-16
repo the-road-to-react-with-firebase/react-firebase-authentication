@@ -6,4 +6,8 @@ export const user = id => db.ref(`users/${id}`);
 
 export const users = () => db.ref('users');
 
-// Other db APIs ...
+// Message API
+
+export const messages = () => db.ref('messages');
+
+// Other APIs ...
