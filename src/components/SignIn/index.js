@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
+import { compose } from 'recompose';
 
 import { SignUpLink } from '../SignUp';
 import { PasswordForgetLink } from '../PasswordForget';
-import { auth } from '../../firebase';
+import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
 
-const SignInPage = ({ history }) => (
+const SignInPage = () => (
   <div>
     <h1>SignIn</h1>
-    <SignInForm history={history} />
+    <SignInForm />
     <PasswordForgetLink />
     <SignUpLink />
   </div>
@@ -21,7 +22,7 @@ const INITIAL_STATE = {
   error: null,
 };
 
-class SignInForm extends Component {
+class SignInFormBase extends Component {
   constructor(props) {
     super(props);
 
@@ -33,10 +34,10 @@ class SignInForm extends Component {
 
     const { history } = this.props;
 
-    auth
+    this.props.firebase
       .doSignInWithEmailAndPassword(email, password)
       .then(() => {
-        this.setState(() => ({ ...INITIAL_STATE }));
+        this.setState({ ...INITIAL_STATE });
         history.push(ROUTES.HOME);
       })
       .catch(error => {
@@ -81,6 +82,11 @@ class SignInForm extends Component {
   }
 }
 
-export default withRouter(SignInPage);
+const SignInForm = compose(
+  withRouter,
+  withFirebase,
+)(SignInFormBase);
+
+export default SignInPage;
 
 export { SignInForm };

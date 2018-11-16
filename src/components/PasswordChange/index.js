@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { auth } from '../../firebase';
+import { withFirebase } from '../Firebase';
 
 const INITIAL_STATE = {
   passwordOne: '',
@@ -18,7 +18,7 @@ class PasswordChangeForm extends Component {
   onSubmit = event => {
     const { passwordOne } = this.state;
 
-    auth
+    this.props.firebase
       .doPasswordUpdate(passwordOne)
       .then(() => {
         this.setState({ ...INITIAL_STATE });
@@ -66,4 +66,4 @@ class PasswordChangeForm extends Component {
   }
 }
 
-export default PasswordChangeForm;
+export default withFirebase(PasswordChangeForm);

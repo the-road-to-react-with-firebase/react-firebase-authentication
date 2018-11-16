@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
+import { compose } from 'recompose';
 
-import { auth, db } from '../../firebase';
+import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
 import * as ROLES from '../../constants/roles';
 
-const SignUpPage = ({ history }) => (
+const SignUpPage = () => (
   <div>
     <h1>SignUp</h1>
-    <SignUpForm history={history} />
+    <SignUpForm />
   </div>
 );
 
@@ -21,7 +22,7 @@ const INITIAL_STATE = {
   error: null,
 };
 
-class SignUpForm extends Component {
+class SignUpFormBase extends Component {
   constructor(props) {
     super(props);
 
@@ -38,18 +39,19 @@ class SignUpForm extends Component {
 
     const { history } = this.props;
 
-    auth
+    this.props.firebase
       .doCreateUserWithEmailAndPassword(email, passwordOne)
       .then(authUser => {
         // Create a user in your own accessible Firebase Database too
-        db.user(authUser.user.id)
+        this.props.firebase
+          .user(authUser.user.uid)
           .set({
             username,
             email,
             roles,
           })
           .then(() => {
-            this.setState(() => ({ ...INITIAL_STATE }));
+            this.setState({ ...INITIAL_STATE });
             history.push(ROUTES.HOME);
           })
           .catch(error => {
@@ -141,6 +143,11 @@ const SignUpLink = () => (
   </p>
 );
 
-export default withRouter(SignUpPage);
+const SignUpForm = compose(
+  withRouter,
+  withFirebase,
+)(SignUpFormBase);
+
+export default SignUpPage;
 
 export { SignUpForm, SignUpLink };

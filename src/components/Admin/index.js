@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import { compose } from 'recompose';
 
-import { db } from '../../firebase';
+import { withFirebase } from '../Firebase';
 import * as ROLES from '../../constants/roles';
 import withAuthorization from '../Session/withAuthorization';
 
@@ -18,13 +19,14 @@ class AdminPage extends Component {
   componentDidMount() {
     this.setState({ loading: true });
 
-    db.users()
+    this.props.firebase
+      .users()
       .once('value')
       .then(snapshot => {
         const usersObject = snapshot.val();
         const users = Object.keys(usersObject).map(key => ({
           ...usersObject[key],
-          id: key,
+          uid: key,
         }));
 
         this.setState(state => ({
@@ -36,15 +38,15 @@ class AdminPage extends Component {
         this.setState({ error: true, loading: false });
       });
 
-    db.users().on('child_removed', snapshot => {
+    this.props.firebase.users().on('child_removed', snapshot => {
       this.setState(state => ({
-        users: state.users.filter(user => user.id !== snapshot.key),
+        users: state.users.filter(user => user.uid !== snapshot.key),
       }));
     });
   }
 
   onRemove = userId => {
-    db.user(userId).remove();
+    this.props.firebase.user(userId).remove();
   };
 
   render() {
@@ -69,9 +71,9 @@ class AdminPage extends Component {
 const UserList = ({ users, onRemove }) => (
   <ul>
     {users.map(user => (
-      <li key={user.id}>
+      <li key={user.uid}>
         <span>
-          <strong>ID:</strong> {user.id}
+          <strong>ID:</strong> {user.uid}
         </span>
         <span>
           <strong>E-Mail:</strong> {user.email}
@@ -83,7 +85,7 @@ const UserList = ({ users, onRemove }) => (
           <strong>Roles:</strong> {(user.roles || []).join('')}
         </span>
         <span>
-          <button type="button" onClick={() => onRemove(user.id)}>
+          <button type="button" onClick={() => onRemove(user.uid)}>
             Remove
           </button>
         </span>
@@ -95,4 +97,7 @@ const UserList = ({ users, onRemove }) => (
 const authCondition = authUser =>
   authUser && authUser.roles.includes(ROLES.ADMIN);
 
-export default withAuthorization(authCondition)(AdminPage);
+export default compose(
+  withAuthorization(authCondition),
+  withFirebase,
+)(AdminPage);

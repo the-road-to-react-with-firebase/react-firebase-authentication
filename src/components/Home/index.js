@@ -1,15 +1,17 @@
 import React, { Component } from 'react';
+import { compose } from 'recompose';
 
 import AuthUserContext from '../Session/AuthUserContext';
 import withAuthorization from '../Session/withAuthorization';
-import { db } from '../../firebase';
+import { withFirebase } from '../Firebase';
 
 class HomePage extends Component {
   constructor() {
     super();
 
     this.state = {
-      loading: false,
+      userLoading: false,
+      messageLoading: false,
       error: false,
       text: '',
       messages: [],
@@ -18,27 +20,48 @@ class HomePage extends Component {
   }
 
   componentDidMount() {
-    this.setState({ loading: true });
+    this.setState({ userLoading: true, messageLoading: true });
 
-    db.users()
+    this.props.firebase
+      .users()
       .once('value')
       .then(snapshot => {
         this.setState(state => ({
           users: snapshot.val(),
-          loading: false,
+          userLoading: false,
         }));
       })
       .catch(error => {
-        this.setState({ error: true, loading: false });
+        this.setState({ error: true, userLoading: false });
       });
 
-    db.messages()
+    this.props.firebase
+      .messages()
       .orderByKey()
       .limitToLast(100)
-      .on('child_added', snapshot => {
+      .once('value')
+      .then(snapshot => {
         this.setState(state => ({
-          messages: [snapshot.val(), ...state.messages],
+          messages: Object.values(snapshot.val()),
+          messageLoading: false,
         }));
+
+        // Listen for updates
+        this.props.firebase
+          .messages()
+          .orderByKey()
+          .limitToLast(100)
+          .on('child_added', snapshot => {
+            this.setState(state => ({
+              messages: [snapshot.val(), ...state.messages],
+            }));
+          });
+      })
+      .catch(error => {
+        this.setState({
+          error: true,
+          messageLoading: false,
+        });
       });
   }
 
@@ -49,9 +72,9 @@ class HomePage extends Component {
   onSubmit = (event, authUser) => {
     const { text } = this.state;
 
-    db.messages().push({
+    this.props.firebase.messages().push({
       text,
-      userId: authUser.id,
+      userId: authUser.uid,
     });
 
     this.setState({ text: '' });
@@ -60,7 +83,16 @@ class HomePage extends Component {
   };
 
   render() {
-    const { messages, users, text, loading, error } = this.state;
+    const {
+      messages,
+      users,
+      text,
+      userLoading,
+      messageLoading,
+      error,
+    } = this.state;
+
+    const loading = userLoading || messageLoading;
 
     return (
       <AuthUserContext.Consumer>
@@ -74,7 +106,9 @@ class HomePage extends Component {
             {loading && <div>Loading ...</div>}
             {error && <div>Something went wrong ...</div>}
 
-            <MessageList messages={messages} users={users} />
+            {!loading && (
+              <MessageList messages={messages} users={users} />
+            )}
 
             <form onSubmit={event => this.onSubmit(event, authUser)}>
               <input
@@ -113,4 +147,7 @@ const MessageItem = ({ message, user }) => (
 
 const authCondition = authUser => !!authUser;
 
-export default withAuthorization(authCondition)(HomePage);
+export default compose(
+  withAuthorization(authCondition),
+  withFirebase,
+)(HomePage);
