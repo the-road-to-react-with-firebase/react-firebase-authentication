@@ -8,6 +8,7 @@ import SignInPage from '../SignIn';
 import PasswordForgetPage from '../PasswordForget';
 import HomePage from '../Home';
 import AccountPage from '../Account';
+import AdminPage from '../Admin';
 import withAuthentication from '../Session/withAuthentication';
 import * as ROUTES from '../../constants/routes';
 
@@ -28,6 +29,7 @@ const App = () => (
       />
       <Route exact path={ROUTES.HOME} component={HomePage} />
       <Route exact path={ROUTES.ACCOUNT} component={AccountPage} />
+      <Route exact path={ROUTES.ADMIN} component={AdminPage} />
       <hr />
       <span>
         Found in{' '}
