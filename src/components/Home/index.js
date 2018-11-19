@@ -22,46 +22,22 @@ class HomePage extends Component {
   componentDidMount() {
     this.setState({ userLoading: true, messageLoading: true });
 
-    this.props.firebase
-      .users()
-      .once('value')
-      .then(snapshot => {
-        this.setState(state => ({
-          users: snapshot.val(),
-          userLoading: false,
-        }));
-      })
-      .catch(error => {
-        this.setState({ error: true, userLoading: false });
-      });
+    this.props.firebase.users().on('value', snapshot => {
+      this.setState(state => ({
+        users: snapshot.val(),
+        userLoading: false,
+      }));
+    });
 
     this.props.firebase
       .messages()
       .orderByKey()
       .limitToLast(100)
-      .once('value')
-      .then(snapshot => {
+      .on('child_added', snapshot => {
         this.setState(state => ({
-          messages: Object.values(snapshot.val()),
+          messages: [snapshot.val(), ...state.messages],
           messageLoading: false,
         }));
-
-        // Listen for updates
-        this.props.firebase
-          .messages()
-          .orderByKey()
-          .limitToLast(100)
-          .on('child_added', snapshot => {
-            this.setState(state => ({
-              messages: [snapshot.val(), ...state.messages],
-            }));
-          });
-      })
-      .catch(error => {
-        this.setState({
-          error: true,
-          messageLoading: false,
-        });
       });
   }
 

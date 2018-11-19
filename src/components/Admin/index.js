@@ -11,7 +11,6 @@ class AdminPage extends Component {
 
     this.state = {
       loading: false,
-      error: false,
       users: [],
     };
   }
@@ -19,28 +18,16 @@ class AdminPage extends Component {
   componentDidMount() {
     this.setState({ loading: true });
 
-    this.props.firebase
-      .users()
-      .once('value')
-      .then(snapshot => {
-        const usersObject = snapshot.val();
-        const users = Object.keys(usersObject).map(key => ({
-          ...usersObject[key],
-          uid: key,
-        }));
+    this.props.firebase.users().on('value', snapshot => {
+      const usersObject = snapshot.val();
+      const users = Object.keys(usersObject).map(key => ({
+        ...usersObject[key],
+        uid: key,
+      }));
 
-        this.setState(state => ({
-          users,
-          loading: false,
-        }));
-      })
-      .catch(error => {
-        this.setState({ error: true, loading: false });
-      });
-
-    this.props.firebase.users().on('child_removed', snapshot => {
       this.setState(state => ({
-        users: state.users.filter(user => user.uid !== snapshot.key),
+        users,
+        loading: false,
       }));
     });
   }
@@ -50,7 +37,7 @@ class AdminPage extends Component {
   };
 
   render() {
-    const { users, loading, error } = this.state;
+    const { users, loading } = this.state;
 
     return (
       <div>
@@ -60,7 +47,6 @@ class AdminPage extends Component {
         </p>
 
         {loading && <div>Loading ...</div>}
-        {error && <div>Something went wrong ...</div>}
 
         <UserList users={users} onRemove={this.onRemove} />
       </div>
