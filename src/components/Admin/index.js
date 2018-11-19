@@ -32,6 +32,10 @@ class AdminPage extends Component {
     });
   }
 
+  componentWillUnmount() {
+    this.props.firebase.users().off();
+  }
+
   onRemove = userId => {
     this.props.firebase.user(userId).remove();
   };

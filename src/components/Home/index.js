@@ -12,7 +12,6 @@ class HomePage extends Component {
     this.state = {
       userLoading: false,
       messageLoading: false,
-      error: false,
       text: '',
       messages: [],
       users: {},
@@ -41,6 +40,11 @@ class HomePage extends Component {
       });
   }
 
+  componentWillUnmount() {
+    this.props.firebase.users().off();
+    this.props.firebase.messages().off();
+  }
+
   onChange = event => {
     this.setState({ text: event.target.value });
   };
@@ -65,7 +69,6 @@ class HomePage extends Component {
       text,
       userLoading,
       messageLoading,
-      error,
     } = this.state;
 
     const loading = userLoading || messageLoading;
@@ -80,7 +83,6 @@ class HomePage extends Component {
             </p>
 
             {loading && <div>Loading ...</div>}
-            {error && <div>Something went wrong ...</div>}
 
             {!loading && (
               <MessageList messages={messages} users={users} />
