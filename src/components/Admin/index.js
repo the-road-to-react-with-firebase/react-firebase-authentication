@@ -84,10 +84,10 @@ const UserList = ({ users, onRemove }) => (
   </ul>
 );
 
-const authCondition = authUser =>
+const condition = authUser =>
   authUser && authUser.roles.includes(ROLES.ADMIN);
 
 export default compose(
-  withAuthorization(authCondition),
+  withAuthorization(condition),
   withFirebase,
 )(AdminPage);

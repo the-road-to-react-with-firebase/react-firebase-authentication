@@ -122,9 +122,9 @@ const MessageItem = ({ message, user }) => (
   </li>
 );
 
-const authCondition = authUser => !!authUser;
+const condition = authUser => !!authUser;
 
 export default compose(
-  withAuthorization(authCondition),
+  withAuthorization(condition),
   withFirebase,
 )(HomePage);
