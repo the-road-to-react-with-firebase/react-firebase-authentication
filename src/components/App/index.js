@@ -9,7 +9,7 @@ import PasswordForgetPage from '../PasswordForget';
 import HomePage from '../Home';
 import AccountPage from '../Account';
 import AdminPage from '../Admin';
-import withAuthentication from '../Session/withAuthentication';
+import { withAuthentication } from '../Session';
 import * as ROUTES from '../../constants/routes';
 
 import './index.css';
