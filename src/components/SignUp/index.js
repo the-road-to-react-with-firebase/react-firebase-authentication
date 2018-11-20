@@ -37,8 +37,6 @@ class SignUpFormBase extends Component {
       roles.push(ROLES.ADMIN);
     }
 
-    const { history } = this.props;
-
     this.props.firebase
       .doCreateUserWithEmailAndPassword(email, passwordOne)
       .then(authUser => {
@@ -52,7 +50,7 @@ class SignUpFormBase extends Component {
           })
           .then(() => {
             this.setState({ ...INITIAL_STATE });
-            history.push(ROUTES.HOME);
+            this.props.history.push(ROUTES.HOME);
           })
           .catch(error => {
             this.setState({ error });
