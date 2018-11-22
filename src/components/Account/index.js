@@ -18,6 +18,25 @@ const AccountPage = () => (
   </AuthUserContext.Consumer>
 );
 
+const SIGN_IN_METHODS = [
+  {
+    id: 'password',
+    provider: '',
+  },
+  {
+    id: 'google.com',
+    provider: 'googleProvider',
+  },
+  {
+    id: 'facebook.com',
+    provider: 'facebookProvider',
+  },
+  {
+    id: 'twitter.com',
+    provider: 'twitterProvider',
+  },
+];
+
 class LoginManagementBase extends Component {
   constructor(props) {
     super(props);
@@ -36,27 +55,21 @@ class LoginManagementBase extends Component {
     this.props.firebase.auth
       .fetchSignInMethodsForEmail(this.props.authUser.email)
       .then(activeSignInMethods =>
-        this.setState({ activeSignInMethods }),
-      );
+        this.setState({ activeSignInMethods, error: null }),
+      )
+      .catch(error => this.setState({ error }));
   };
 
-  onLinkWithGoogle = () => {
-    this.props.firebase
-      .doLinkWithGoogle()
+  onLink = provider => {
+    this.props.firebase.auth.currentUser
+      .linkWithPopup(this.props.firebase[provider])
       .then(this.fetchSignInMethods)
       .catch(error => this.setState({ error }));
   };
 
-  onLinkWithFacebook = () => {
-    this.props.firebase
-      .doLinkWithFacebook()
-      .then(this.fetchSignInMethods)
-      .catch(error => this.setState({ error }));
-  };
-
-  onLinkWithTwitter = () => {
-    this.props.firebase
-      .doLinkWithTwitter()
+  onUnlink = providerId => {
+    this.props.firebase.auth.currentUser
+      .unlink(providerId)
       .then(this.fetchSignInMethods)
       .catch(error => this.setState({ error }));
   };
@@ -67,21 +80,29 @@ class LoginManagementBase extends Component {
     return (
       <div>
         <div>
-          Active Sign In Methods:
+          Sign In Methods:
           <ul>
-            {activeSignInMethods.map(login => (
-              <li key={login}>{login}</li>
+            {SIGN_IN_METHODS.map(signInMethod => (
+              <li key={signInMethod.id}>
+                {activeSignInMethods.includes(signInMethod.id) ? (
+                  <button
+                    type="button"
+                    onClick={() => this.onUnlink(signInMethod.id)}
+                    disabled={activeSignInMethods.length <= 1}
+                  >
+                    Deactivate {signInMethod.id}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => this.onLink(signInMethod.provider)}
+                  >
+                    Link {signInMethod.id}
+                  </button>
+                )}
+              </li>
             ))}
           </ul>
-          <button type="button" onClick={this.onLinkWithGoogle}>
-            Link Google
-          </button>
-          <button type="button" onClick={this.onLinkWithFacebook}>
-            Link Facebook
-          </button>
-          <button type="button" onClick={this.onLinkWithTwitter}>
-            Link Twitter
-          </button>
           {error && error.message}
         </div>
       </div>
