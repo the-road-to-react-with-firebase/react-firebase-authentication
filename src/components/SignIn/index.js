@@ -13,6 +13,7 @@ const SignInPage = () => (
     <SignInForm />
     <SignInGoogle />
     <SignInFacebook />
+    <SignInTwitter />
     <PasswordForgetLink />
     <SignUpLink />
   </div>
@@ -176,6 +177,43 @@ class SignInFacebookBase extends Component {
   }
 }
 
+class SignInTwitterBase extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = { error: null };
+  }
+
+  onSubmit = event => {
+    this.props.firebase
+      .doSignInWithTwitter()
+      .then(socialAuthUser => {
+        // TODO change in Tutorial
+        // TODO change credentials in FIrebase
+        console.log(socialAuthUser);
+        // this.setState({ error: null });
+        // this.props.history.push(ROUTES.HOME);
+      })
+      .catch(error => {
+        this.setState({ error });
+      });
+
+    event.preventDefault();
+  };
+
+  render() {
+    const { error } = this.state;
+
+    return (
+      <form onSubmit={this.onSubmit}>
+        <button type="submit">Sign In with Twitter</button>
+
+        {error && <p>{error.message}</p>}
+      </form>
+    );
+  }
+}
+
 const SignInForm = compose(
   withRouter,
   withFirebase,
@@ -191,6 +229,11 @@ const SignInFacebook = compose(
   withFirebase,
 )(SignInFacebookBase);
 
+const SignInTwitter = compose(
+  withRouter,
+  withFirebase,
+)(SignInTwitterBase);
+
 export default SignInPage;
 
-export { SignInForm, SignInGoogle, SignInFacebook };
+export { SignInForm, SignInGoogle, SignInFacebook, SignInTwitter };
