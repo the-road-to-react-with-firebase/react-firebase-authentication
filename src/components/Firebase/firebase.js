@@ -52,6 +52,15 @@ class Firebase {
   doSignInWithTwitter = () =>
     this.auth.signInWithPopup(this.twitterProvider);
 
+  doLinkWithGoogle = () =>
+    this.auth.currentUser.linkWithPopup(this.googleProvider);
+
+  doLinkWithFacebook = () =>
+    this.auth.currentUser.linkWithPopup(this.facebookProvider);
+
+  doLinkWithTwitter = () =>
+    this.auth.currentUser.linkWithPopup(this.twitterProvider);
+
   doSignOut = () => this.auth.signOut();
 
   doPasswordReset = email => this.auth.sendPasswordResetEmail(email);
