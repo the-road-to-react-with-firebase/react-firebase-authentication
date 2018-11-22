@@ -188,11 +188,21 @@ class SignInTwitterBase extends Component {
     this.props.firebase
       .doSignInWithTwitter()
       .then(socialAuthUser => {
-        // TODO change in Tutorial
-        // TODO change credentials in FIrebase
-        console.log(socialAuthUser);
-        // this.setState({ error: null });
-        // this.props.history.push(ROUTES.HOME);
+        // Create a user in your Firebase Realtime Database too
+        this.props.firebase
+          .user(socialAuthUser.user.uid)
+          .set({
+            username: socialAuthUser.additionalUserInfo.profile.name,
+            email: socialAuthUser.additionalUserInfo.profile.email,
+            roles: [],
+          })
+          .then(() => {
+            this.setState({ error: null });
+            this.props.history.push(ROUTES.HOME);
+          })
+          .catch(error => {
+            this.setState({ error });
+          });
       })
       .catch(error => {
         this.setState({ error });
