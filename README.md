@@ -15,15 +15,19 @@
   * no Redux/MobX
     * [Redux Version](https://github.com/taming-the-state-in-react/react-redux-firebase-authentication)
     * [MobX Version](https://github.com/taming-the-state-in-react/react-mobx-firebase-authentication)
-  * [React's 16.3 context API](https://reactjs.org/blog/2018/03/29/react-v-16-3.html)
 * features:
   * Sign In
   * Sign Up
   * Sign Out
   * Password Forget
   * Password Change
+  * Verification Email
   * Protected Routes with Authorization
-  * Database: Users
+  * Roles-based Authorization
+  * Social Logins with Google, Facebook and Twitter
+  * Linking of Social Logins on Account dashboard
+  * Auth Persistence with Local Storage
+  * Database with Users and Messages
 
 ## Installation
 
