@@ -13,17 +13,14 @@ class HomePage extends Component {
     super(props);
 
     this.state = {
-      loading: false,
       users: null,
     };
   }
 
   componentDidMount() {
-    this.setState({ loading: true });
     this.props.firebase.users().on('value', snapshot => {
       this.setState({
         users: snapshot.val(),
-        loading: false,
       });
     });
   }
@@ -33,14 +30,12 @@ class HomePage extends Component {
   }
 
   render() {
-    const { users, loading } = this.state;
-
     return (
       <div>
         <h1>Home Page</h1>
         <p>The Home Page is accessible by every signed in user.</p>
 
-        <Messages users={users} usersLoading={loading} />
+        <Messages users={this.state.users} />
       </div>
     );
   }
@@ -128,7 +123,7 @@ class MessagesBase extends Component {
   };
 
   render() {
-    const { users, usersLoading } = this.props;
+    const { users } = this.props;
     const { text, messages, loading } = this.state;
 
     return (
@@ -141,13 +136,15 @@ class MessagesBase extends Component {
               </button>
             )}
 
-            {loading && usersLoading && <div>Loading ...</div>}
+            {loading && <div>Loading ...</div>}
 
-            {users && messages && (
+            {messages && (
               <MessageList
                 messages={messages.map(message => ({
                   ...message,
-                  user: users[message.userId],
+                  user: users
+                    ? users[message.userId]
+                    : { userId: message.userId },
                 }))}
                 onEditMessage={this.onEditMessage}
                 onRemoveMessage={this.onRemoveMessage}
@@ -233,8 +230,10 @@ class MessageItem extends Component {
           />
         ) : (
           <span>
-            <strong>{message.user.username}</strong> {message.text}{' '}
-            {message.editedAt && <span>(Edited)</span>}
+            <strong>
+              {message.user.username || message.user.userId}
+            </strong>{' '}
+            {message.text} {message.editedAt && <span>(Edited)</span>}
           </span>
         )}
 
