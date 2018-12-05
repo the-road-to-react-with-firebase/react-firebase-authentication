@@ -41,4 +41,8 @@
 
 * visit https://firebase.google.com and create a Firebase App
 * copy and paste your Credentials from your Firebase App into *src/components/Firebase/firebase.js* file or in .env file
-* activate Email/Password, Google, Facebook and Twitter Sign-In Methods for your Firebase App
+* [activate Sign-In Methods in your Firebase App](https://www.robinwieruch.de/react-firebase-social-login/)
+  * Email/Password
+  * Google
+  * Facebook
+  * Twitter
