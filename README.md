@@ -58,9 +58,9 @@ If you are creating an open source application under a license compatible with t
 * copy/paste your configuration from your Firebase project's dashboard into one of these files
   * *src/components/Firebase/firebase.js* file
   * *.env* file
-  * *.env.development*/*.env.production* files
+  * *.env.development* and *.env.production* files
 
-The *.env* or *.env.development*/*.env.production* files could look like the following then:
+The *.env* or *.env.development* and *.env.production* files could look like the following then:
 
 ```
 REACT_APP_API_KEY=AIzaSyBtxZ3phPeXcsZsRTySIXa7n33NtQ
@@ -86,9 +86,9 @@ REACT_APP_MESSAGING_SENDER_ID=701928454501
 * add a redirect URL for redirecting a user after an email verification into one of these files
   * *src/components/Firebase/firebase.js* file
   * *.env* file
-  * *.env.development*/*.env.production* files
+  * *.env.development* and *.env.production* files
 
-The *.env* or *.env.development*/*.env.production* files could look like the following then (excl. the Firebase configuration).
+The *.env* or *.env.development* and *.env.production* files could look like the following then (excl. the Firebase configuration).
 
 **Development:**
 
