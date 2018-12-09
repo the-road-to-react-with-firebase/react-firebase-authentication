@@ -52,9 +52,9 @@ If you are creating an open source application under a license compatible with t
 * `npm start`
 * visit http://localhost:3000
 
-### Firebase Configuration
-
 Get an overview of Firebase, how to create a project, what kind of features Firebase offers, and how to navigate through the Firebase project dashboard in this [visual tutorial for Firebase](https://www.robinwieruch.de/firebase-tutorial/).
+
+### Firebase Configuration
 
 * copy/paste your configuration from your Firebase project's dashboard into one of these files
   * *src/components/Firebase/firebase.js* file
