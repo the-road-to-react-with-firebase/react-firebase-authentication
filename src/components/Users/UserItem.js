@@ -4,10 +4,10 @@ import { withFirebase } from '../Firebase';
 
 const UserItem = (props) => {
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(props.location.state.user);
 
   useEffect(() => {
-    if(!user) return 
+    if(!user) return
 
     setLoading(true);
 
