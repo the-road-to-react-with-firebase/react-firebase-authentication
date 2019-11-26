@@ -10,8 +10,6 @@ const Messages = (props) => {
   const [limit, setLimit] = useState(5);
   const [text, setText] = useState('');
 
-  useEffect(() => onListenForMessages(), [limit]);
-
   const onListenForMessages = () => {
     setLoading(true);
     props.firebase
@@ -37,7 +35,7 @@ const Messages = (props) => {
   useEffect(() => {
     onListenForMessages();
     return () => props.firebase.messages().off();
-  }, [])
+  }, [limit])
 
   const onChangeText = event => {
     setText(event.target.value);
