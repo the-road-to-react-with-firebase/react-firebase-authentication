@@ -10,6 +10,8 @@ const Messages = (props) => {
   const [limit, setLimit] = useState(5);
   const [text, setText] = useState('');
 
+  useEffect(() => onListenForMessages(), limit);
+
   const onListenForMessages = () => {
     setLoading(true);
     props.firebase
@@ -66,7 +68,7 @@ const Messages = (props) => {
   };
 
   const onNextPage = () => {
-    setLimit(limit => limit + 5, onListenForMessages)
+    setLimit(limit => limit + 5)
   };
 
   return (
