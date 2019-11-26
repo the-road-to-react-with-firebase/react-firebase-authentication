@@ -10,7 +10,7 @@ const Messages = (props) => {
   const [limit, setLimit] = useState(5);
   const [text, setText] = useState('');
 
-  useEffect(() => onListenForMessages(), limit);
+  useEffect(() => onListenForMessages(), [limit]);
 
   const onListenForMessages = () => {
     setLoading(true);
