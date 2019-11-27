@@ -73,12 +73,12 @@ const SignUpFormBase = (props) => {
   };
 
   const onChange = (event) => {
-    const { name, value } = event;
+    const { name, value } = event.target;
     setUserInfo({...userInfo, [name]: value})
   };
 
   const onChangeCheckbox = (event) => {
-    const { name, checked } = event;
+    const { name, checked } = event.target;
     setUserInfo({...userInfo, [name]: checked})
   };
 
