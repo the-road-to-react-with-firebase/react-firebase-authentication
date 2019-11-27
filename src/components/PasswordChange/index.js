@@ -1,53 +1,65 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { withFirebase } from '../Firebase';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
 
 const INITIAL_STATE = {
-  password: '',
-  confirmPassword: '',
+  passwordOne: '',
+  passwordTwo: '',
 };
 
 const PasswordChangeForm = (props) => {
-  const onSubmit = (values, { setFieldError, setSubmitting }) => {
-    const { password} = values;
+  const [passwords, setPasswords] = useState(INITIAL_STATE);
+  const [error, setError] = useState(null);
+
+  const onSubmit = (event) => {
+    const { passwordOne } = passwords;
 
     props.firebase
-      .doPasswordUpdate(password)
+      .doPasswordUpdate(passwordOne)
       .then(() => {
+        setPasswords(INITIAL_STATE);
+        setError(null);
       })
       .catch(error => {
-        setFieldError('general', error.message);
+        setError(error)
       });
+
+    event.preventDefault();
   };
 
-  const validate = (values) => {
-    const errors = {};
-    if(values.password !== values.confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
-    }
-    return errors;
-  }
+  const onChange = (event) => {
+    const { name, value } = event.target;
+    setPasswords({...passwords, [name]: value });
+  };
+
+  const { passwordOne, passwordTwo } = passwords;
+
+  const isInvalid =
+    passwordOne !== passwordTwo || passwordOne === '';
 
   return (
-    <Formik
-      initialValues={INITIAL_STATE}
-      validate={validate}
-      onSubmit={onSubmit}
-    >
-    {({ isSubmitting, errors }) => (
-      <Form>
-        <Field type="password" name="password" placeholder="New Password" />
-        <ErrorMessage name="password" component="div" />
-        <Field type="password" name="confirmPassword" placeholder="Confirm New Password"/>
-        <ErrorMessage name="confirmPassword" component="div" />
-        <button disabled={isSubmitting} type="submit">
-          Reset My Password
-        </button>
-          <span style={{ color: 'red' }}>{errors.general}</span>
-        </Form>
-      )}
-    </Formik>
+    <form onSubmit={onSubmit}>
+      <input
+        name="passwordOne"
+        value={passwordOne}
+        onChange={onChange}
+        type="password"
+        placeholder="New Password"
+      />
+      <input
+        name="passwordTwo"
+        value={passwordTwo}
+        onChange={onChange}
+        type="password"
+        placeholder="Confirm New Password"
+      />
+      <button disabled={isInvalid} type="submit">
+        Reset My Password
+      </button>
+
+      {error && <p>{error.message}</p>}
+    </form>
   );
 }
+
 export default withFirebase(PasswordChangeForm);

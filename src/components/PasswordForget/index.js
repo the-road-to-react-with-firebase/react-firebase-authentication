@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
 
 import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
@@ -12,52 +11,49 @@ const PasswordForgetPage = () => (
   </div>
 );
 
-const INITIAL_STATE = {
-  email: '',
-};
-
 const PasswordForgetFormBase = (props) => {
-  const onSubmit = (values, { setFieldError, setSubmitting }) => {
-    const {email} = values;
+
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState(null);
+
+  const onSubmit = (event) => {
 
     props.firebase
       .doPasswordReset(email)
       .then(() => {
+        setEmail(email);
+        setError(null)
       })
       .catch(error => {
-        setFieldError('general', error.message);
+        setError(error)
       });
-  }
 
-  const validate = (values) => {
-    const errors = {};
-    if (!values.email) {
-      errors.email = 'Required';
-    } else if (
-      !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
-    ) {
-      errors.email = 'Invalid email address';
-    }
-    return errors;
-  }
+    event.preventDefault();
+  };
+
+  const onChange = (event) => {
+    const { value } = event;
+    setEmail(value);
+  };
+
+
+  const isInvalid = email === '';
 
   return (
-    <Formik
-      initialValues={INITIAL_STATE}
-      validate={validate}
-      onSubmit={onSubmit}
-    >
-    {({ isSubmitting, errors }) => (
-      <Form>
-        <Field type="email" name="email" placeholder="Email Address"/>
-        <ErrorMessage name="email" component="div" />
-        <button disabled={isSubmitting} type="submit">
-          Reset My Password
-        </button>
-          <span style={{ color: 'red' }}>{errors.general}</span>
-        </Form>
-      )}
-    </Formik>
+    <form onSubmit={onSubmit}>
+      <input
+        name="email"
+        value={email}
+        onChange={onChange}
+        type="text"
+        placeholder="Email Address"
+      />
+      <button disabled={isInvalid} type="submit">
+        Reset My Password
+      </button>
+
+      {error && <p>{error.message}</p>}
+    </form>
   );
 }
 

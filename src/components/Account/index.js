@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { compose } from 'recompose';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
 
 import {
   AuthUserContext,
@@ -135,18 +134,20 @@ const INITIAL_STATE = {
 };
 
 const DefaultLoginToggle = (props) => {
-  const onSubmit = (values, { setFieldError, setSubmitting }) => {
-    const {passwordOne} = values;
+  const [passwords, setPasswords] = useState(INITIAL_STATE);
+
+  const onSubmit = (event) => {
+    event.preventDefault();
+
+    const { passwordOne } = passwords;
     props.onLink(passwordOne);
+      setPasswords(INITIAL_STATE);
   };
 
-  const validate = (values) => {
-    const errors = {};
-    if(values.password !== values.confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
-    }
-    return errors;
-  }
+  const onChange = (event) => {
+    const { name, value } = event;
+    setPasswords({...passwords, [name]: value });
+  };
 
   const {
     onlyOneLeft,
@@ -154,6 +155,11 @@ const DefaultLoginToggle = (props) => {
     signInMethod,
     onUnlink,
   } = props;
+
+  const { passwordOne, passwordTwo } = passwords;
+
+  const isInvalid =
+    passwordOne !== passwordTwo || passwordOne === '';
 
   return isEnabled ? (
     <button
@@ -164,24 +170,26 @@ const DefaultLoginToggle = (props) => {
       Deactivate {signInMethod.id}
     </button>
   ) : (
-    <Formik
-      initialValues={INITIAL_STATE}
-      validate={validate}
-      onSubmit={onSubmit}
-    >
-    {({ isSubmitting, errors }) => (
-      <Form>
-        <Field type="password" name="password" placeholder="New Password" />
-        <ErrorMessage name="password" component="div" />
-        <Field type="password" name="confirmPassword" placeholder="Confirm New Password"/>
-        <ErrorMessage name="confirmPassword" component="div" />
-        <button disabled={isSubmitting} type="submit">
-          Link {signInMethod.id}
-        </button>
-          <span style={{ color: 'red' }}>{errors.general}</span>
-        </Form>
-      )}
-    </Formik>
+    <form onSubmit={onSubmit}>
+      <input
+        name="passwordOne"
+        value={passwordOne}
+        onChange={onChange}
+        type="password"
+        placeholder="New Password"
+      />
+      <input
+        name="passwordTwo"
+        value={passwordTwo}
+        onChange={onChange}
+        type="password"
+        placeholder="Confirm New Password"
+      />
+
+      <button disabled={isInvalid} type="submit">
+        Link {signInMethod.id}
+      </button>
+    </form>
   );
 }
 

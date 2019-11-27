@@ -6,7 +6,6 @@ import { SignUpLink } from '../SignUp';
 import { PasswordForgetLink } from '../PasswordForget';
 import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
 
 const SignInPage = () => (
   <div>
@@ -35,56 +34,52 @@ const ERROR_MSG_ACCOUNT_EXISTS = `
   your personal account page.
 `;
 
+
 const SignInFormBase = (props) => {
+  const [userInfo, setUserInfo] = useState(INITIAL_STATE);
+  const [error, setError] = useState(null);
 
-  const validate = (values) => {
-    const errors = {};
-    if (!values.email) {
-      errors.email = 'Required';
-    } else if (
-      !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
-    ) {
-      errors.email = 'Invalid email address';
-    }
-    return errors;
-  }
-
-  const onSubmit = (values, { setFieldError, setSubmitting }) => {
-    const {email, password} = values;
-    props.firebase.auth
-      .signInWithEmailAndPassword(email, password)
+  const onSubmit = event => {
+    const { email, password } = userInfo;
+    props.firebase
+      .doSignInWithEmailAndPassword(email, password)
       .then(() => {
+        setUserInfo(INITIAL_STATE)
         props.history.push(ROUTES.HOME);
       })
       .catch(error => {
-        if (error.code === ERROR_CODE_ACCOUNT_EXISTS) {
-          setFieldError('general', ERROR_MSG_ACCOUNT_EXISTS);
-        } else {
-          setFieldError('general', error.message);
-        }
+        setError(error)
       });
-  }
+    event.preventDefault();
+  };
 
+  const onChange = event => {
+    const {name, value} = event.target;
+    setUserInfo((userInfo) => ({...userInfo, [name]: value}))
+  };
+
+  const isInvalid = userInfo.password === '' || userInfo.email === '';
   return (
-    <Formik
-      initialValues={INITIAL_STATE}
-      validate={validate}
-      onSubmit={onSubmit}
-    >
-      {({ isSubmitting, errors }) => (
-        <Form>
-          <Field type="email" name="email" />
-          <ErrorMessage name="email" component="div" />
-          <Field type="password" name="password" />
-          <ErrorMessage name="password" component="div" />
-          <button type="submit" disabled={isSubmitting}>
-            Sign In
-          </button>
-          <br />
-          <span style={{ color: 'red' }}>{errors.general}</span>
-        </Form>
-      )}
-    </Formik>
+    <form onSubmit={onSubmit}>
+      <input
+        name="email"
+        value={userInfo.email}
+        onChange={onChange}
+        type="text"
+        placeholder="Email Address"
+      />
+      <input
+        name="password"
+        value={userInfo.password}
+        onChange={onChange}
+        type="password"
+        placeholder="Password"
+      />
+      <button disabled={isInvalid} type="submit">
+        Sign In
+      </button>
+      {error && <p>{error.message}</p>}
+    </form>
   );
 }
 

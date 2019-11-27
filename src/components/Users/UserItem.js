@@ -17,7 +17,7 @@ const UserItem = (props) => {
         setUser(snapshot.val());
         setLoading(false)
       });
-    return () => props.firebase.user(this.props.match.params.id).off();
+    return () => props.firebase.user(props.match.params.id).off();
   }, [])
 
   const onSendPasswordResetEmail = () => {
