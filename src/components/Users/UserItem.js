@@ -13,8 +13,8 @@ const UserItem = (props) => {
 
     props.firebase
       .user(props.match.params.id)
-      .on('value', snapshot => {
-        setUser(snapshot.val());
+      .onSnapshot(documentSnapshot => {
+        setUser(documentSnapshot.data());
         setLoading(false)
       });
     return () => props.firebase.user(props.match.params.id).off();

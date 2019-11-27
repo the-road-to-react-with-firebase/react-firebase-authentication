@@ -10,18 +10,22 @@ const Messages = (props) => {
   const [limit, setLimit] = useState(5);
   const [text, setText] = useState('');
 
+  useEffect(() => {
+    const unsubscribe = onListenForMessages();
+    return () => unsubscribe();
+  }, [limit])
+
   const onListenForMessages = () => {
     setLoading(true);
-    props.firebase
+    const unsubscribe = props.firebase
       .messages()
-      .orderByChild('createdAt')
-      .limitToLast(limit)
-      .on('value', snapshot => {
-        const messageObject = snapshot.val();
-        if (messageObject) {
-          const messageList = Object.keys(messageObject).map(key => ({
-            ...messageObject[key],
-            uid: key,
+      .orderBy('createdAt', 'desc')
+      .limit(limit)
+      .onSnapshot(querySnapshot => {
+        if (!querySnapshot.empty) {
+          const messageList = querySnapshot.docs.map(doc => ({
+            ...doc.data(),
+            uid: doc.id
           }));
           setMessages(messageList);
           setLoading(false);
@@ -30,22 +34,18 @@ const Messages = (props) => {
           setLoading(false);
         }
       });
+    return unsubscribe;
   };
-
-  useEffect(() => {
-    onListenForMessages();
-    return () => props.firebase.messages().off();
-  }, [limit])
 
   const onChangeText = event => {
     setText(event.target.value);
   };
 
   const onCreateMessage = (event, authUser) => {
-    props.firebase.messages().push({
+    props.firebase.messages().add({
       text,
       userId: authUser.uid,
-      createdAt: props.firebase.serverValue.TIMESTAMP,
+      createdAt: props.firebase.serverValue.serverTimestamp(),
     });
     setText('')
     event.preventDefault();
@@ -57,12 +57,12 @@ const Messages = (props) => {
     props.firebase.message(message.uid).set({
       ...messageSnapshot,
       text,
-      editedAt: props.firebase.serverValue.TIMESTAMP,
+      editedAt: props.firebase.serverValue.serverTimestamp(),
     });
   };
 
   const onRemoveMessage = uid => {
-    props.firebase.message(uid).remove();
+    props.firebase.message(uid).delete();
   };
 
   const onNextPage = () => {

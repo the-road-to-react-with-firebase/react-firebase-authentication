@@ -10,17 +10,17 @@ const UserList = (props) => {
 
   useEffect(() => {
     setLoading(true);
-    props.firebase.users().on('value', snapshot => {
-      const usersObject = snapshot.val();
-
-      const usersList = Object.keys(usersObject).map(key => ({
-        ...usersObject[key],
-        uid: key,
-      }));
-      setUsers(usersList);
-      setLoading(false)
-    });
-    return () => props.firebase.users().off();
+    const unsubscribe = props.firebase
+      .users()
+      .onSnapshot(querySnapshot => {
+        const usersList = querySnapshot.docs.map(doc => ({
+          ...doc.data(),
+          uid: doc.id
+        }));
+        setUsers(usersList);
+        setLoading(false)
+      });
+    return () => unsubscribe();
   }, [])
 
   return (
