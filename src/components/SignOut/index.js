@@ -1,11 +1,17 @@
 import React from 'react';
 
+
 import { withFirebase } from '../Firebase';
 
 const SignOutButton = ({ firebase }) => (
-  <button type="button" onClick={firebase.doSignOut}>
+  <div
+    position="right"
+    onClick={firebase.doSignOut}
+    name="admin"
+    // active={activeItem === 'editorials'}
+  >
     Sign Out
-  </button>
+  </div>
 );
 
 export default withFirebase(SignOutButton);

@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 import Navigation from '../Navigation';
 import LandingPage from '../Landing';
+import NewActivityPage from '../NewActivity';
+import MyActivityPage from '../MyActivity';
 import SignUpPage from '../SignUp';
 import SignInPage from '../SignIn';
 import PasswordForgetPage from '../PasswordForget';
@@ -17,9 +19,6 @@ const App = () => (
   <Router>
     <div>
       <Navigation />
-
-      <hr />
-
       <Route exact path={ROUTES.LANDING} component={LandingPage} />
       <Route path={ROUTES.SIGN_UP} component={SignUpPage} />
       <Route path={ROUTES.SIGN_IN} component={SignInPage} />
@@ -28,6 +27,8 @@ const App = () => (
         component={PasswordForgetPage}
       />
       <Route path={ROUTES.HOME} component={HomePage} />
+      <Route path={ROUTES.NEW_ACTIVITY} component={NewActivityPage} />
+      <Route path={ROUTES.MY_ACTIVITY} component={MyActivityPage} />
       <Route path={ROUTES.ACCOUNT} component={AccountPage} />
       <Route path={ROUTES.ADMIN} component={AdminPage} />
     </div>

@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import { Link as Link2, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
+import Link from '@material-ui/core/Link';
+import Grid from '@material-ui/core/Grid';
 
 import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';
@@ -149,9 +151,11 @@ class SignUpFormBase extends Component {
 }
 
 const SignUpLink = () => (
-  <p>
-    Don't have an account? <Link to={ROUTES.SIGN_UP}>Sign Up</Link>
-  </p>
+  <Link href="#" variant="body2">
+    <Link2 style={{ 'text-decoration': 'none' }} to={ROUTES.SIGN_UP}>
+      Don't have an account? Sign Up
+    </Link2>
+  </Link>
 );
 
 const SignUpForm = compose(
