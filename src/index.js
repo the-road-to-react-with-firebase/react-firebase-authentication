@@ -3,13 +3,16 @@ import ReactDOM from 'react-dom';
 
 import './index.css';
 import * as serviceWorker from './serviceWorker';
-
+// import DateFnsAdapter from '@material-ui/lab/AdapterDateFns';
+// import LocalizationProvider from '@material-ui/lab/LocalizationProvider';
 import App from './components/App';
 import Firebase, { FirebaseContext } from './components/Firebase';
 
 ReactDOM.render(
   <FirebaseContext.Provider value={new Firebase()}>
-    <App />
+    {/* <LocalizationProvider dateAdapter={DateFnsAdapter}> */}
+      <App />
+    {/* </LocalizationProvider> */}
   </FirebaseContext.Provider>,
   document.getElementById('root'),
 );
