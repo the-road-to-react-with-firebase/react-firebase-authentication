@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link as Link2, withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 import Link from '@material-ui/core/Link';
-import Grid from '@material-ui/core/Grid';
+// import Grid from '@material-ui/core/Grid';
 
 import { withFirebase } from '../Firebase';
 import * as ROUTES from '../../constants/routes';

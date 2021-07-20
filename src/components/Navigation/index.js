@@ -7,23 +7,23 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import Switch from '@material-ui/core/Switch';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import Drawer from '@material-ui/core/Drawer';
 import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
-import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import { Link as Link2 } from 'react-router-dom';
 import * as ROUTES from '../../constants/routes';
 import * as ROLES from '../../constants/roles';
 import SignOutButton from '../SignOut';
 import { AuthUserContext } from '../Session';
+// import Switch from '@material-ui/core/Switch';
+// import FormControlLabel from '@material-ui/core/FormControlLabel';
+// import Divider from '@material-ui/core/Divider';
+// import ListItemIcon from '@material-ui/core/ListItemIcon';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -174,7 +174,7 @@ const TemporaryDrawer = () => {
   );
 };
 
-const Navigation = ({ authUser }) => {
+const Navigation = () => {
   const classes = useStyles();
   const [profileMenu, setProfileMenu] = React.useState(null);
   const open = Boolean(profileMenu);
@@ -233,7 +233,7 @@ const Navigation = ({ authUser }) => {
                   </IconButton>
                   <Menu
                     id="menu-appbar"
-                    profileMenu={profileMenu}
+                    profilemenu={profileMenu}
                     anchorOrigin={{
                       vertical: 'top',
                       horizontal: 'right',
@@ -247,7 +247,7 @@ const Navigation = ({ authUser }) => {
                     onClose={handleClose}
                   >
                     <MenuItem onClick={handleClose}>
-                      My account
+                      My Account
                     </MenuItem>
                     <MenuItem>
                       <SignOutButton />
