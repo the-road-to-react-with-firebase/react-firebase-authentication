@@ -107,8 +107,12 @@ class Firebase {
   // *** Activity API ***
 
   activity = uid => this.db.ref(`activities/${uid}`);
-
+  
   activities = () => this.db.ref('activities');
+
+  activitiesFilter = () => this.db.ref('activities?orderBy="member"&equalTo=500');
+
+  
 }
 
 export default Firebase;

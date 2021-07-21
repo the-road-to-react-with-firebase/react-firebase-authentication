@@ -47,6 +47,8 @@ class SignUpFormBase extends Component {
 
     if (isAdmin) {
       roles[ROLES.ADMIN] = ROLES.ADMIN;
+    } else {
+      roles[ROLES.STANDARD] = ROLES.STANDARD
     }
 
     this.props.firebase
