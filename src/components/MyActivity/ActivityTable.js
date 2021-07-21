@@ -49,7 +49,6 @@ const ActivityTable = ({ activities, firebase }) => {
   };
 
   const handleSelected = () => {
-    console.log(selectedItem.uid);
     firebase.activity(selectedItem.uid).remove();
   };
 
