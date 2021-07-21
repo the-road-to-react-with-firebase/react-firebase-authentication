@@ -1,15 +1,27 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import { DataGrid } from '@material-ui/data-grid';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
+
+import { withFirebase } from '../Firebase';
 
 const columns = [
-  { field: 'activityType', headerName: 'Activity Type', width: 70 },
-  { field: 'amount', headerName: 'Amount', width: 130 },
-  { field: 'note', headerName: 'Notes', width: 130 },
+  {
+    field: 'activityType',
+    description: 'This is the type of activity tracked',
+    headerName: 'Activity Type',
+    width: 160,
+  },
+  { field: 'amount', headerName: 'Amount', width: 140 },
+  { field: 'note', headerName: 'Notes', width: 150 },
   {
     field: 'date',
     headerName: 'Date',
     type: 'date',
-    width: 90,
+    width: 120,
   },
   // {
   //   field: 'fullName',
@@ -25,29 +37,63 @@ const columns = [
   // },
 ];
 
-// const rows = [
-//   { id: 1, lastName: 'Snow', firstName: 'Jon', age: 35 },
-//   { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 42 },
-//   { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 45 },
-//   { id: 4, lastName: 'Stark', firstName: 'Arya', age: 16 },
-//   { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
-//   { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
-//   { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
-//   { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
-//   { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
-// ];
+const dateRanges = [7, 30, 60, 90, 180, 365]
 
-const ActivityTable = ({activities}) => {
+const ActivityTable = ({ activities, firebase }) => {
+  console.log(activities, 'table');
+  const [selectedItem, setSelectedItem] = useState({});
+  const [dateRange, setDateRange] = useState(30);
+
+  const handleChangeDate = event => {
+    setDateRange(event.target.value);
+  };
+
+  const handleSelected = () => {
+    console.log(selectedItem.uid);
+    firebase.activity(selectedItem.uid).remove();
+  };
+
   return (
-    <div style={{ height: 400, width: '100%' }}>
-      {/* <DataGrid
+    <div style={{ height: 350, width: '100%', marginBottom: '5em' }}>
+      <InputLabel>
+        Date Range
+      </InputLabel>Last{'   '}
+      <Select
+        value={dateRange}
+        onChange={handleChangeDate}
+      >
+        {dateRanges.map((value, index) => (
+          <MenuItem key={index} value={value}>
+            {value}
+          </MenuItem>
+        ))}
+      </Select>{'   '}Days
+      <DataGrid
+        // style={{ marginBottom: '1em' }}
+        onRowSelected={(e) => setSelectedItem(e.data)}
         rows={activities}
         columns={columns}
         pageSize={5}
-        checkboxSelection
-      /> */}
+        getRowId={(row) => row.uid}
+      />
+
+      <Button
+        // style={{ marginTop: '1em' }}
+        variant="contained"
+        onClick={handleSelected}
+        color="secondary"
+      >
+        Delete Selected
+      </Button>
+      <Button
+        variant="contained"
+        // onClick={handleSelected}
+        color="primary"
+      >
+        View Details
+      </Button>
     </div>
   );
 };
 
-export default ActivityTable;
+export default withFirebase(ActivityTable);

@@ -18,7 +18,7 @@ const MyActivity = ({ firebase }) => {
   const classes = useStyles();
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [limit, setLimit] = useState(5);
+  const [limit, setLimit] = useState(25);
 
   const onListenForActivity = () => {
     setLoading(true);
@@ -49,7 +49,7 @@ const MyActivity = ({ firebase }) => {
 
   useEffect(() => {
     onListenForActivity();
-    console.log('hey');
+    // console.log('hey');
   }, []);
 
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
@@ -58,20 +58,19 @@ const MyActivity = ({ firebase }) => {
     <AuthUserContext.Consumer>
       {authUser => (
         <div className={classes.root}>
-          {console.log(activities)}
           <CssBaseline />
           <main className={classes.content}>
-            <div className={classes.appBarSpacer} />
+            {/* <div className={classes.appBarSpacer} /> */}
             <Container maxWidth="lg" className={classes.container}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={8} lg={12}>
-                  <Paper className={fixedHeightPaper}>
-                    <Chart activities={activities}/>
-                  </Paper>
+              <Grid container spacing={5}>
+                <Grid item xs={12} md={12} lg={12}>
+                  {/* <Paper className={fixedHeightPaper}> */}
+                  <ActivityTable activities={activities} />
+                  {/* </Paper> */}
                 </Grid>
-                <Grid item xs={12} md={8} lg={12}>
+                <Grid item xs={12} md={12} lg={12}>
                   <Paper className={fixedHeightPaper}>
-                    {/* <Chart activities={activities}/> */}
+                    <Chart activities={activities} />
                   </Paper>
                 </Grid>
 
@@ -100,9 +99,9 @@ const MyActivity = ({ firebase }) => {
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
+      {'Copyright © Designed and Created by '}
+      <Link color="inherit" href="https://netwrk.biz">
+        netwrk.biz
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}

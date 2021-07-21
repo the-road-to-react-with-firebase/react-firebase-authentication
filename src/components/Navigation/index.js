@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -43,7 +43,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const TemporaryDrawer = () => {
+const TemporaryDrawer = ({ setSelected }) => {
   const classes = useStyles();
   const [state, setState] = React.useState({
     top: false,
@@ -73,24 +73,20 @@ const TemporaryDrawer = () => {
       onKeyDown={toggleDrawer(anchor, false)}
     >
       <List>
-        <Link2
-          style={{ textDecoration: 'none', color: '#000000de' }}
-          to={ROUTES.HOME}
-        >
-          <ListItem button>Home</ListItem>
-        </Link2>
         {/* {['New Activity', 'My Activity'].map((text, index) => (
           <ListItem button key={text}>
             <ListItemText primary={text} />
           </ListItem>
         ))} */}
         <Link2
+          onClick={() => setSelected(' - New Activity')}
           style={{ textDecoration: 'none', color: '#000000de' }}
           to={ROUTES.NEW_ACTIVITY}
         >
           <ListItem button>New Activity</ListItem>
         </Link2>
         <Link2
+        onClick={() => setSelected(' - My Activity')}
           style={{ textDecoration: 'none', color: '#000000de' }}
           to={ROUTES.MY_ACTIVITY}
         >
@@ -177,6 +173,7 @@ const TemporaryDrawer = () => {
 const Navigation = () => {
   const classes = useStyles();
   const [profileMenu, setProfileMenu] = React.useState(null);
+  const [selected, setSelected] = React.useState('');
   const open = Boolean(profileMenu);
 
   const handleMenu = event => {
@@ -211,12 +208,11 @@ const Navigation = () => {
                 color="inherit"
                 aria-label="menu"
               >
-                <TemporaryDrawer />
+                <TemporaryDrawer setSelected={setSelected} />
               </IconButton>
               <Typography variant="h6" className={classes.title}>
-                MRN Tracking
+                {`MRN Tracking ${selected}`}
               </Typography>
-
               {auth && (
                 <div>
                   <Typography variant="span">
