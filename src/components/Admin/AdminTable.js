@@ -71,6 +71,12 @@ const columns = [
     hide: true,
   },
   {
+    field: 'num_guests',
+    headerName: '# of Guests',
+    width: 150,
+    hide: true,
+  },
+  {
     field: 'date',
     headerName: 'Date',
     type: 'date',

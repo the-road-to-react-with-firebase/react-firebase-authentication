@@ -171,7 +171,7 @@ const NewActivity = ({ firebase }) => {
   };
 
   useEffect(() => {
-    if (today.getDay() === 4) {
+    if (today.getDay() == 4) {
       setThursday(true);
       options.unshift('Attendance');
     } else {

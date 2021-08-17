@@ -54,6 +54,12 @@ const columns = [
     // hide: true,
   },
   {
+    field: 'num_guests',
+    headerName: '# of Guests',
+    width: 150,
+    hide: true,
+  },
+  {
     field: 'member_id',
     headerName: 'Member ID',
     width: 150,
