@@ -25,7 +25,7 @@ import { AuthUserContext } from '../Session';
 // import Divider from '@material-ui/core/Divider';
 // import ListItemIcon from '@material-ui/core/ListItemIcon';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
   },
@@ -52,7 +52,7 @@ const TemporaryDrawer = ({ setSelected }) => {
     right: false,
   });
 
-  const toggleDrawer = (anchor, open) => event => {
+  const toggleDrawer = (anchor, open) => (event) => {
     if (
       event.type === 'keydown' &&
       (event.key === 'Tab' || event.key === 'Shift')
@@ -73,11 +73,6 @@ const TemporaryDrawer = ({ setSelected }) => {
       onKeyDown={toggleDrawer(anchor, false)}
     >
       <List>
-        {/* {['New Activity', 'My Activity'].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))} */}
         <Link2
           onClick={() => setSelected(' - New Activity')}
           style={{ textDecoration: 'none', color: '#000000de' }}
@@ -86,7 +81,7 @@ const TemporaryDrawer = ({ setSelected }) => {
           <ListItem button>New Activity</ListItem>
         </Link2>
         <Link2
-        onClick={() => setSelected(' - My Activity')}
+          onClick={() => setSelected(' - My Activity')}
           style={{ textDecoration: 'none', color: '#000000de' }}
           to={ROUTES.MY_ACTIVITY}
         >
@@ -104,7 +99,7 @@ const TemporaryDrawer = ({ setSelected }) => {
     </div>
   );
 
-  const listNoAuth = anchor => (
+  const listNoAuth = (anchor) => (
     <div
       className={clsx(classes.list, {
         [classes.fullList]: anchor === 'top' || anchor === 'bottom',
@@ -114,22 +109,22 @@ const TemporaryDrawer = ({ setSelected }) => {
       onKeyDown={toggleDrawer(anchor, false)}
     >
       <List>
-        <ListItem button>
-          <Link2
-            style={{ textDecoration: 'none', color: '#000000de' }}
-            to={ROUTES.SIGN_IN}
-          >
+        <Link2
+          style={{ textDecoration: 'none', color: '#000000de' }}
+          to={ROUTES.SIGN_IN}
+        >
+          <ListItem button>
             <ListItemText primary="Sign In" />
-          </Link2>
-        </ListItem>
-        <ListItem button>
-          <Link2
-            style={{ textDecoration: 'none', color: '#000000de' }}
-            to={ROUTES.SIGN_UP}
-          >
+          </ListItem>
+        </Link2>
+        <Link2
+          style={{ textDecoration: 'none', color: '#000000de' }}
+          to={ROUTES.SIGN_UP}
+        >
+          <ListItem button>
             <ListItemText primary="Sign Up" />
-          </Link2>
-        </ListItem>
+          </ListItem>
+        </Link2>
       </List>
     </div>
   );
@@ -137,35 +132,20 @@ const TemporaryDrawer = ({ setSelected }) => {
   const anchor = 'left';
   return (
     <AuthUserContext.Consumer>
-      {auth =>
-        auth ? (
-          <div>
-            <Button onClick={toggleDrawer(anchor, true)}>
-              <MenuIcon style={{ color: 'white' }} />
-            </Button>
-            <Drawer
-              anchor={anchor}
-              open={state[anchor]}
-              onClose={toggleDrawer(anchor, false)}
-            >
-              {authList(anchor, auth.roles)}
-            </Drawer>
-          </div>
-        ) : (
-          <div>
-            <Button onClick={toggleDrawer(anchor, true)}>
-              <MenuIcon style={{ color: 'white' }} />
-            </Button>
-            <Drawer
-              anchor={anchor}
-              open={state[anchor]}
-              onClose={toggleDrawer(anchor, false)}
-            >
-              {listNoAuth(anchor)}
-            </Drawer>
-          </div>
-        )
-      }
+      {(auth) => (
+        <div>
+          <Button onClick={toggleDrawer(anchor, true)}>
+            <MenuIcon style={{ color: 'white' }} />
+          </Button>
+          <Drawer
+            anchor={anchor}
+            open={state[anchor]}
+            onClose={toggleDrawer(anchor, false)}
+          >
+            {auth ? authList(anchor, auth.roles) : listNoAuth(anchor)}
+          </Drawer>
+        </div>
+      )}
     </AuthUserContext.Consumer>
   );
 };
@@ -176,7 +156,7 @@ const Navigation = () => {
   const [selected, setSelected] = React.useState('');
   const open = Boolean(profileMenu);
 
-  const handleMenu = event => {
+  const handleMenu = (event) => {
     setProfileMenu(event.currentTarget);
   };
 
@@ -186,19 +166,9 @@ const Navigation = () => {
 
   return (
     <AuthUserContext.Consumer>
-      {auth => (
+      {(auth) => (
         <div className={classes.root}>
           <FormGroup>
-            {/* <FormControlLabel
-              control={
-                <Switch
-                  checked={auth}
-                  onChange={handleChange}
-                  aria-label="login switch"
-                />
-              }
-              label={auth ? 'Logout' : 'Login'}
-            /> */}
           </FormGroup>
           <AppBar position="static">
             <Toolbar>
@@ -229,22 +199,22 @@ const Navigation = () => {
                   </IconButton>
                   <Menu
                     id="menu-appbar"
-                    profilemenu={profileMenu}
+                    anchorEl={profileMenu}
                     anchorOrigin={{
                       vertical: 'top',
                       horizontal: 'right',
                     }}
                     keepMounted
-                    transformOrigin={{
-                      vertical: 'top',
-                      horizontal: 'right',
-                    }}
+                    // transformOrigin={{
+                    //   vertical: 'top',
+                    //   horizontal: 'right',
+                    // }}
                     open={open}
                     onClose={handleClose}
                   >
-                    <MenuItem onClick={handleClose}>
+                    {/* <MenuItem onClick={handleClose}>
                       My Account
-                    </MenuItem>
+                    </MenuItem> */}
                     <MenuItem>
                       <SignOutButton />
                     </MenuItem>
@@ -259,49 +229,5 @@ const Navigation = () => {
   );
 };
 
-// import React from 'react';
-// import { Link as Link2 } from 'react-router-dom';
-// import { Menu } from 'semantic-ui-react';
-
-// import SignOutButton from '../SignOut';
-// import Typography from '@material-ui/core/Typography';
-// import Breadcrumbs from '@material-ui/core/Breadcrumbs';
-// import Link from '@material-ui/core/Link';
-// import * as ROUTES from '../../constants/routes';
-// import * as ROLES from '../../constants/roles';
-
-// const NavigationAuth = ({ authUser }) => (
-//   <div id="login-container">
-//     <Breadcrumbs aria-label="breadcrumb">
-//       <Link color="inherit">
-//         <Link to={ROUTES.LANDING}>MRN</Link>
-//       </Link>
-//       <Link color="inherit">
-//         <Link to={ROUTES.HOME}>Home</Link>
-//       </Link>
-//     </Breadcrumbs>
-//     <div>
-//       <Link to={ROUTES.ACCOUNT}>Account</Link>
-//       {!!authUser.roles[ROLES.ADMIN] && (
-//         <Link to={ROUTES.ADMIN}>Admin</Link>
-//       )}
-
-//       <SignOutButton />
-//     </div>
-//   </div>
-// );
-
-// const NavigationNonAuth = () => (
-//   <div>
-//     <Breadcrumbs aria-label="breadcrumb">
-//       <Link color="inherit">
-//         <Link to={ROUTES.LANDING}>MRN</Link>
-//       </Link>
-//       <Link color="inherit">
-//         <Link to={ROUTES.SIGN_IN}>Sign In</Link>
-//       </Link>
-//     </Breadcrumbs>
-//   </div>
-// );
 
 export default Navigation;

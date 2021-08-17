@@ -5,6 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
+import { Container } from '@material-ui/core';
 import { withAuthorization, withEmailVerification } from '../Session';
 import { UserList, UserItem } from '../Users';
 import AdminTable from './AdminTable';
@@ -12,7 +13,6 @@ import * as ROLES from '../../constants/roles';
 import * as ROUTES from '../../constants/routes';
 import { AuthUserContext } from '../Session';
 import { withFirebase } from '../Firebase';
-
 const AdminPage = ({ firebase }) => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -71,13 +71,12 @@ const AdminPage = ({ firebase }) => {
   return (
     <AuthUserContext.Consumer>
       {(authUser) => (
-        <div>
+        <Container>
           <h1>Admin</h1>
           <p>
-            The Admin Page is accessible by every signed in admin
-            user.
+            Select a member to view each members activites.
           </p>
-          <h1>Activites</h1>
+          
           <Grid item xs={12} md={6}>
             <InputLabel>Member</InputLabel>
             <Select
@@ -105,7 +104,7 @@ const AdminPage = ({ firebase }) => {
             />
             <Route exact path={ROUTES.ADMIN} component={UserList} />
           </Switch>
-        </div>
+        </Container>
       )}
     </AuthUserContext.Consumer>
   );
