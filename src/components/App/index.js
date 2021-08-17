@@ -24,7 +24,7 @@ const App = () => (
     <div>
       <Navigation />
       <Route exact path="/">
-        {<Redirect to={ROUTES.HOME} />}
+        {<Redirect to={ROUTES.NEW_ACTIVITY} />}
       </Route>
       <Route exact path={ROUTES.LANDING} component={LandingPage} />
       <Route path={ROUTES.SIGN_UP} component={SignUpPage} />

@@ -13,6 +13,8 @@ import Alert from '@material-ui/lab/Alert';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import { AuthUserContext } from '../Session';
 import { withFirebase } from '../Firebase';
+import { withAuthorization, withEmailVerification } from '../Session';
+import { compose } from 'recompose';
 
 // import Menu from '@material-ui/core/Menu';
 // import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -23,7 +25,7 @@ import { withFirebase } from '../Firebase';
 
 // import { ReferenceArea } from 'recharts';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
   },
@@ -48,7 +50,7 @@ const present = ['Present', 'Absent'];
 
 const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-const NewActivity = ({ firebase }) => {
+const NewActivity = ({ firebase, history }) => {
   let today = new Date();
   const [users, setUsers] = useState([
     { username: 'Former Member', uid: 'former_member' },
@@ -66,34 +68,34 @@ const NewActivity = ({ firebase }) => {
   const [oneOnOnes, setOneOnOnes] = useState(1);
   const [success, setSuccess] = useState(false);
 
-  const handleChangeMember = event => {
+  const handleChangeMember = (event) => {
     setMember(event.target.value);
   };
 
-  const handleChangeType = event => {
+  const handleChangeType = (event) => {
     setActivityType(event.target.value);
   };
-  const handleChangeNote = event => {
+  const handleChangeNote = (event) => {
     setNote(event.target.value);
   };
 
-  const handleChangeAttendance = event => {
+  const handleChangeAttendance = (event) => {
     setAttendance(event.target.value);
   };
 
-  const handleChangeDate = event => {
+  const handleChangeDate = (event) => {
     setDate(event.target.value);
   };
 
-  const handleChangeOneOnOnes = event => {
+  const handleChangeOneOnOnes = (event) => {
     setOneOnOnes(event.target.value);
   };
 
-  const handleChangeGuests = event => {
+  const handleChangeGuests = (event) => {
     setGuests(event.target.value);
   };
 
-  const handleChangeAmount = event => {
+  const handleChangeAmount = (event) => {
     setAmount(event.target.value);
   };
 
@@ -114,10 +116,10 @@ const NewActivity = ({ firebase }) => {
       .users()
       .orderByChild('createdAt')
       .limitToLast(5)
-      .on('value', snapshot => {
+      .on('value', (snapshot) => {
         const usersObject = snapshot.val();
         if (usersObject) {
-          const usersList = Object.keys(usersObject).map(uid => ({
+          const usersList = Object.keys(usersObject).map((uid) => ({
             ...usersObject[uid],
             uid,
           }));
@@ -184,7 +186,7 @@ const NewActivity = ({ firebase }) => {
 
   return (
     <AuthUserContext.Consumer>
-      {auth => (
+      {(auth) => (
         <Container component="main" maxWidth="xs">
           <Typography
             style={{ marginTop: '1em' }}
@@ -233,9 +235,7 @@ const NewActivity = ({ firebase }) => {
                   ))}
                 </Select>
               </Grid>
-            ) : (
-              undefined
-            )}
+            ) : undefined}
             {(activityType === 'Referral Given' ||
               activityType === 'Business Received') && (
               <Grid item xs={12} md={6}>
@@ -326,7 +326,7 @@ const NewActivity = ({ firebase }) => {
             </Grid>
             <Grid item xs={12}>
               <Button
-                onClick={event => onCreateActivity(event, auth)}
+                onClick={(event) => onCreateActivity(event, auth)}
                 variant="contained"
                 color="primary"
                 size="large"
@@ -349,5 +349,9 @@ const NewActivity = ({ firebase }) => {
     </AuthUserContext.Consumer>
   );
 };
+const condition = (authUser) => authUser;
 
-export default withFirebase(NewActivity);
+export default compose(
+  withEmailVerification,
+  withAuthorization(condition),
+)(withFirebase(NewActivity));

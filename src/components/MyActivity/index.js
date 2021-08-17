@@ -13,7 +13,8 @@ import Chart from './Chart';
 import Deposits from './Deposits';
 import ActivityTable from './ActivityTable';
 import { withFirebase } from '../Firebase';
-import { AuthUserContext } from '../Session';
+import { AuthUserContext, withAuthorization, withEmailVerification  } from '../Session';
+import { compose } from 'recompose';
 
 const countOneOnOnes = activities => {
   let count = 0;
@@ -203,4 +204,9 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default withFirebase(MyActivity);
+const condition = (authUser) => authUser;
+
+export default compose(
+  withEmailVerification,
+  withAuthorization(condition),
+)(withFirebase(MyActivity));
