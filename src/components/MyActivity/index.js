@@ -8,11 +8,21 @@ import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Link from '@material-ui/core/Link';
+import Divider from '@material-ui/core/Divider';
 import Chart from './Chart';
 import Deposits from './Deposits';
 import ActivityTable from './ActivityTable';
 import { withFirebase } from '../Firebase';
 import { AuthUserContext } from '../Session';
+
+const countOneOnOnes = activities => {
+  let count = 0;
+  activities.forEach(a => {
+    if (a.activityType === 'One on One') count += a.num_one_on_ones;
+  });
+
+  return count;
+};
 
 const MyActivity = ({ firebase }) => {
   const classes = useStyles();
@@ -20,12 +30,13 @@ const MyActivity = ({ firebase }) => {
   const [loading, setLoading] = useState(false);
   const [limit, setLimit] = useState(25);
 
-  const onListenForActivity = () => {
+  const onListenForActivity = uid => {
     setLoading(true);
 
     firebase
       .activities()
-      .orderByChild('createdAt')
+      .orderByChild('userId')
+      .equalTo(uid)
       .limitToLast(limit)
       .on('value', snapshot => {
         const activityObject = snapshot.val();
@@ -37,7 +48,6 @@ const MyActivity = ({ firebase }) => {
               uid,
             }),
           );
-
           setActivities(activityList);
           setLoading(false);
         } else {
@@ -46,11 +56,6 @@ const MyActivity = ({ firebase }) => {
         }
       });
   };
-
-  useEffect(() => {
-    onListenForActivity();
-    // console.log('hey');
-  }, []);
 
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
@@ -62,17 +67,25 @@ const MyActivity = ({ firebase }) => {
           <main className={classes.content}>
             {/* <div className={classes.appBarSpacer} /> */}
             <Container maxWidth="lg" className={classes.container}>
+              {/* <Typography>
+                Number of One on Ones: {countOneOnOnes(activities)}
+              </Typography> */}
+              <Divider />
               <Grid container spacing={5}>
                 <Grid item xs={12} md={12} lg={12}>
                   {/* <Paper className={fixedHeightPaper}> */}
-                  <ActivityTable activities={activities} />
+                  <ActivityTable
+                    authUser={authUser}
+                    onListenForActivity={onListenForActivity}
+                    activities={activities}
+                  />
                   {/* </Paper> */}
                 </Grid>
-                <Grid item xs={12} md={12} lg={12}>
+                {/* <Grid item xs={12} md={12} lg={12}>
                   <Paper className={fixedHeightPaper}>
                     <Chart activities={activities} />
                   </Paper>
-                </Grid>
+                </Grid> */}
 
                 {/* <Grid item xs={12} md={4} lg={3}>
                   <Paper className={fixedHeightPaper}>

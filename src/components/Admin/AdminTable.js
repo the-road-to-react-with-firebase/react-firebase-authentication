@@ -13,7 +13,6 @@ import TextField from '@material-ui/core/TextField';
 import {
   TablePagination,
   Grid,
-  InputLabel,
   Typography,
   Divider,
 } from '@material-ui/core';
@@ -29,6 +28,11 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
 });
 
 const columns = [
+  {
+    field: 'this_username',
+    headerName: 'Member',
+    width: 160,
+  },
   {
     field: 'activityType',
     description: 'This is the type of activity tracked',
@@ -55,11 +59,11 @@ const columns = [
   },
   {
     field: 'member_id',
-    headerName: 'Member ID',
+    headerName: 'Other Member ID',
     width: 150,
     hide: true,
   },
-  { field: 'username', headerName: 'Member', width: 150 },
+  { field: 'username', headerName: 'Other Member', width: 150 },
   {
     field: 'attendance',
     headerName: 'Attendance',
@@ -118,6 +122,7 @@ const ActivityTable = ({
   firebase,
   onListenForActivity,
   authUser,
+  selectedMember
 }) => {
   const classes = useStyles();
   // getModalStyle is not a pure function, we roll the style only on the first render
@@ -125,18 +130,18 @@ const ActivityTable = ({
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState(false);
   const [newNote, setNewNote] = useState('');
-  const [sortModel, setSortModel] = React.useState([
-    {
-      field: 'date',
-      sort: 'desc',
-    },
-  ]);
   const [selectedItem, setSelectedItem] = useState({});
   const [dateRange, setDateRange] = useState(30);
   const [totalAmount, setTotalAmount] = useState(0);
   const [totalOneOnOnes, setTotalOneOnOnes] = useState(0);
   const [totalReferrals, setTotalReferrals] = useState(0);
   const [totalEvents, setTotalEvents] = useState(0);
+  const [sortModel, setSortModel] = React.useState([
+    {
+      field: 'date',
+      sort: 'desc',
+    },
+  ]);
 
   const handleChangeNote = (event) => {
     setNote(event.target.value);
@@ -162,7 +167,29 @@ const ActivityTable = ({
   const handleRenderEdit = () => {
     setEdit(true);
   };
-  
+
+  useEffect(() => {
+    if (activities.length > 0) {
+      setTotalAmount(activities.reduce((a, b) => +a + +b.amount, 0));
+      setTotalOneOnOnes(
+        activities.reduce((a, b) => +a + +b.num_one_on_ones, 0),
+      );
+      setTotalReferrals(
+        activities.filter((a) => a.activityType === 'Referral Given')
+          .length,
+      );
+      setTotalEvents(
+        activities.filter(
+          (a) => a.activityType === 'Networking Event',
+        ).length,
+      );
+    }
+  }, [activities]);
+
+  useEffect(() => {
+    onListenForActivity(selectedMember);
+  },[selectedMember])
+
   const {
     activityType,
     note,
@@ -185,11 +212,11 @@ const ActivityTable = ({
             fullWidth
             value={activityType}
             // onChange={handleChangeNote}
-            />
+          />
         </Grid>
         {(activityType === 'Business Received' ||
           activityType === 'Referral Given') && (
-            <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={6}>
             <TextField
               disabled={!edit}
               id="member"
@@ -198,7 +225,7 @@ const ActivityTable = ({
               fullWidth
               value={member}
               // onChange={handleChangeNote}
-              />
+            />
           </Grid>
         )}
 
@@ -212,7 +239,7 @@ const ActivityTable = ({
               fullWidth
               value={note}
               // onChange={handleChangeNote}
-              />
+            />
           </Grid>
         )}
         {num_one_on_ones > 0 && (
@@ -225,7 +252,7 @@ const ActivityTable = ({
               fullWidth
               value={num_one_on_ones}
               // onChange={handleChangeNote}
-              />
+            />
           </Grid>
         )}
         {attendance && (
@@ -238,7 +265,7 @@ const ActivityTable = ({
               fullWidth
               value={num_one_on_ones}
               // onChange={handleChangeNote}
-              />
+            />
           </Grid>
         )}
 
@@ -251,22 +278,22 @@ const ActivityTable = ({
             fullWidth
             value={date}
             // onChange={handleChangeNote}
-            />
+          />
         </Grid>
         <Grid item xs={12} md={6}>
           {edit ? (
             <Button
-            variant="contained"
-            onClick={() => setEdit(false)}
-            style={{ backgroundColor: '#309a2f', color: 'white' }}
+              variant="contained"
+              onClick={() => setEdit(false)}
+              style={{ backgroundColor: '#309a2f', color: 'white' }}
             >
               Save
             </Button>
           ) : (
             <Button
-            variant="contained"
-            onClick={() => setEdit(true)}
-            color="primary"
+              variant="contained"
+              onClick={() => setEdit(true)}
+              color="primary"
             >
               Edit
             </Button>
@@ -277,35 +304,13 @@ const ActivityTable = ({
             variant="contained"
             onClick={handleDelete}
             color="secondary"
-            >
+          >
             Delete
           </Button>
         </Grid>
       </Grid>
     </div>
   );
-  
-    useEffect(() => {
-      if (activities.length > 0) {
-        setTotalAmount(activities.reduce((a, b) => +a + +b.amount, 0));
-        setTotalOneOnOnes(
-          activities.reduce((a, b) => +a + +b.num_one_on_ones, 0),
-        );
-        setTotalReferrals(
-          activities.filter((a) => a.activityType === 'Referral Given')
-            .length,
-        );
-        setTotalEvents(
-          activities.filter(
-            (a) => a.activityType === 'Networking Event',
-          ).length,
-        );
-      }
-    }, [activities]);
-
-  useEffect(() => {
-    onListenForActivity(authUser.uid);
-  }, []);
   return (
     <>
       <div

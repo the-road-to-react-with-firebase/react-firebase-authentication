@@ -30,12 +30,13 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const options = [
-  // 'Activity Type',
   'Referral Given',
   'Business Received',
   'One on One',
   'Networking Event',
 ];
+
+const present = ['Present', 'Absent'];
 
 // const users = [
 //   'Former Member',
@@ -45,17 +46,21 @@ const options = [
 //   'Don Mcrea',
 // ];
 
-const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-const NewActivity = ({ firebase, authUser }) => {
+const NewActivity = ({ firebase }) => {
+  let today = new Date();
   const [users, setUsers] = useState([
     { username: 'Former Member', uid: 'former_member' },
   ]);
-
+  const [thursday, setThursday] = useState(false);
   const classes = useStyles();
+  const [guests, setGuests] = useState(0);
   const [member, setMember] = useState('former_member');
+  const [username, setUsername] = useState('Former Member');
   const [amount, setAmount] = useState('');
-  const [date, setDate] = useState(firebase.serverValue.TIMESTAMP);
+  const [attendance, setAttendance] = useState('Present');
+  const [date, setDate] = useState(today.toISOString().slice(0, 10));
   const [activityType, setActivityType] = useState('Referral Given');
   const [note, setNote] = useState('');
   const [oneOnOnes, setOneOnOnes] = useState(1);
@@ -72,12 +77,20 @@ const NewActivity = ({ firebase, authUser }) => {
     setNote(event.target.value);
   };
 
+  const handleChangeAttendance = event => {
+    setAttendance(event.target.value);
+  };
+
   const handleChangeDate = event => {
     setDate(event.target.value);
   };
 
   const handleChangeOneOnOnes = event => {
     setOneOnOnes(event.target.value);
+  };
+
+  const handleChangeGuests = event => {
+    setGuests(event.target.value);
   };
 
   const handleChangeAmount = event => {
@@ -110,7 +123,6 @@ const NewActivity = ({ firebase, authUser }) => {
           }));
 
           setUsers([...users, ...usersList]);
-          console.log(usersList);
           // setLoading(false);
         } else {
           setUsers([]);
@@ -124,11 +136,23 @@ const NewActivity = ({ firebase, authUser }) => {
     let { key, ...results } = await firebase.activities().push({
       activityType,
       userId: authUser.uid,
-      amount,
+      this_username: authUser.username,
+      amount: activityType !== 'Business Received' ? '' : amount,
       date,
       note,
-      num_one_on_ones: oneOnOnes,
-      member,
+      num_one_on_ones: activityType !== 'One on One' ? '' : oneOnOnes,
+      attendance: activityType === 'Attendance' ? attendance : '',
+      num_guests: activityType === 'Attendance' ? guests : '',
+      member_id:
+        activityType === 'Business Received' ||
+        activityType === 'Referral Given'
+          ? member
+          : '',
+      username:
+        activityType === 'Business Received' ||
+        activityType === 'Referral Given'
+          ? username
+          : '',
       createdAt: firebase.serverValue.TIMESTAMP,
     });
     if (await key) {
@@ -138,13 +162,24 @@ const NewActivity = ({ firebase, authUser }) => {
       setOneOnOnes(1);
       setAmount('');
       setSuccess(true);
+      setTimeout(() => {
+        setSuccess(false);
+      }, 3000);
     } else {
       setSuccess(false);
     }
   };
 
   useEffect(() => {
-      onListenForUsers();
+    if (today.getDay() === 4) {
+      setThursday(true);
+      options.unshift('Attendance');
+    } else {
+      setThursday(false);
+      options.push('Attendance');
+    }
+
+    onListenForUsers();
   }, []);
 
   return (
@@ -182,13 +217,36 @@ const NewActivity = ({ firebase, authUser }) => {
                 ))}
               </Select>
             </Grid>
+            {activityType === 'Attendance' ? (
+              <Grid item xs={12} md={6}>
+                <InputLabel>Attendance</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={attendance}
+                  onChange={handleChangeAttendance}
+                >
+                  {present.map((value, index) => (
+                    <MenuItem key={index} value={value}>
+                      {value}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Grid>
+            ) : (
+              undefined
+            )}
             {(activityType === 'Referral Given' ||
               activityType === 'Business Received') && (
               <Grid item xs={12} md={6}>
                 <InputLabel>Member</InputLabel>
                 <Select value={member} onChange={handleChangeMember}>
                   {users.map((data, index) => (
-                    <MenuItem key={index} value={data.uid}>
+                    <MenuItem
+                      onClick={() => setUsername(data.username)}
+                      key={index}
+                      value={data.uid}
+                    >
                       {data.username}
                     </MenuItem>
                   ))}
@@ -198,6 +256,7 @@ const NewActivity = ({ firebase, authUser }) => {
             <Grid item xs={12} md={6}>
               <TextField
                 id="date"
+                defaultValue={date}
                 label="Date of Activity"
                 type="date"
                 className={classes.textField}
@@ -222,10 +281,22 @@ const NewActivity = ({ firebase, authUser }) => {
                 </Select>
               </Grid>
             )}
+            {activityType === 'Attendance' && (
+              <Grid item xs={12} md={6}>
+                <InputLabel>Number of Guests</InputLabel>
+                <Select value={guests} onChange={handleChangeGuests}>
+                  {numbers.map((value, index) => (
+                    <MenuItem key={index} value={value}>
+                      {value}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Grid>
+            )}
             {activityType === 'Business Received' && (
               <Grid item xs={12} md={6}>
                 <TextField
-                type="number"
+                  type="number"
                   id="amount"
                   label="Amount in $"
                   helperText="Amount of dollars closed"
@@ -233,7 +304,11 @@ const NewActivity = ({ firebase, authUser }) => {
                   value={amount}
                   onChange={handleChangeAmount}
                   InputProps={{
-                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        $
+                      </InputAdornment>
+                    ),
                   }}
                 />
               </Grid>

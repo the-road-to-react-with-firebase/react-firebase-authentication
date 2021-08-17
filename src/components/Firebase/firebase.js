@@ -24,12 +24,6 @@ class Firebase {
 
     this.auth = app.auth();
     this.db = app.database();
-
-    /* Social Sign In Method Provider */
-
-    // this.googleProvider = new app.auth.GoogleAuthProvider();
-    // this.facebookProvider = new app.auth.FacebookAuthProvider();
-    // this.twitterProvider = new app.auth.TwitterAuthProvider();
   }
 
   // *** Auth API ***
@@ -40,35 +34,27 @@ class Firebase {
   doSignInWithEmailAndPassword = (email, password) =>
     this.auth.signInWithEmailAndPassword(email, password);
 
-  // doSignInWithGoogle = () =>
-  //   this.auth.signInWithPopup(this.googleProvider);
-
-  // doSignInWithFacebook = () =>
-  //   this.auth.signInWithPopup(this.facebookProvider);
-
-  // doSignInWithTwitter = () =>
-  //   this.auth.signInWithPopup(this.twitterProvider);
-
   doSignOut = () => this.auth.signOut();
 
-  doPasswordReset = email => this.auth.sendPasswordResetEmail(email);
+  doPasswordReset = (email) =>
+    this.auth.sendPasswordResetEmail(email);
 
   doSendEmailVerification = () =>
     this.auth.currentUser.sendEmailVerification({
       url: process.env.REACT_APP_CONFIRMATION_EMAIL_REDIRECT,
     });
 
-  doPasswordUpdate = password =>
+  doPasswordUpdate = (password) =>
     this.auth.currentUser.updatePassword(password);
 
   // *** Merge Auth and DB User API *** //
 
   onAuthUserListener = (next, fallback) =>
-    this.auth.onAuthStateChanged(authUser => {
+    this.auth.onAuthStateChanged((authUser) => {
       if (authUser) {
         this.user(authUser.uid)
           .once('value')
-          .then(snapshot => {
+          .then((snapshot) => {
             const dbUser = snapshot.val();
 
             // default empty roles
@@ -94,25 +80,22 @@ class Firebase {
 
   // *** User API ***
 
-  user = uid => this.db.ref(`users/${uid}`);
+  user = (uid) => this.db.ref(`users/${uid}`);
 
   users = () => this.db.ref('users');
 
   // *** Message API ***
 
-  message = uid => this.db.ref(`messages/${uid}`);
+  message = (uid) => this.db.ref(`messages/${uid}`);
 
   messages = () => this.db.ref('messages');
 
   // *** Activity API ***
 
-  activity = uid => this.db.ref(`activities/${uid}`);
-  
+  activity = (uid) => this.db.ref(`activities/${uid}`);
+
   activities = () => this.db.ref('activities');
 
-  activitiesFilter = () => this.db.ref('activities?orderBy="member"&equalTo=500');
-
-  
 }
 
 export default Firebase;

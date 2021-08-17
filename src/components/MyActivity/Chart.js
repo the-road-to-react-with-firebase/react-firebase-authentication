@@ -11,7 +11,7 @@ import {
 import Title from './Title';
 
 const filterActivities = (data, type) => {
-  return data.filter(a => a.activityType === type);
+  return data.filter(a => a.activityType === type).reverse();
 };
 
 const convertDate = data => {
@@ -27,7 +27,7 @@ export default function Chart({ activities }) {
   const filteredActivities = filterActivities(
     activities,
     'Business Received',
-  );
+  )
 
   return (
     <React.Fragment>
