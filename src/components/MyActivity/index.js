@@ -6,32 +6,33 @@ import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
+import Select from '@material-ui/core/Select';
 import Link from '@material-ui/core/Link';
 import Divider from '@material-ui/core/Divider';
-import Chart from './Chart';
-import Deposits from './Deposits';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
 import ActivityTable from './ActivityTable';
 import { withFirebase } from '../Firebase';
-import { AuthUserContext, withAuthorization, withEmailVerification  } from '../Session';
+import {
+  AuthUserContext,
+  withAuthorization,
+  withEmailVerification,
+} from '../Session';
 import { compose } from 'recompose';
-
-const countOneOnOnes = activities => {
-  let count = 0;
-  activities.forEach(a => {
-    if (a.activityType === 'One on One') count += a.num_one_on_ones;
-  });
-
-  return count;
-};
-
+const numbers = [25, 50, 100, 250];
 const MyActivity = ({ firebase }) => {
   const classes = useStyles();
   const [activities, setActivities] = useState([]);
+  const [businessGiven, setBusinessGiven] = useState([]);
   const [loading, setLoading] = useState(false);
   const [limit, setLimit] = useState(25);
 
-  const onListenForActivity = uid => {
+  const handleChangeLimit = (event) => {
+    setLimit(event.target.value);
+  };
+
+  const onListenForActivity = (uid) => {
+    let givenList = [];
     setLoading(true);
 
     firebase
@@ -39,18 +40,43 @@ const MyActivity = ({ firebase }) => {
       .orderByChild('userId')
       .equalTo(uid)
       .limitToLast(limit)
-      .on('value', snapshot => {
+      .on('value', (snapshot) => {
         const activityObject = snapshot.val();
 
         if (activityObject) {
           const activityList = Object.keys(activityObject).map(
-            uid => ({
+            (uid) => ({
               ...activityObject[uid],
               uid,
             }),
           );
-          setActivities(activityList);
-          setLoading(false);
+          firebase
+            .activities()
+            .orderByChild('member_id')
+            .equalTo(uid)
+            .limitToLast(limit)
+            .on('value', async (snapshot) => {
+              const activityObject2 = snapshot.val();
+
+              if (activityObject2) {
+                const activityList2 = Object.keys(
+                  activityObject2,
+                ).map((uid) => ({
+                  ...activityObject2[uid],
+                  uid,
+                }));
+                givenList = activityList2.map((obj) =>
+                  obj.activityType === 'Business Received'
+                    ? { ...obj, activityType: 'Business Given', username: obj.this_username }
+                    : obj,
+                );
+                setActivities([...givenList, ...activityList]);
+                setLoading(false);
+              } else {
+                setActivities([]);
+                setLoading(false);
+              }
+            });
         } else {
           setActivities([]);
           setLoading(false);
@@ -58,19 +84,17 @@ const MyActivity = ({ firebase }) => {
       });
   };
 
+
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   return (
     <AuthUserContext.Consumer>
-      {authUser => (
+      {(authUser) => (
         <div className={classes.root}>
           <CssBaseline />
           <main className={classes.content}>
             {/* <div className={classes.appBarSpacer} /> */}
             <Container maxWidth="lg" className={classes.container}>
-              {/* <Typography>
-                Number of One on Ones: {countOneOnOnes(activities)}
-              </Typography> */}
               <Divider />
               <Grid container spacing={5}>
                 <Grid item xs={12} md={12} lg={12}>
@@ -81,23 +105,20 @@ const MyActivity = ({ firebase }) => {
                     activities={activities}
                   />
                   {/* </Paper> */}
-                </Grid>
-                {/* <Grid item xs={12} md={12} lg={12}>
-                  <Paper className={fixedHeightPaper}>
-                    <Chart activities={activities} />
-                  </Paper>
-                </Grid> */}
 
-                {/* <Grid item xs={12} md={4} lg={3}>
-                  <Paper className={fixedHeightPaper}>
-                    <Deposits />
-                  </Paper>
+                  <InputLabel style={{ marginTop: '1em' }}>
+                    Show
+                  </InputLabel>
+                  Last <Select value={limit} onChange={handleChangeLimit}>
+                    {numbers.map((value, index) => (
+                      <MenuItem key={index} value={value}>
+                        {value}
+                      </MenuItem>
+                    ))} 
+                  </Select>
+                  Activities
                 </Grid>
-                <Grid item xs={12}>
-                  <Paper className={classes.paper}>
-                    <Orders />
-                  </Paper>
-                </Grid> */}
+              
               </Grid>
               <Box pt={4}>
                 <Copyright />
@@ -125,7 +146,7 @@ function Copyright() {
 
 const drawerWidth = 240;
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
   },

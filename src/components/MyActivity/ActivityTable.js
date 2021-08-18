@@ -49,7 +49,7 @@ const columns = [
   { field: 'note', headerName: 'Notes', width: 150 },
   {
     field: 'num_one_on_ones',
-    headerName: '# 1 on 1s',
+    headerName: '# 1 to 1s',
     width: 150,
     // hide: true,
   },
@@ -123,6 +123,7 @@ const ActivityTable = ({
   activities,
   firebase,
   onListenForActivity,
+  onListenForBusinessGiven,
   authUser,
 }) => {
   const classes = useStyles();
@@ -140,10 +141,13 @@ const ActivityTable = ({
   const [selectedItem, setSelectedItem] = useState({});
   const [dateRange, setDateRange] = useState(30);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [totalAmountGiven, setTotalAmountGiven] = useState(0);
   const [totalOneOnOnes, setTotalOneOnOnes] = useState(0);
   const [totalReferrals, setTotalReferrals] = useState(0);
   const [totalEvents, setTotalEvents] = useState(0);
-
+  let today = new Date();
+  today.setDate(today.getDate() - 7);
+  let sevenDays = today.toISOString().slice(0, 10);
   const handleChangeNote = (event) => {
     setNote(event.target.value);
   };
@@ -168,7 +172,7 @@ const ActivityTable = ({
   const handleRenderEdit = () => {
     setEdit(true);
   };
-  
+
   const {
     activityType,
     note,
@@ -191,11 +195,11 @@ const ActivityTable = ({
             fullWidth
             value={activityType}
             // onChange={handleChangeNote}
-            />
+          />
         </Grid>
         {(activityType === 'Business Received' ||
           activityType === 'Referral Given') && (
-            <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={6}>
             <TextField
               disabled={!edit}
               id="member"
@@ -204,7 +208,7 @@ const ActivityTable = ({
               fullWidth
               value={member}
               // onChange={handleChangeNote}
-              />
+            />
           </Grid>
         )}
 
@@ -218,7 +222,7 @@ const ActivityTable = ({
               fullWidth
               value={note}
               // onChange={handleChangeNote}
-              />
+            />
           </Grid>
         )}
         {num_one_on_ones > 0 && (
@@ -226,12 +230,12 @@ const ActivityTable = ({
             <TextField
               disabled={!edit}
               id="num_one_on_ones"
-              label="# of One on Ones"
-              helperText="Number of one on ones"
+              label="# of One to Ones"
+              helperText="Number of One to Ones"
               fullWidth
               value={num_one_on_ones}
               // onChange={handleChangeNote}
-              />
+            />
           </Grid>
         )}
         {attendance && (
@@ -239,12 +243,12 @@ const ActivityTable = ({
             <TextField
               disabled={!edit}
               id="num_one_on_ones"
-              label="# of One on Ones"
-              helperText="Number of one on ones"
+              label="# of One to Ones"
+              helperText="Number of One to Ones"
               fullWidth
               value={num_one_on_ones}
               // onChange={handleChangeNote}
-              />
+            />
           </Grid>
         )}
 
@@ -257,22 +261,22 @@ const ActivityTable = ({
             fullWidth
             value={date}
             // onChange={handleChangeNote}
-            />
+          />
         </Grid>
         <Grid item xs={12} md={6}>
           {edit ? (
             <Button
-            variant="contained"
-            onClick={() => setEdit(false)}
-            style={{ backgroundColor: '#309a2f', color: 'white' }}
+              variant="contained"
+              onClick={() => setEdit(false)}
+              style={{ backgroundColor: '#309a2f', color: 'white' }}
             >
               Save
             </Button>
           ) : (
             <Button
-            variant="contained"
-            onClick={() => setEdit(true)}
-            color="primary"
+              variant="contained"
+              onClick={() => setEdit(true)}
+              color="primary"
             >
               Edit
             </Button>
@@ -283,34 +287,48 @@ const ActivityTable = ({
             variant="contained"
             onClick={handleDelete}
             color="secondary"
-            >
+          >
             Delete
           </Button>
         </Grid>
       </Grid>
     </div>
   );
-  
-    useEffect(() => {
-      if (activities.length > 0) {
-        setTotalAmount(activities.reduce((a, b) => +a + +b.amount, 0));
-        setTotalOneOnOnes(
-          activities.reduce((a, b) => +a + +b.num_one_on_ones, 0),
-        );
-        setTotalReferrals(
-          activities.filter((a) => a.activityType === 'Referral Given')
-            .length,
-        );
-        setTotalEvents(
-          activities.filter(
-            (a) => a.activityType === 'Networking Event',
-          ).length,
-        );
-      }
-    }, [activities]);
+
+  useEffect(() => {
+    if (activities.length > 0) {
+      let totalAmountInit = 0;
+      let totalAmountGivenInit = 0;
+      activities.forEach((a) => {
+        if (a.activityType === 'Business Received') {
+          totalAmountInit += a.amount;
+        } else {
+          totalAmountGivenInit += a.amount;
+        }
+      });
+      setTotalAmount(totalAmountInit);
+      setTotalAmountGiven(totalAmountGivenInit);
+
+      setTotalOneOnOnes(
+        activities.reduce((a, b) => +a + +b.num_one_on_ones, 0),
+      );
+
+      setTotalReferrals(
+        activities.filter((a) => a.activityType === 'Referral Given')
+          .length,
+      );
+
+      setTotalEvents(
+        activities.filter(
+          (a) => a.activityType === 'Networking Event',
+        ).length,
+      );
+    }
+  }, [activities]);
 
   useEffect(() => {
     onListenForActivity(authUser.uid);
+    // onListenForBusinessGiven(authUser.uid)
   }, []);
   return (
     <>
@@ -323,25 +341,31 @@ const ActivityTable = ({
               props.visibleRows,
               ([name, value]) => ({ ...value }),
             );
-            
             let bufferTotalAmount = 0;
+            let bufferTotalAmountGiven = 0;
             let bufferTotalOneOnOnes = 0;
             let bufferTotalReferrals = 0;
             let bufferTotalEvents = 0;
             if (filtered) {
               filtered.forEach((a) => {
-                bufferTotalAmount += Number(a.amount);
-                bufferTotalOneOnOnes += Number(
-                  a.num_one_on_ones,
-                );
+                if (a.activityType === 'Business Received') {
+                  bufferTotalAmount += Number(a.amount);
+                }
                 if (a.activityType === 'Referral Given') {
                   bufferTotalReferrals += 1;
                 }
                 if (a.activityType === 'Networking Event') {
                   bufferTotalEvents += 1;
                 }
+                if (a.activityType === 'Business Given') {
+                  bufferTotalAmountGiven += Number(a.amount);
+                }
+                if (a.activityType === 'One to One') {
+                  bufferTotalOneOnOnes += Number(a.num_one_on_ones);
+                }
               });
               setTotalAmount(bufferTotalAmount);
+              setTotalAmountGiven(bufferTotalAmountGiven);
               setTotalOneOnOnes(bufferTotalOneOnOnes);
               setTotalReferrals(bufferTotalReferrals);
               setTotalEvents(bufferTotalEvents);
@@ -357,6 +381,16 @@ const ActivityTable = ({
           pageSize={10}
           getRowId={(row) => row.uid}
           sortModel={sortModel}
+          filterModel={{
+            items: [
+              {
+                columnField: 'date',
+                id: 90144,
+                operatorValue: 'onOrAfter',
+                value: sevenDays,
+              },
+            ],
+          }}
         />
         <Button
           disabled={!selectedItem.activityType}
@@ -388,15 +422,19 @@ const ActivityTable = ({
           <TableHead>
             <TableRow>
               <TableCell>Total Business Received</TableCell>
-              <TableCell>Total One on Ones</TableCell>
+              <TableCell>Total Business Given</TableCell>
+              <TableCell>Total One to Ones</TableCell>
               <TableCell>Total Referrals Given</TableCell>
               <TableCell>Total Networking Events</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             <TableRow key={'totalsRow'}>
-              <TableCell component="th" scope="row">
+              <TableCell>
                 {currencyFormatter.format(Number(totalAmount))}
+              </TableCell>
+              <TableCell>
+                {currencyFormatter.format(Number(totalAmountGiven))}
               </TableCell>
               <TableCell>{totalOneOnOnes}</TableCell>
               <TableCell>{totalReferrals}</TableCell>

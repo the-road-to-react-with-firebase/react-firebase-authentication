@@ -34,19 +34,12 @@ const useStyles = makeStyles((theme) => ({
 const options = [
   'Referral Given',
   'Business Received',
-  'One on One',
+  'One to One',
   'Networking Event',
+  'Attendance'
 ];
 
 const present = ['Present', 'Absent'];
-
-// const users = [
-//   'Former Member',
-//   'Volker Ackerman',
-//   'Pam Morton',
-//   'Carl Corsini',
-//   'Don Mcrea',
-// ];
 
 const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -114,8 +107,8 @@ const NewActivity = ({ firebase, history }) => {
 
     firebase
       .users()
-      .orderByChild('createdAt')
-      .limitToLast(5)
+      .orderByChild('email')
+      .limitToLast(30)
       .on('value', (snapshot) => {
         const usersObject = snapshot.val();
         if (usersObject) {
@@ -123,7 +116,11 @@ const NewActivity = ({ firebase, history }) => {
             ...usersObject[uid],
             uid,
           }));
-
+          usersList.sort(function(a, b){
+            if(a.username < b.username) { return -1; }
+            if(a.username > b.username) { return 1; }
+            return 0;
+        })
           setUsers([...users, ...usersList]);
           // setLoading(false);
         } else {
@@ -142,7 +139,7 @@ const NewActivity = ({ firebase, history }) => {
       amount: activityType !== 'Business Received' ? '' : amount,
       date,
       note,
-      num_one_on_ones: activityType !== 'One on One' ? '' : oneOnOnes,
+      num_one_on_ones: activityType !== 'One to One' ? '' : oneOnOnes,
       attendance: activityType === 'Attendance' ? attendance : '',
       num_guests: activityType === 'Attendance' ? guests : '',
       member_id:
@@ -173,13 +170,6 @@ const NewActivity = ({ firebase, history }) => {
   };
 
   useEffect(() => {
-    if (today.getDay() == 4) {
-      setThursday(true);
-      options.unshift('Attendance');
-    } else {
-      setThursday(false);
-      options.push('Attendance');
-    }
 
     onListenForUsers();
   }, []);
@@ -266,9 +256,9 @@ const NewActivity = ({ firebase, history }) => {
                 onChange={handleChangeDate}
               />
             </Grid>
-            {activityType === 'One on One' && (
+            {activityType === 'One to One' && (
               <Grid item xs={12} md={6}>
-                <InputLabel>Number of One on Ones</InputLabel>
+                <InputLabel>Number of One to Ones</InputLabel>
                 <Select
                   value={oneOnOnes}
                   onChange={handleChangeOneOnOnes}

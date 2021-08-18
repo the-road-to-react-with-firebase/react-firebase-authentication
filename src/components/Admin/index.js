@@ -24,6 +24,8 @@ const AdminPage = ({ firebase }) => {
     useState('former_member');
   const onListenForActivity = (uid) => {
     setLoading(true);
+    let givenList = [];
+    setLoading(true);
 
     firebase
       .activities()
@@ -40,8 +42,36 @@ const AdminPage = ({ firebase }) => {
               uid,
             }),
           );
-          setActivities(activityList);
-          setLoading(false);
+          firebase
+            .activities()
+            .orderByChild('member_id')
+            .equalTo(uid)
+            .limitToLast(limit)
+            .on('value', async (snapshot) => {
+              const activityObject2 = snapshot.val();
+
+              if (activityObject2) {
+                const activityList2 = Object.keys(
+                  activityObject2,
+                ).map((uid) => ({
+                  ...activityObject2[uid],
+                  uid,
+                }));
+                givenList = activityList2.map((obj) =>
+                  obj.activityType === 'Business Received'
+                    ? {
+                        ...obj,
+                        activityType: 'Business Given',
+                      }
+                    : obj,
+                );
+                setActivities([...givenList, ...activityList]);
+                setLoading(false);
+              } else {
+                setActivities([]);
+                setLoading(false);
+              }
+            });
         } else {
           setActivities([]);
           setLoading(false);
@@ -67,16 +97,14 @@ const AdminPage = ({ firebase }) => {
       });
     };
     onListenForUsers();
-  },[]);
+  }, []);
   return (
     <AuthUserContext.Consumer>
       {(authUser) => (
         <Container>
           <h1>Admin</h1>
-          <p>
-            Select a member to view each members activites.
-          </p>
-          
+          <p>Select a member to view each members activites.</p>
+
           <Grid item xs={12} md={6}>
             <InputLabel>Member</InputLabel>
             <Select
