@@ -120,7 +120,7 @@ const MyActivity = ({ firebase }) => {
                 </Grid>
               
               </Grid>
-              <Box pt={4}>
+              <Box pt={1}>
                 <Copyright />
               </Box>
             </Container>

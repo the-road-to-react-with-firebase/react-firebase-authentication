@@ -8,19 +8,14 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import Container from '@material-ui/core/Container';
 import TextField from '@material-ui/core/TextField';
 import {
-  TablePagination,
   Grid,
-  Typography,
-  Divider,
 } from '@material-ui/core';
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { withFirebase } from '../Firebase';
-import { componentFromStreamWithConfig } from 'recompose';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -130,6 +125,9 @@ const ActivityTable = ({
   authUser,
   selectedMember,
 }) => {
+  let today = new Date();
+  today.setDate(today.getDate() - 7);
+  let sevenDays = today.toISOString().slice(0, 10);
   const classes = useStyles();
   // getModalStyle is not a pure function, we roll the style only on the first render
   const [modalStyle] = useState(getModalStyle);
@@ -149,10 +147,16 @@ const ActivityTable = ({
       sort: 'desc',
     },
   ]);
-
-  let today = new Date();
-  today.setDate(today.getDate() - 7);
-  let sevenDays = today.toISOString().slice(0, 10);
+  const [filterModel, setFilterModel] = React.useState({
+    items: [
+      {
+        columnField: 'date',
+        id: 90144,
+        operatorValue: 'onOrAfter',
+        value: sevenDays,
+      },
+    ],
+  });
 
   const handleChangeNote = (event) => {
     setNote(event.target.value);
@@ -234,7 +238,6 @@ const ActivityTable = ({
             helperText="You cannot change the Activity Type"
             fullWidth
             value={activityType}
-            // onChange={handleChangeNote}
           />
         </Grid>
         {(activityType === 'Business Received' ||
@@ -247,7 +250,6 @@ const ActivityTable = ({
               helperText="Member involved in this activity"
               fullWidth
               value={member}
-              // onChange={handleChangeNote}
             />
           </Grid>
         )}
@@ -261,7 +263,6 @@ const ActivityTable = ({
               helperText="Amount of dollars closed"
               fullWidth
               value={note}
-              // onChange={handleChangeNote}
             />
           </Grid>
         )}
@@ -274,7 +275,6 @@ const ActivityTable = ({
               helperText="Number of One to Ones"
               fullWidth
               value={num_one_on_ones}
-              // onChange={handleChangeNote}
             />
           </Grid>
         )}
@@ -287,7 +287,6 @@ const ActivityTable = ({
               helperText="Number of One to Ones"
               fullWidth
               value={num_one_on_ones}
-              // onChange={handleChangeNote}
             />
           </Grid>
         )}
@@ -300,7 +299,6 @@ const ActivityTable = ({
             helperText="Date of Activity"
             fullWidth
             value={date}
-            // onChange={handleChangeNote}
           />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -385,16 +383,7 @@ const ActivityTable = ({
           pageSize={10}
           getRowId={(row) => row.uid}
           sortModel={sortModel}
-          filterModel={{
-            items: [
-              {
-                columnField: 'date',
-                id: 90144,
-                operatorValue: 'onOrAfter',
-                value: sevenDays,
-              },
-            ],
-          }}
+          filterModel={filterModel}
         />
         <Button
           disabled={!selectedItem.activityType}

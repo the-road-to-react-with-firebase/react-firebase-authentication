@@ -126,18 +126,15 @@ const ActivityTable = ({
   onListenForBusinessGiven,
   authUser,
 }) => {
+  let today = new Date();
+  today.setDate(today.getDate() - 7);
+  let sevenDays = today.toISOString().slice(0, 10);
   const classes = useStyles();
   // getModalStyle is not a pure function, we roll the style only on the first render
   const [modalStyle] = useState(getModalStyle);
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState(false);
   const [newNote, setNewNote] = useState('');
-  const [sortModel, setSortModel] = React.useState([
-    {
-      field: 'date',
-      sort: 'desc',
-    },
-  ]);
   const [selectedItem, setSelectedItem] = useState({});
   const [dateRange, setDateRange] = useState(30);
   const [totalAmount, setTotalAmount] = useState(0);
@@ -145,9 +142,23 @@ const ActivityTable = ({
   const [totalOneOnOnes, setTotalOneOnOnes] = useState(0);
   const [totalReferrals, setTotalReferrals] = useState(0);
   const [totalEvents, setTotalEvents] = useState(0);
-  let today = new Date();
-  today.setDate(today.getDate() - 7);
-  let sevenDays = today.toISOString().slice(0, 10);
+  const [filterModel, setFilterModel] = React.useState({
+    items: [
+      {
+        columnField: 'date',
+        id: 90144,
+        operatorValue: 'onOrAfter',
+        value: sevenDays,
+      },
+    ],
+  });
+  const [sortModel, setSortModel] = React.useState([
+    {
+      field: 'date',
+      sort: 'desc',
+    },
+  ]);
+
   const handleChangeNote = (event) => {
     setNote(event.target.value);
   };
@@ -333,7 +344,7 @@ const ActivityTable = ({
   return (
     <>
       <div
-        style={{ height: 500, width: '100%', marginBottom: '5em' }}
+        style={{ height: 400, width: '100%', marginBottom: '3em' }}
       >
         <DataGrid
           onFilterModelChange={(props) => {
@@ -381,16 +392,7 @@ const ActivityTable = ({
           pageSize={10}
           getRowId={(row) => row.uid}
           sortModel={sortModel}
-          filterModel={{
-            items: [
-              {
-                columnField: 'date',
-                id: 90144,
-                operatorValue: 'onOrAfter',
-                value: sevenDays,
-              },
-            ],
-          }}
+          filterModel={filterModel}
         />
         <Button
           disabled={!selectedItem.activityType}
