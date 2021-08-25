@@ -23,7 +23,6 @@ const numbers = [25, 50, 100, 250];
 const MyActivity = ({ firebase }) => {
   const classes = useStyles();
   const [activities, setActivities] = useState([]);
-  const [businessGiven, setBusinessGiven] = useState([]);
   const [loading, setLoading] = useState(false);
   const [limit, setLimit] = useState(25);
 
@@ -42,14 +41,13 @@ const MyActivity = ({ firebase }) => {
       .limitToLast(limit)
       .on('value', (snapshot) => {
         const activityObject = snapshot.val();
-
         if (activityObject) {
           const activityList = Object.keys(activityObject).map(
             (uid) => ({
               ...activityObject[uid],
               uid,
             }),
-          );
+          );    
           firebase
             .activities()
             .orderByChild('member_id')
@@ -57,7 +55,6 @@ const MyActivity = ({ firebase }) => {
             .limitToLast(limit)
             .on('value', async (snapshot) => {
               const activityObject2 = snapshot.val();
-
               if (activityObject2) {
                 const activityList2 = Object.keys(
                   activityObject2,
@@ -67,13 +64,17 @@ const MyActivity = ({ firebase }) => {
                 }));
                 givenList = activityList2.map((obj) =>
                   obj.activityType === 'Business Received'
-                    ? { ...obj, activityType: 'Business Given', username: obj.this_username }
+                    ? {
+                        ...obj,
+                        activityType: 'Business Given',
+                        username: obj.this_username,
+                      }
                     : obj,
                 );
                 setActivities([...givenList, ...activityList]);
                 setLoading(false);
               } else {
-                setActivities([]);
+                setActivities(activityList);
                 setLoading(false);
               }
             });
@@ -83,7 +84,6 @@ const MyActivity = ({ firebase }) => {
         }
       });
   };
-
 
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
@@ -100,25 +100,25 @@ const MyActivity = ({ firebase }) => {
                 <Grid item xs={12} md={12} lg={12}>
                   {/* <Paper className={fixedHeightPaper}> */}
                   <ActivityTable
+                    setActivities={setActivities}
                     authUser={authUser}
                     onListenForActivity={onListenForActivity}
                     activities={activities}
                   />
                   {/* </Paper> */}
-
                   <InputLabel style={{ marginTop: '1em' }}>
                     Show
                   </InputLabel>
-                  Last <Select value={limit} onChange={handleChangeLimit}>
+                  Last{' '}
+                  <Select value={limit} onChange={handleChangeLimit}>
                     {numbers.map((value, index) => (
                       <MenuItem key={index} value={value}>
                         {value}
                       </MenuItem>
-                    ))} 
+                    ))}
                   </Select>
                   Activities
                 </Grid>
-              
               </Grid>
               <Box pt={1}>
                 <Copyright />

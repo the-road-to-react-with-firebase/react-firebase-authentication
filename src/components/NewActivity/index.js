@@ -58,7 +58,7 @@ const NewActivity = ({ firebase, history }) => {
   const [date, setDate] = useState(today.toISOString().slice(0, 10));
   const [activityType, setActivityType] = useState('Referral Given');
   const [note, setNote] = useState('');
-  const [oneOnOnes, setOneOnOnes] = useState(1);
+  const [oneToOnes, setOneToOnes] = useState(1);
   const [success, setSuccess] = useState(false);
 
   const handleChangeMember = (event) => {
@@ -80,8 +80,8 @@ const NewActivity = ({ firebase, history }) => {
     setDate(event.target.value);
   };
 
-  const handleChangeOneOnOnes = (event) => {
-    setOneOnOnes(event.target.value);
+  const handleChangeOneToOnes = (event) => {
+    setOneToOnes(event.target.value);
   };
 
   const handleChangeGuests = (event) => {
@@ -139,7 +139,7 @@ const NewActivity = ({ firebase, history }) => {
       amount: activityType !== 'Business Received' ? '' : amount,
       date,
       note,
-      num_one_on_ones: activityType !== 'One to One' ? '' : oneOnOnes,
+      num_one_to_ones: activityType !== 'One to One' ? '' : oneToOnes,
       attendance: activityType === 'Attendance' ? attendance : '',
       num_guests: activityType === 'Attendance' ? guests : '',
       member_id:
@@ -158,12 +158,12 @@ const NewActivity = ({ firebase, history }) => {
       setMember('former_member');
       setNote('');
       // setDate(event.target.value);
-      setOneOnOnes(1);
+      setOneToOnes(1);
       setAmount('');
       setSuccess(true);
       setTimeout(() => {
         setSuccess(false);
-      }, 3000);
+      }, 6000);
     } else {
       setSuccess(false);
     }
@@ -260,8 +260,8 @@ const NewActivity = ({ firebase, history }) => {
               <Grid item xs={12} md={6}>
                 <InputLabel>Number of One to Ones</InputLabel>
                 <Select
-                  value={oneOnOnes}
-                  onChange={handleChangeOneOnOnes}
+                  value={oneToOnes}
+                  onChange={handleChangeOneToOnes}
                 >
                   {numbers.map((value, index) => (
                     <MenuItem key={index} value={value}>
