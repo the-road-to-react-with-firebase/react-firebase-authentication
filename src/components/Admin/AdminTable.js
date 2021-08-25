@@ -7,20 +7,18 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import Paper from '@material-ui/core/Paper';
-import Container from '@material-ui/core/Container';
 import TextField from '@material-ui/core/TextField';
-import {
-  TablePagination,
-  Grid,
-  Typography,
-  Divider,
-} from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { withFirebase } from '../Firebase';
-import { componentFromStreamWithConfig } from 'recompose';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -52,7 +50,7 @@ const columns = [
   },
   { field: 'note', headerName: 'Notes', width: 150 },
   {
-    field: 'num_one_on_ones',
+    field: 'num_one_to_ones',
     headerName: '# 1 to 1s',
     width: 150,
     // hide: true,
@@ -130,29 +128,55 @@ const ActivityTable = ({
   authUser,
   selectedMember,
 }) => {
+  let today = new Date();
+  today.setDate(today.getDate() - 7);
+  let sevenDays = today.toISOString().slice(0, 10);
   const classes = useStyles();
   // getModalStyle is not a pure function, we roll the style only on the first render
   const [modalStyle] = useState(getModalStyle);
   const [open, setOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [edit, setEdit] = useState(false);
   const [newNote, setNewNote] = useState('');
   const [selectedItem, setSelectedItem] = useState({});
   const [dateRange, setDateRange] = useState(30);
   const [totalAmount, setTotalAmount] = useState(0);
   const [totalAmountGiven, setTotalAmountGiven] = useState(0);
-  const [totalOneOnOnes, setTotalOneOnOnes] = useState(0);
+  const [totalOneToOnes, setTotalOneToOnes] = useState(0);
   const [totalReferrals, setTotalReferrals] = useState(0);
   const [totalEvents, setTotalEvents] = useState(0);
+  const [totalGuests, setTotalGuests] = useState(0);
+  const [totalAttendance, setTotalAttendance] = useState(0);
   const [sortModel, setSortModel] = React.useState([
     {
       field: 'date',
       sort: 'desc',
     },
   ]);
+  const [filterModel, setFilterModel] = React.useState({
+    items: [
+      {
+        columnField: 'date',
+        id: 90144,
+        operatorValue: 'onOrAfter',
+        value: sevenDays,
+      },
+    ],
+  });
 
-  let today = new Date();
-  today.setDate(today.getDate() - 7);
-  let sevenDays = today.toISOString().slice(0, 10);
+  const handleOpenDelete = () => {
+    setDeleteOpen(true);
+  };
+
+  const handleCloseDelete = () => {
+    setDeleteOpen(false);
+  };
+
+  const handleDelete = () => {
+    firebase.activity(selectedItem.uid).remove();
+    setOpen(false);
+    setDeleteOpen(false);
+  };
 
   const handleChangeNote = (event) => {
     setNote(event.target.value);
@@ -170,11 +194,6 @@ const ActivityTable = ({
     setDateRange(event.target.value);
   };
 
-  const handleDelete = () => {
-    firebase.activity(selectedItem.uid).remove();
-    setOpen(false);
-  };
-
   const handleRenderEdit = () => {
     setEdit(true);
   };
@@ -185,19 +204,28 @@ const ActivityTable = ({
       let totalAmountGivenInit = 0;
       activities.forEach((a) => {
         if (a.activityType === 'Business Received') {
-          totalAmountInit += a.amount;
+          totalAmountInit += +a.amount;
         } else {
-          totalAmountGivenInit += a.amount;
+          totalAmountGivenInit += +a.amount;
         }
       });
       setTotalAmount(totalAmountInit);
       setTotalAmountGiven(totalAmountGivenInit);
-      setTotalOneOnOnes(
-        activities.reduce((a, b) => +a + +b.num_one_on_ones, 0),
+      setTotalOneToOnes(
+        activities.reduce((a, b) => +a + +b.num_one_to_ones, 0),
       );
 
       setTotalReferrals(
         activities.filter((a) => a.activityType === 'Referral Given')
+          .length,
+      );
+
+      setTotalGuests(
+        activities.reduce((a, b) => +a + +b.num_guests, 0),
+      );
+
+      setTotalAttendance(
+        activities.filter((a) => a.activityType === 'Attendace')
           .length,
       );
 
@@ -207,6 +235,16 @@ const ActivityTable = ({
         ).length,
       );
     }
+    setFilterModel({
+      items: [
+        {
+          columnField: 'date',
+          id: 90144,
+          operatorValue: 'onOrAfter',
+          value: sevenDays,
+        },
+      ],
+    });
   }, [activities]);
 
   useEffect(() => {
@@ -219,7 +257,7 @@ const ActivityTable = ({
     amount,
     member,
     date,
-    num_one_on_ones,
+    num_one_to_ones,
     attendance,
   } = selectedItem;
   const body = (
@@ -234,7 +272,6 @@ const ActivityTable = ({
             helperText="You cannot change the Activity Type"
             fullWidth
             value={activityType}
-            // onChange={handleChangeNote}
           />
         </Grid>
         {(activityType === 'Business Received' ||
@@ -247,7 +284,6 @@ const ActivityTable = ({
               helperText="Member involved in this activity"
               fullWidth
               value={member}
-              // onChange={handleChangeNote}
             />
           </Grid>
         )}
@@ -261,20 +297,18 @@ const ActivityTable = ({
               helperText="Amount of dollars closed"
               fullWidth
               value={note}
-              // onChange={handleChangeNote}
             />
           </Grid>
         )}
-        {num_one_on_ones > 0 && (
+        {num_one_to_ones > 0 && (
           <Grid item xs={12} md={6}>
             <TextField
               disabled={!edit}
-              id="num_one_on_ones"
+              id="num_one_to_ones"
               label="# of One to Ones"
               helperText="Number of One to Ones"
               fullWidth
-              value={num_one_on_ones}
-              // onChange={handleChangeNote}
+              value={num_one_to_ones}
             />
           </Grid>
         )}
@@ -282,12 +316,11 @@ const ActivityTable = ({
           <Grid item xs={12} md={6}>
             <TextField
               disabled={!edit}
-              id="num_one_on_ones"
+              id="num_one_to_ones"
               label="# of One to Ones"
               helperText="Number of One to Ones"
               fullWidth
-              value={num_one_on_ones}
-              // onChange={handleChangeNote}
+              value={num_one_to_ones}
             />
           </Grid>
         )}
@@ -300,7 +333,6 @@ const ActivityTable = ({
             helperText="Date of Activity"
             fullWidth
             value={date}
-            // onChange={handleChangeNote}
           />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -337,7 +369,7 @@ const ActivityTable = ({
   return (
     <>
       <div
-        style={{ height: 500, width: '100%', marginBottom: '5em' }}
+        style={{ height: 500, width: '100%', marginBottom: '3em' }}
       >
         <DataGrid
           onFilterModelChange={(props) => {
@@ -347,9 +379,11 @@ const ActivityTable = ({
             );
             let bufferTotalAmount = 0;
             let bufferTotalAmountGiven = 0;
-            let bufferTotalOneOnOnes = 0;
+            let bufferTotalOneToOnes = 0;
             let bufferTotalReferrals = 0;
             let bufferTotalEvents = 0;
+            let bufferTotalAttendance = 0;
+            let bufferTotalGuests = 0;
             if (filtered) {
               filtered.forEach((a) => {
                 if (a.activityType === 'Business Received') {
@@ -360,19 +394,26 @@ const ActivityTable = ({
                 }
                 if (a.activityType === 'Networking Event') {
                   bufferTotalEvents += 1;
+                  bufferTotalGuests += Number(a.num_guests);
+                }
+                if (a.activityType === 'Attendance') {
+                  bufferTotalAttendance += 1;
+                  bufferTotalGuests += Number(a.num_guests);
                 }
                 if (a.activityType === 'Business Given') {
                   bufferTotalAmountGiven += Number(a.amount);
                 }
                 if (a.activityType === 'One to One') {
-                  bufferTotalOneOnOnes += Number(a.num_one_on_ones);
+                  bufferTotalOneToOnes += Number(a.num_one_to_ones);
                 }
               });
               setTotalAmount(bufferTotalAmount);
               setTotalAmountGiven(bufferTotalAmountGiven);
-              setTotalOneOnOnes(bufferTotalOneOnOnes);
+              setTotalOneToOnes(bufferTotalOneToOnes);
               setTotalReferrals(bufferTotalReferrals);
               setTotalEvents(bufferTotalEvents);
+              setTotalAttendance(bufferTotalAttendance);
+              setTotalGuests(bufferTotalGuests);
             }
           }}
           // style={{ marginBottom: '1em' }}
@@ -385,26 +426,51 @@ const ActivityTable = ({
           pageSize={10}
           getRowId={(row) => row.uid}
           sortModel={sortModel}
-          filterModel={{
-            items: [
-              {
-                columnField: 'date',
-                id: 90144,
-                operatorValue: 'onOrAfter',
-                value: sevenDays,
-              },
-            ],
-          }}
+          filterModel={filterModel}
         />
-        <Button
+        {/* <Button
           disabled={!selectedItem.activityType}
           variant="contained"
           onClick={handleDelete}
           color="secondary"
         >
           Delete Selected
-        </Button>
+        </Button> */}
+
         <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleOpenDelete}
+          disabled={!selectedItem.activityType}
+        >
+          Delete Selected
+        </Button>
+        <Dialog
+          open={deleteOpen}
+          onClose={handleCloseDelete}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {'Permanently Delete Activity?'}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Are you sure you want to delete this Activity? This
+              action is permanent.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDelete} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={handleDelete} color="primary" autoFocus>
+              Delete Permanently
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* <Button
           disabled={!selectedItem.activityType}
           variant="contained"
           onClick={handleOpen}
@@ -419,7 +485,7 @@ const ActivityTable = ({
           aria-describedby="simple-modal-description"
         >
           {body}
-        </Modal>
+        </Modal> */}
       </div>
       <TableContainer component={Paper}>
         <Table className={classes.table} aria-label="simple table">
@@ -430,6 +496,8 @@ const ActivityTable = ({
               <TableCell>Total One to Ones</TableCell>
               <TableCell>Total Referrals Given</TableCell>
               <TableCell>Total Networking Events</TableCell>
+              <TableCell>Total Meetings Attended</TableCell>
+              <TableCell>Total Guests</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -440,9 +508,11 @@ const ActivityTable = ({
               <TableCell>
                 {currencyFormatter.format(Number(totalAmountGiven))}
               </TableCell>
-              <TableCell>{totalOneOnOnes}</TableCell>
+              <TableCell>{totalOneToOnes}</TableCell>
               <TableCell>{totalReferrals}</TableCell>
               <TableCell>{totalEvents}</TableCell>
+              <TableCell>{totalAttendance}</TableCell>
+              <TableCell>{totalGuests}</TableCell>
             </TableRow>
           </TableBody>
         </Table>

@@ -6,6 +6,25 @@ import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import { Container } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import Typography from '@material-ui/core/Typography';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    width: '100%',
+    marginBottom: '1em',
+    marginTop: '1em'
+  },
+  heading: {
+    fontSize: theme.typography.pxToRem(15),
+    fontWeight: theme.typography.fontWeightRegular,
+  },
+}));
+
 import { withAuthorization, withEmailVerification } from '../Session';
 import { UserList, UserItem } from '../Users';
 import AdminTable from './AdminTable';
@@ -14,6 +33,7 @@ import * as ROUTES from '../../constants/routes';
 import { AuthUserContext } from '../Session';
 import { withFirebase } from '../Firebase';
 const AdminPage = ({ firebase }) => {
+  const classes = useStyles();
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [limit, setLimit] = useState(25);
@@ -68,7 +88,7 @@ const AdminPage = ({ firebase }) => {
                 setActivities([...givenList, ...activityList]);
                 setLoading(false);
               } else {
-                setActivities([]);
+                setActivities(activityList);
                 setLoading(false);
               }
             });
@@ -125,12 +145,31 @@ const AdminPage = ({ firebase }) => {
             activities={activities}
           />
           <Switch>
-            <Route
-              exact
-              path={ROUTES.ADMIN_DETAILS}
-              component={UserItem}
-            />
-            <Route exact path={ROUTES.ADMIN} component={UserList} />
+            <div className={classes.root}>
+              <Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Typography className={classes.heading}>
+                    Users List
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Route
+                    exact
+                    path={ROUTES.ADMIN_DETAILS}
+                    component={UserItem}
+                  />
+                  <Route
+                    exact
+                    path={ROUTES.ADMIN}
+                    component={UserList}
+                  />
+                </AccordionDetails>
+              </Accordion>
+            </div>
           </Switch>
         </Container>
       )}
