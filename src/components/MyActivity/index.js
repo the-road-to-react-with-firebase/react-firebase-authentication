@@ -23,6 +23,7 @@ const numbers = [25, 50, 100, 250];
 const MyActivity = ({ firebase }) => {
   const classes = useStyles();
   const [activities, setActivities] = useState([]);
+  const [given, setGiven] = useState([]);
   const [loading, setLoading] = useState(false);
   const [limit, setLimit] = useState(25);
 
@@ -30,8 +31,36 @@ const MyActivity = ({ firebase }) => {
     setLimit(event.target.value);
   };
 
+  const onListenForGiven = (uid) => {
+    firebase
+      .activities()
+      .orderByChild('member_id')
+      .equalTo(uid)
+      .limitToLast(limit)
+      .on('value', async (snapshot) => {
+        const activityObject2 = snapshot.val();
+        if (await activityObject2) {
+          const activityList2 = Object.keys(activityObject2).map(
+            (uid) => ({
+              ...activityObject2[uid],
+              uid,
+            }),
+          );
+          const givenList = activityList2.map((obj) =>
+            obj.activityType === 'Business Received'
+              ? {
+                  ...obj,
+                  activityType: 'Business Given',
+                }
+              : obj,
+          );
+          setGiven(givenList);
+          setLoading(false);
+        }
+      });
+  };
+
   const onListenForActivity = (uid) => {
-    let givenList = [];
     setLoading(true);
 
     firebase
@@ -41,46 +70,15 @@ const MyActivity = ({ firebase }) => {
       .limitToLast(limit)
       .on('value', (snapshot) => {
         const activityObject = snapshot.val();
+
         if (activityObject) {
           const activityList = Object.keys(activityObject).map(
             (uid) => ({
               ...activityObject[uid],
               uid,
             }),
-          );    
-          firebase
-            .activities()
-            .orderByChild('member_id')
-            .equalTo(uid)
-            .limitToLast(limit)
-            .on('value', async (snapshot) => {
-              const activityObject2 = snapshot.val();
-              if (activityObject2) {
-                const activityList2 = Object.keys(
-                  activityObject2,
-                ).map((uid) => ({
-                  ...activityObject2[uid],
-                  uid,
-                }));
-                givenList = activityList2.map((obj) =>
-                  obj.activityType === 'Business Received'
-                    ? {
-                        ...obj,
-                        activityType: 'Business Given',
-                        username: obj.this_username,
-                      }
-                    : obj,
-                );
-                setActivities([...givenList, ...activityList]);
-                setLoading(false);
-              } else {
-                setActivities(activityList);
-                setLoading(false);
-              }
-            });
-        } else {
-          setActivities([]);
-          setLoading(false);
+          );
+          setActivities(activityList);
         }
       });
   };
@@ -93,19 +91,18 @@ const MyActivity = ({ firebase }) => {
         <div className={classes.root}>
           <CssBaseline />
           <main className={classes.content}>
-            {/* <div className={classes.appBarSpacer} /> */}
             <Container maxWidth="lg" className={classes.container}>
               <Divider />
               <Grid container spacing={5}>
                 <Grid item xs={12} md={12} lg={12}>
-                  {/* <Paper className={fixedHeightPaper}> */}
                   <ActivityTable
                     setActivities={setActivities}
                     authUser={authUser}
                     onListenForActivity={onListenForActivity}
+                    onListenForGiven={onListenForGiven}
                     activities={activities}
+                    given={given}
                   />
-                  {/* </Paper> */}
                   <InputLabel style={{ marginTop: '1em' }}>
                     Show
                   </InputLabel>
@@ -134,7 +131,7 @@ const MyActivity = ({ firebase }) => {
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © Designed and Created by '}
+      {'Copyright © Powered by '}
       <Link color="inherit" href="https://netwrk.biz">
         netwrk.biz
       </Link>{' '}

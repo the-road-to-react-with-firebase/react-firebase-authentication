@@ -125,15 +125,17 @@ const dateRanges = [7, 30, 60, 90, 180, 365];
 
 const ActivityTable = ({
   activities,
+  given,
   firebase,
   onListenForActivity,
+  onListenForGiven,
   authUser,
 }) => {
   let today = new Date();
   today.setDate(today.getDate() - 7);
   let sevenDays = today.toISOString().slice(0, 10);
   const classes = useStyles();
-  const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [modalStyle] = useState(getModalStyle);
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState(false);
@@ -148,8 +150,8 @@ const ActivityTable = ({
   const [totalAttendance, setTotalAttendance] = useState(0);
   const [totalGuests, setTotalGuests] = useState(0);
   const [filterModel, setFilterModel] = useState();
-  const [isFiltered, setIsFiltered] = React.useState(false);
-  const [sortModel, setSortModel] = React.useState([
+  const [isFiltered, setIsFiltered] = useState(false);
+  const [sortModel, setSortModel] = useState([
     {
       field: 'date',
       sort: 'desc',
@@ -317,6 +319,7 @@ const ActivityTable = ({
 
   useEffect(() => {
     onListenForActivity(authUser.uid);
+    onListenForGiven(authUser.uid);
   }, []);
 
   useEffect(() => {
@@ -367,7 +370,7 @@ const ActivityTable = ({
   return (
     <>
       <div
-        style={{ height: 450, width: '100%', marginBottom: '3em' }}
+        style={{ height: 500, width: '100%', marginBottom: '3em' }}
       >
         <DataGrid
           onFilterModelChange={(props) => {
@@ -375,6 +378,7 @@ const ActivityTable = ({
               props.visibleRows,
               ([name, value]) => ({ ...value }),
             );
+            setIsFiltered(true)
             let bufferTotalAmount = 0;
             let bufferTotalAmountGiven = 0;
             let bufferTotalOneToOnes = 0;
@@ -418,7 +422,7 @@ const ActivityTable = ({
             Toolbar: GridToolbar,
           }}
           onRowSelected={(e) => setSelectedItem(e.data)}
-          rows={activities}
+          rows={[...activities, ...given]}
           columns={columns}
           pageSize={10}
           getRowId={(row) => row.uid}
@@ -483,6 +487,7 @@ const ActivityTable = ({
           {body}
         </Modal> */}
       </div>
+      {isFiltered && <Typography variant="caption" >The totals shown below are based on the last 7 days of activity unless the filter is changed.</Typography>}
       <TableContainer component={Paper}>
         <Table className={classes.table} aria-label="simple table">
           <TableHead>

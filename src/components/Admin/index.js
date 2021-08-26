@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
     marginBottom: '1em',
-    marginTop: '1em'
+    marginTop: '1em',
   },
   heading: {
     fontSize: theme.typography.pxToRem(15),
@@ -35,6 +35,7 @@ import { withFirebase } from '../Firebase';
 const AdminPage = ({ firebase }) => {
   const classes = useStyles();
   const [activities, setActivities] = useState([]);
+  const [given, setGiven] = useState([]);
   const [loading, setLoading] = useState(false);
   const [limit, setLimit] = useState(25);
   const [users, setUsers] = useState([
@@ -42,9 +43,38 @@ const AdminPage = ({ firebase }) => {
   ]);
   const [selectedMember, setSelectedMember] =
     useState('former_member');
+
+  const onListenForGiven = (uid) => {
+    firebase
+      .activities()
+      .orderByChild('member_id')
+      .equalTo(uid)
+      .limitToLast(limit)
+      .on('value', async (snapshot) => {
+        const activityObject2 = snapshot.val();
+        console.log(activityObject2);
+        if (await activityObject2) {
+          const activityList2 = Object.keys(activityObject2).map(
+            (uid) => ({
+              ...activityObject2[uid],
+              uid,
+            }),
+          );
+          const givenList = activityList2.map((obj) =>
+            obj.activityType === 'Business Received'
+              ? {
+                  ...obj,
+                  activityType: 'Business Given',
+                }
+              : obj,
+          );
+          setGiven(givenList);
+          setLoading(false);
+        }
+      });
+  };
+
   const onListenForActivity = (uid) => {
-    setLoading(true);
-    let givenList = [];
     setLoading(true);
 
     firebase
@@ -62,39 +92,7 @@ const AdminPage = ({ firebase }) => {
               uid,
             }),
           );
-          firebase
-            .activities()
-            .orderByChild('member_id')
-            .equalTo(uid)
-            .limitToLast(limit)
-            .on('value', async (snapshot) => {
-              const activityObject2 = snapshot.val();
-
-              if (activityObject2) {
-                const activityList2 = Object.keys(
-                  activityObject2,
-                ).map((uid) => ({
-                  ...activityObject2[uid],
-                  uid,
-                }));
-                givenList = activityList2.map((obj) =>
-                  obj.activityType === 'Business Received'
-                    ? {
-                        ...obj,
-                        activityType: 'Business Given',
-                      }
-                    : obj,
-                );
-                setActivities([...givenList, ...activityList]);
-                setLoading(false);
-              } else {
-                setActivities(activityList);
-                setLoading(false);
-              }
-            });
-        } else {
-          setActivities([]);
-          setLoading(false);
+          setActivities(activityList);
         }
       });
   };
@@ -131,18 +129,26 @@ const AdminPage = ({ firebase }) => {
               value={selectedMember}
               onChange={handleChangeMember}
             >
-              {users.map((data, index) => (
-                <MenuItem key={index} value={data.uid}>
-                  {data.username}
-                </MenuItem>
-              ))}
+              {users.map((data, index) => {
+                console.log(authUser)
+                if (data.uid !== authUser.uid) {
+                  return (
+                    <MenuItem key={index} value={data.uid}>
+                      {data.username}
+                    </MenuItem>
+                  );
+                }
+              })}
             </Select>
           </Grid>
           <AdminTable
             selectedMember={selectedMember}
             authUser={authUser}
             onListenForActivity={onListenForActivity}
+            onListenForGiven={onListenForGiven}
             activities={activities}
+            given={given}
+            setActivities={setActivities}
           />
           <Switch>
             <div className={classes.root}>

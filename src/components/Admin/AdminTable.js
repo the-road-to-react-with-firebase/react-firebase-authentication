@@ -123,11 +123,15 @@ const dateRanges = [7, 30, 60, 90, 180, 365];
 
 const ActivityTable = ({
   activities,
+  given,
   firebase,
   onListenForActivity,
-  authUser,
+  onListenForGiven,
   selectedMember,
+  setActivities,
 }) => {
+  console.log(activities)
+  console.log(given, activities)
   let today = new Date();
   today.setDate(today.getDate() - 7);
   let sevenDays = today.toISOString().slice(0, 10);
@@ -249,6 +253,7 @@ const ActivityTable = ({
 
   useEffect(() => {
     onListenForActivity(selectedMember);
+    onListenForGiven(selectedMember);
   }, [selectedMember]);
 
   const {
@@ -421,7 +426,7 @@ const ActivityTable = ({
             Toolbar: GridToolbar,
           }}
           onRowSelected={(e) => setSelectedItem(e.data)}
-          rows={activities}
+          rows={[...activities, ...given]}
           columns={columns}
           pageSize={10}
           getRowId={(row) => row.uid}
