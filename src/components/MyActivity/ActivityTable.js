@@ -417,7 +417,6 @@ const ActivityTable = ({
               setTotalAttendance(bufferTotalAttendance);
             }
           }}
-          // style={{ marginBottom: '1em' }}
           components={{
             Toolbar: GridToolbar,
           }}
