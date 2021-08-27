@@ -15,8 +15,12 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import { Grid } from '@material-ui/core';
-import Modal from '@material-ui/core/Modal';
+// import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
 
 import { withFirebase } from '../Firebase';
 
@@ -127,11 +131,10 @@ const ActivityTable = ({
   firebase,
   onListenForActivity,
   onListenForGiven,
-  selectedMember,
-  setActivities,
+  loading,
+  setLoading,
+  authUser,
 }) => {
-  console.log(activities)
-  console.log(given, activities)
   let today = new Date();
   today.setDate(today.getDate() - 7);
   let sevenDays = today.toISOString().slice(0, 10);
@@ -157,16 +160,12 @@ const ActivityTable = ({
       sort: 'desc',
     },
   ]);
-  const [filterModel, setFilterModel] = React.useState({
-    items: [
-      {
-        columnField: 'date',
-        id: 90144,
-        operatorValue: 'onOrAfter',
-        value: sevenDays,
-      },
-    ],
-  });
+  const [filterModel, setFilterModel] = React.useState();
+  const [users, setUsers] = useState([
+    { username: 'Former Member', uid: 'former_member' },
+  ]);
+  const [selectedMember, setSelectedMember] =
+    useState('former_member');
 
   const handleOpenDelete = () => {
     setDeleteOpen(true);
@@ -180,6 +179,14 @@ const ActivityTable = ({
     firebase.activity(selectedItem.uid).remove();
     setOpen(false);
     setDeleteOpen(false);
+  };
+  const handleChangeMember = (event) => {
+    setSelectedMember(event.target.value);
+    setLoading(true);
+    setTimeout(() => {
+      calculate();
+      setLoading(false);
+    }, 500);
   };
 
   const handleChangeNote = (event) => {
@@ -202,59 +209,22 @@ const ActivityTable = ({
     setEdit(true);
   };
 
-  useEffect(() => {
-    if (activities.length > 0) {
-      let totalAmountInit = 0;
-      let totalAmountGivenInit = 0;
-      activities.forEach((a) => {
-        if (a.activityType === 'Business Received') {
-          totalAmountInit += +a.amount;
-        } else {
-          totalAmountGivenInit += +a.amount;
-        }
-      });
-      setTotalAmount(totalAmountInit);
-      setTotalAmountGiven(totalAmountGivenInit);
-      setTotalOneToOnes(
-        activities.reduce((a, b) => +a + +b.num_one_to_ones, 0),
-      );
+  const onListenForUsers = () => {
+    firebase.users().on('value', (snapshot) => {
+      const usersObject = snapshot.val();
 
-      setTotalReferrals(
-        activities.filter((a) => a.activityType === 'Referral Given')
-          .length,
-      );
+      const usersList = Object.keys(usersObject).map((key) => ({
+        ...usersObject[key],
+        uid: key,
+      }));
 
-      setTotalGuests(
-        activities.reduce((a, b) => +a + +b.num_guests, 0),
-      );
-
-      setTotalAttendance(
-        activities.filter((a) => a.activityType === 'Attendace')
-          .length,
-      );
-
-      setTotalEvents(
-        activities.filter(
-          (a) => a.activityType === 'Networking Event',
-        ).length,
-      );
-    }
-    setFilterModel({
-      items: [
-        {
-          columnField: 'date',
-          id: 90144,
-          operatorValue: 'onOrAfter',
-          value: sevenDays,
-        },
-      ],
+      setUsers([...users, ...usersList]);
     });
-  }, [activities]);
+  };
 
   useEffect(() => {
-    onListenForActivity(selectedMember);
-    onListenForGiven(selectedMember);
-  }, [selectedMember]);
+    onListenForUsers();
+  }, []);
 
   const {
     activityType,
@@ -371,12 +341,94 @@ const ActivityTable = ({
       </Grid>
     </div>
   );
+
+  const calculate = () => {
+    if (activities.length > 0) {;
+      let totalAmountInit = 0;
+      let totalAmountGivenInit = 0;
+      [...given, ...activities].forEach((a) => {
+        if (a.activityType === 'Business Received') {
+          totalAmountInit += +a.amount;
+        } else {
+          totalAmountGivenInit += +a.amount;
+        }
+      });
+      setTotalAmount(totalAmountInit);
+      setTotalAmountGiven(totalAmountGivenInit);
+      setTotalOneToOnes(
+        activities.reduce((a, b) => +a + +b.num_one_to_ones, 0),
+      );
+
+      setTotalReferrals(
+        activities.filter((a) => a.activityType === 'Referral Given')
+          .length,
+      );
+
+      setTotalGuests(
+        activities.reduce((a, b) => +a + +b.num_guests, 0),
+      );
+
+      setTotalAttendance(
+        activities.filter((a) => a.activityType === 'Attendace')
+          .length,
+      );
+
+      setTotalEvents(
+        activities.filter(
+          (a) => a.activityType === 'Networking Event',
+        ).length,
+      );
+    }
+    setFilterModel({
+      items: [
+        {
+          columnField: 'date',
+          id: 90144,
+          operatorValue: 'onOrAfter',
+          value: sevenDays,
+        },
+      ],
+    });
+  };
+
+  useEffect(() => {
+    onListenForGiven(selectedMember);
+    onListenForActivity(selectedMember);
+  }, [selectedMember]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      calculate();
+    }, 1000);
+  }, [activities]);
+
   return (
     <>
       <div
-        style={{ height: 500, width: '100%', marginBottom: '3em' }}
+        style={{ height: 500, width: '100%', marginBottom: '12em' }}
       >
+        <h1>Admin</h1>
+        <p>Select a member to view each members activites.</p>
+
+        <Grid item xs={12} md={6}>
+          <InputLabel>Member</InputLabel>
+          <Select
+            value={selectedMember}
+            onChange={handleChangeMember}
+          >
+            {users.map((data, index) => {
+              if (data.uid !== authUser.uid) {
+                return (
+                  <MenuItem key={index} value={data.uid}>
+                    {data.username}
+                  </MenuItem>
+                );
+              }
+            })}
+          </Select>
+        </Grid>
         <DataGrid
+          loading={loading}
           onFilterModelChange={(props) => {
             let filtered = Array.from(
               props.visibleRows,
@@ -419,6 +471,7 @@ const ActivityTable = ({
               setTotalEvents(bufferTotalEvents);
               setTotalAttendance(bufferTotalAttendance);
               setTotalGuests(bufferTotalGuests);
+            } else {
             }
           }}
           // style={{ marginBottom: '1em' }}
@@ -426,7 +479,7 @@ const ActivityTable = ({
             Toolbar: GridToolbar,
           }}
           onRowSelected={(e) => setSelectedItem(e.data)}
-          rows={[...activities, ...given]}
+          rows={[...given, ...activities]}
           columns={columns}
           pageSize={10}
           getRowId={(row) => row.uid}
@@ -493,6 +546,7 @@ const ActivityTable = ({
         </Modal> */}
       </div>
       <TableContainer component={Paper}>
+        {loading && <LinearProgress color="primary" />}
         <Table className={classes.table} aria-label="simple table">
           <TableHead>
             <TableRow>

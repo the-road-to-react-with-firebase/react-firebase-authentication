@@ -32,6 +32,7 @@ const MyActivity = ({ firebase }) => {
   };
 
   const onListenForGiven = (uid) => {
+    setLoading(true);
     firebase
       .activities()
       .orderByChild('member_id')
@@ -56,6 +57,8 @@ const MyActivity = ({ firebase }) => {
           );
           setGiven(givenList);
           setLoading(false);
+        } else {
+          setLoading(false);
         }
       });
   };
@@ -79,6 +82,9 @@ const MyActivity = ({ firebase }) => {
             }),
           );
           setActivities(activityList);
+          setLoading(false);
+        } else {
+          setLoading(false);
         }
       });
   };
@@ -96,6 +102,7 @@ const MyActivity = ({ firebase }) => {
               <Grid container spacing={5}>
                 <Grid item xs={12} md={12} lg={12}>
                   <ActivityTable
+                    loading={loading}
                     setActivities={setActivities}
                     authUser={authUser}
                     onListenForActivity={onListenForActivity}

@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Switch, Route } from 'react-router-dom';
 import { compose } from 'recompose';
-import Grid from '@material-ui/core/Grid';
-import Select from '@material-ui/core/Select';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
+
 import { Container } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Accordion from '@material-ui/core/Accordion';
@@ -38,13 +35,9 @@ const AdminPage = ({ firebase }) => {
   const [given, setGiven] = useState([]);
   const [loading, setLoading] = useState(false);
   const [limit, setLimit] = useState(25);
-  const [users, setUsers] = useState([
-    { username: 'Former Member', uid: 'former_member' },
-  ]);
-  const [selectedMember, setSelectedMember] =
-    useState('former_member');
 
   const onListenForGiven = (uid) => {
+    setLoading(true);
     firebase
       .activities()
       .orderByChild('member_id')
@@ -52,7 +45,6 @@ const AdminPage = ({ firebase }) => {
       .limitToLast(limit)
       .on('value', async (snapshot) => {
         const activityObject2 = snapshot.val();
-        console.log(activityObject2);
         if (await activityObject2) {
           const activityList2 = Object.keys(activityObject2).map(
             (uid) => ({
@@ -60,15 +52,24 @@ const AdminPage = ({ firebase }) => {
               uid,
             }),
           );
-          const givenList = activityList2.map((obj) =>
-            obj.activityType === 'Business Received'
-              ? {
-                  ...obj,
-                  activityType: 'Business Given',
-                }
-              : obj,
-          );
+          const givenList = activityList2.map((obj) => {
+            if (obj.activityType === 'Business Received') {
+              return {
+                ...obj,
+                activityType: 'Business Given',
+              };
+            } else if (obj.activityType === 'Referral Given') {
+              return {
+                ...obj,
+                activityType: 'Referral Received',
+              };
+            } else {
+              return obj;
+            }
+          });
           setGiven(givenList);
+          setLoading(false);
+        } else {
           setLoading(false);
         }
       });
@@ -93,62 +94,25 @@ const AdminPage = ({ firebase }) => {
             }),
           );
           setActivities(activityList);
+          setLoading(false);
+        } else {
+          setLoading(false);
         }
       });
   };
 
-  const handleChangeMember = (event) => {
-    setSelectedMember(event.target.value);
-  };
-
-  useEffect(() => {
-    const onListenForUsers = () => {
-      firebase.users().on('value', (snapshot) => {
-        const usersObject = snapshot.val();
-
-        const usersList = Object.keys(usersObject).map((key) => ({
-          ...usersObject[key],
-          uid: key,
-        }));
-
-        setUsers([...users, ...usersList]);
-      });
-    };
-    onListenForUsers();
-  }, []);
   return (
     <AuthUserContext.Consumer>
       {(authUser) => (
         <Container>
-          <h1>Admin</h1>
-          <p>Select a member to view each members activites.</p>
-
-          <Grid item xs={12} md={6}>
-            <InputLabel>Member</InputLabel>
-            <Select
-              value={selectedMember}
-              onChange={handleChangeMember}
-            >
-              {users.map((data, index) => {
-                console.log(authUser)
-                if (data.uid !== authUser.uid) {
-                  return (
-                    <MenuItem key={index} value={data.uid}>
-                      {data.username}
-                    </MenuItem>
-                  );
-                }
-              })}
-            </Select>
-          </Grid>
           <AdminTable
-            selectedMember={selectedMember}
+            setLoading={setLoading}
+            loading={loading}
             authUser={authUser}
             onListenForActivity={onListenForActivity}
             onListenForGiven={onListenForGiven}
             activities={activities}
             given={given}
-            setActivities={setActivities}
           />
           <Switch>
             <div className={classes.root}>

@@ -14,13 +14,9 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
-import {
-  TablePagination,
-  Grid,
-  InputLabel,
-  Typography,
-  Divider,
-} from '@material-ui/core';
+import LinearProgress from '@material-ui/core/LinearProgress';
+
+import { Grid, Typography, Divider } from '@material-ui/core';
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -130,6 +126,7 @@ const ActivityTable = ({
   onListenForActivity,
   onListenForGiven,
   authUser,
+  loading,
 }) => {
   let today = new Date();
   today.setDate(today.getDate() - 7);
@@ -149,7 +146,6 @@ const ActivityTable = ({
   const [totalEvents, setTotalEvents] = useState(0);
   const [totalAttendance, setTotalAttendance] = useState(0);
   const [totalGuests, setTotalGuests] = useState(0);
-  const [filterModel, setFilterModel] = useState();
   const [isFiltered, setIsFiltered] = useState(false);
   const [sortModel, setSortModel] = useState([
     {
@@ -157,7 +153,7 @@ const ActivityTable = ({
       sort: 'desc',
     },
   ]);
-
+  const [filterModel, setFilterModel] = useState();
 
   const handleOpenDelete = () => {
     setDeleteOpen(true);
@@ -180,16 +176,14 @@ const ActivityTable = ({
   const handleClose = () => {
     setOpen(false);
   };
-  
+
   const handleChangeNote = (event) => {
     setNote(event.target.value);
   };
 
-
   const handleChangeDateRange = (event) => {
     setDateRange(event.target.value);
   };
-
 
   const handleRenderEdit = () => {
     setEdit(true);
@@ -322,11 +316,11 @@ const ActivityTable = ({
     onListenForGiven(authUser.uid);
   }, []);
 
-  useEffect(() => {
+  const calculate = () => {
     if (activities.length > 0) {
       let totalAmountInit = 0;
       let totalAmountGivenInit = 0;
-      activities.forEach((a) => {
+      [...given, ...activities].forEach((a) => {
         if (a.activityType === 'Business Received') {
           totalAmountInit += +a.amount;
         } else {
@@ -365,8 +359,11 @@ const ActivityTable = ({
         },
       ],
     });
-  }, [activities]);
+  };
 
+  useEffect(() => {
+    calculate();
+  }, [activities]);
   return (
     <>
       <div
@@ -378,7 +375,7 @@ const ActivityTable = ({
               props.visibleRows,
               ([name, value]) => ({ ...value }),
             );
-            setIsFiltered(true)
+            // setIsFiltered(true)
             let bufferTotalAmount = 0;
             let bufferTotalAmountGiven = 0;
             let bufferTotalOneToOnes = 0;
@@ -427,6 +424,7 @@ const ActivityTable = ({
           getRowId={(row) => row.uid}
           sortModel={sortModel}
           filterModel={filterModel}
+          loading={loading}
         />
         {/* <Button
           disabled={!selectedItem.activityType}
@@ -452,11 +450,12 @@ const ActivityTable = ({
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            {"Permanently Delete Activity?"}
+            {'Permanently Delete Activity?'}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              Are you sure you want to delete this Activity? This action is permanent.
+              Are you sure you want to delete this Activity? This
+              action is permanent.
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -486,7 +485,13 @@ const ActivityTable = ({
           {body}
         </Modal> */}
       </div>
-      {isFiltered && <Typography variant="caption" >The totals shown below are based on the last 7 days of activity unless the filter is changed.</Typography>}
+      {isFiltered && (
+        <Typography variant="caption">
+          The totals shown below are based on the last 7 days of
+          activity unless the filter is changed.
+        </Typography>
+      )}
+      {loading && <LinearProgress color="primary" />}
       <TableContainer component={Paper}>
         <Table className={classes.table} aria-label="simple table">
           <TableHead>
@@ -513,7 +518,6 @@ const ActivityTable = ({
               <TableCell>{totalEvents}</TableCell>
               <TableCell>{totalAttendance}</TableCell>
               <TableCell>{totalGuests}</TableCell>
-              
             </TableRow>
           </TableBody>
         </Table>
