@@ -181,12 +181,11 @@ const ActivityTable = ({
     setDeleteOpen(false);
   };
   const handleChangeMember = (event) => {
+    
     setSelectedMember(event.target.value);
-    setLoading(true);
     setTimeout(() => {
       calculate();
-      setLoading(false);
-    }, 500);
+    }, 250);
   };
 
   const handleChangeNote = (event) => {
