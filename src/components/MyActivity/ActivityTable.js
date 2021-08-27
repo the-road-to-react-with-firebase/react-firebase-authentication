@@ -375,7 +375,6 @@ const ActivityTable = ({
               props.visibleRows,
               ([name, value]) => ({ ...value }),
             );
-            // setIsFiltered(true)
             let bufferTotalAmount = 0;
             let bufferTotalAmountGiven = 0;
             let bufferTotalOneToOnes = 0;
@@ -485,12 +484,10 @@ const ActivityTable = ({
           {body}
         </Modal> */}
       </div>
-      {isFiltered && (
         <Typography variant="caption">
           The totals shown below are based on the last 7 days of
           activity unless the filter is changed.
         </Typography>
-      )}
       {loading && <LinearProgress color="primary" />}
       <TableContainer component={Paper}>
         <Table className={classes.table} aria-label="simple table">
