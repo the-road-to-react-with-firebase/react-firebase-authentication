@@ -113,7 +113,6 @@ const SignUpFormBase = ({ firebase, history }) => {
         });
       })
       .then(() => {
-        console.log('confirm');
         return firebase.doSendEmailVerification();
       })
       .then(() => {

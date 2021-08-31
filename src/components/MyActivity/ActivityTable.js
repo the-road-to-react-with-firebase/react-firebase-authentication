@@ -342,6 +342,9 @@ const ActivityTable = ({
         activities.filter((a) => a.activityType === 'Referral Given')
           .length,
       );
+      setTotalAttendance(
+        activities.filter((a) => a.attendance).length,
+      );
 
       setTotalEvents(
         activities.filter(
@@ -400,7 +403,7 @@ const ActivityTable = ({
                   bufferTotalOneToOnes += Number(a.num_one_to_ones);
                 }
                 if (a.activityType === 'Attendance') {
-                  bufferTotalAttendance += 1;
+                  bufferTotalAttendance += a.attendance ? 1 : 0;
                   bufferTotalGuests += Number(a.num_guests);
                 }
               });
@@ -484,10 +487,10 @@ const ActivityTable = ({
           {body}
         </Modal> */}
       </div>
-        <Typography variant="caption">
-          The totals shown below are based on the last 7 days of
-          activity unless the filter is changed.
-        </Typography>
+      <Typography variant="caption">
+        The totals shown below are based on the last 7 days of
+        activity unless the filter is changed.
+      </Typography>
       {loading && <LinearProgress color="primary" />}
       <TableContainer component={Paper}>
         <Table className={classes.table} aria-label="simple table">

@@ -163,7 +163,7 @@ const ActivityTable = ({
   const [filterModel, setFilterModel] = React.useState();
   const [users, setUsers] = useState([
     { username: 'Former Member', uid: 'former_member' },
-    { username: 'All Members', uid: 'all_members' }
+    { username: 'All Members', uid: 'all_members' },
   ]);
   const [selectedMember, setSelectedMember] =
     useState('former_member');
@@ -182,7 +182,6 @@ const ActivityTable = ({
     setDeleteOpen(false);
   };
   const handleChangeMember = (event) => {
-    
     setSelectedMember(event.target.value);
     setTimeout(() => {
       calculate();
@@ -343,7 +342,7 @@ const ActivityTable = ({
   );
 
   const calculate = () => {
-    if (activities.length > 0) {;
+    if (activities.length > 0) {
       let totalAmountInit = 0;
       let totalAmountGivenInit = 0;
       [...given, ...activities].forEach((a) => {
@@ -369,7 +368,7 @@ const ActivityTable = ({
       );
 
       setTotalAttendance(
-        activities.filter((a) => a.activityType === 'Attendace')
+        activities.filter((a) => a.attendance)
           .length,
       );
 
@@ -454,7 +453,7 @@ const ActivityTable = ({
                   bufferTotalGuests += Number(a.num_guests);
                 }
                 if (a.activityType === 'Attendance') {
-                  bufferTotalAttendance += 1;
+                  bufferTotalAttendance += a.attendance ? 1 : 0;
                   bufferTotalGuests += Number(a.num_guests);
                 }
                 if (a.activityType === 'Business Given') {

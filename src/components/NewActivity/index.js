@@ -39,7 +39,7 @@ const options = [
   'Attendance'
 ];
 
-const present = ['Present', 'Absent'];
+const present = [{display: 'Present', value: true}, {display:'Absent', value: false}];
 
 const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -54,7 +54,7 @@ const NewActivity = ({ firebase, history }) => {
   const [member, setMember] = useState('former_member');
   const [username, setUsername] = useState('Former Member');
   const [amount, setAmount] = useState('');
-  const [attendance, setAttendance] = useState('Present');
+  const [attendance, setAttendance] = useState(true);
   const [date, setDate] = useState(today.toISOString().slice(0, 10));
   const [activityType, setActivityType] = useState('Referral Given');
   const [note, setNote] = useState('');
@@ -73,7 +73,13 @@ const NewActivity = ({ firebase, history }) => {
   };
 
   const handleChangeAttendance = (event) => {
-    setAttendance(event.target.value);
+    const att = event.target.value
+    if (att === 'Present') {
+      setAttendance(true);
+
+    } else {
+      setAttendance(false)
+    }
   };
 
   const handleChangeDate = (event) => {
@@ -190,7 +196,7 @@ const NewActivity = ({ firebase, history }) => {
             variant="subtitle1"
             gutterBottom
           >
-            Track a New Activity by selecting from the options below,
+            Track a <strong>new activity</strong> by selecting from the options below,
             hit save when you are finished.
           </Typography>
           <Grid container spacing={3}>
@@ -219,8 +225,8 @@ const NewActivity = ({ firebase, history }) => {
                   onChange={handleChangeAttendance}
                 >
                   {present.map((value, index) => (
-                    <MenuItem key={index} value={value}>
-                      {value}
+                    <MenuItem key={index} value={value.value}>
+                      {value.display}
                     </MenuItem>
                   ))}
                 </Select>
