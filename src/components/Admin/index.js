@@ -38,67 +38,96 @@ const AdminPage = ({ firebase }) => {
 
   const onListenForGiven = (uid) => {
     setLoading(true);
-    firebase
-      .activities()
-      .orderByChild('member_id')
-      .equalTo(uid)
-      .limitToLast(limit)
-      .on('value', async (snapshot) => {
-        const activityObject2 = snapshot.val();
-        if (await activityObject2) {
-          const activityList2 = Object.keys(activityObject2).map(
-            (uid) => ({
-              ...activityObject2[uid],
-              uid,
-            }),
-          );
-          const givenList = activityList2.map((obj) => {
-            if (obj.activityType === 'Business Received') {
-              return {
-                ...obj,
-                activityType: 'Business Given',
-              };
-            } else if (obj.activityType === 'Referral Given') {
-              return {
-                ...obj,
-                activityType: 'Referral Received',
-              };
-            } else {
-              return obj;
-            }
-          });
-          setGiven(givenList);
-          setLoading(false);
-        } else {
-          setLoading(false);
-        }
-      });
+    if (uid === 'all_members') {
+      setGiven([]);
+      setLoading(false);
+    } else {
+      firebase
+        .activities()
+        .orderByChild('member_id')
+        .equalTo(uid)
+        .limitToLast(limit)
+        .on('value', async (snapshot) => {
+          const activityObject2 = snapshot.val();
+          if (await activityObject2) {
+            const activityList2 = Object.keys(activityObject2).map(
+              (uid) => ({
+                ...activityObject2[uid],
+                uid,
+              }),
+            );
+            const givenList = activityList2.map((obj) => {
+              if (obj.activityType === 'Business Received') {
+                return {
+                  ...obj,
+                  activityType: 'Business Given',
+                };
+              } else if (obj.activityType === 'Referral Given') {
+                return {
+                  ...obj,
+                  activityType: 'Referral Received',
+                };
+              } else {
+                return obj;
+              }
+            });
+            setGiven(givenList);
+            setLoading(false);
+          } else {
+            setGiven([])
+            setLoading(false);
+          }
+        });
+    }
   };
 
   const onListenForActivity = (uid) => {
     setLoading(true);
+    if (uid === 'all_members') {
+      firebase
+        .activities()
+        .on('value', (snapshot) => {
+          const activityObject = snapshot.val();
 
-    firebase
-      .activities()
-      .orderByChild('userId')
-      .equalTo(uid)
-      .limitToLast(limit)
-      .on('value', (snapshot) => {
-        const activityObject = snapshot.val();
+          if (activityObject) {
+            const activityList = Object.keys(activityObject).map(
+              (uid) => ({
+                ...activityObject[uid],
+                uid,
+              }),
+            );
+            setActivities(activityList);
+            setLoading(false);
+          } else {
+            setActivities([])
+            setLoading(false);
+          }
+        });
+    } else {
+      
+      firebase
+        .activities()
+        .orderByChild('userId')
+        .equalTo(uid)
+        .limitToLast(limit)
+        .on('value', (snapshot) => {
+          const activityObject = snapshot.val();
 
-        if (activityObject) {
-          const activityList = Object.keys(activityObject).map(
-            (uid) => ({
-              ...activityObject[uid],
-              uid,
-            }),
-          );
-          setActivities(activityList);
-          setLoading(false);
-        } else {
-          setLoading(false);
-        }
-      });
+          if (activityObject) {
+            const activityList = Object.keys(activityObject).map(
+              (uid) => ({
+                ...activityObject[uid],
+                uid,
+              }),
+            );
+            setActivities(activityList);
+            setLoading(false);
+          } else {
+            setActivities([])
+            setLoading(false);
+          }
+        });
+    }
   };
 
   return (

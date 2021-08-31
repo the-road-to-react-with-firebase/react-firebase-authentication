@@ -163,6 +163,7 @@ const ActivityTable = ({
   const [filterModel, setFilterModel] = React.useState();
   const [users, setUsers] = useState([
     { username: 'Former Member', uid: 'former_member' },
+    { username: 'All Members', uid: 'all_members' }
   ]);
   const [selectedMember, setSelectedMember] =
     useState('former_member');
