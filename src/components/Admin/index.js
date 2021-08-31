@@ -46,7 +46,6 @@ const AdminPage = ({ firebase }) => {
         .activities()
         .orderByChild('member_id')
         .equalTo(uid)
-        .limitToLast(limit)
         .on('value', async (snapshot) => {
           const activityObject2 = snapshot.val();
           if (await activityObject2) {
@@ -109,7 +108,6 @@ const AdminPage = ({ firebase }) => {
         .activities()
         .orderByChild('userId')
         .equalTo(uid)
-        .limitToLast(limit)
         .on('value', (snapshot) => {
           const activityObject = snapshot.val();
 
