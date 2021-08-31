@@ -89,13 +89,22 @@ const SignUpFormBase = ({ firebase, history }) => {
   const [username, setUsername] = useState('');
   const [isAdmin, setIsAdmin] = useState('');
   const [error, setError] = useState(undefined);
-  const [showPasswordOne, setShowPasswordOne] = useState(false)
-  const [showPasswordTwo, setShowPasswordTwo] = useState(false)
+  const [showPasswordOne, setShowPasswordOne] = useState(false);
+  const [showPasswordTwo, setShowPasswordTwo] = useState(false);
+  const [accessCode, setAccessCode] = useState('');
 
   const onSubmit = (event) => {
     event.preventDefault();
     const roles = {};
-
+    if (
+      accessCode !== 'imanmrner2021' ||
+      accessCode !== 'imanmrnadmin2021'
+    ) {
+      setError({
+        message:
+          'invalid access code, access denied... nice try hackers!',
+      });
+    }
     if (isAdmin) {
       roles[ROLES.ADMIN] = ROLES.ADMIN;
     } else {
@@ -121,6 +130,7 @@ const SignUpFormBase = ({ firebase, history }) => {
         setPasswordTwo('');
         setShowPasswordOne(false);
         setShowPasswordTwo(false);
+        setAccessCode('');
         setUsername('');
         setIsAdmin('');
         history.push(ROUTES.HOME);
@@ -137,16 +147,16 @@ const SignUpFormBase = ({ firebase, history }) => {
   };
 
   const handleClickShowPasswordOne = () => {
-    setShowPasswordOne(!showPasswordOne)
-  }
+    setShowPasswordOne(!showPasswordOne);
+  };
 
   const handleMouseDownPasswordOne = (event) => {
     event.preventDefault();
   };
 
   const handleClickShowPasswordTwo = () => {
-    setShowPasswordTwo(!showPasswordTwo)
-  }
+    setShowPasswordTwo(!showPasswordTwo);
+  };
 
   const handleMouseDownPasswordTwo = (event) => {
     event.preventDefault();
@@ -164,6 +174,9 @@ const SignUpFormBase = ({ firebase, history }) => {
     if (event.target.name === 'passwordTwo') {
       setPasswordTwo(event.target.value);
     }
+    if (event.target.name === 'accessCode') {
+      setAccessCode(event.target.value);
+    }
   };
 
   const onChangeCheckbox = (event) => {
@@ -176,13 +189,11 @@ const SignUpFormBase = ({ firebase, history }) => {
     passwordOne !== passwordTwo ||
     passwordOne === '' ||
     email === '' ||
-    username === '';
+    username === '' ||
+    (accessCode !== 'imanMRNer2021!' &&
+      accessCode !== 'imanMRNadmin2021!');
 
   const isMatch = passwordOne === passwordTwo;
-  const isValidPassword =
-    passwordOne.match(
-      /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
-    ) === null;
 
   return (
     <>
@@ -238,12 +249,12 @@ const SignUpFormBase = ({ firebase, history }) => {
                       aria-label="toggle password visibility"
                       onClick={handleClickShowPasswordOne}
                       onMouseDown={handleMouseDownPasswordOne}
-                      >
+                    >
                       {showPasswordOne ? (
                         <Visibility />
-                        ) : (
-                          <VisibilityOff />
-                          )}
+                      ) : (
+                        <VisibilityOff />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -256,7 +267,7 @@ const SignUpFormBase = ({ firebase, history }) => {
               helperText="Password must be at least 8 characters long and contain one uppercase, one lowercase, one number and one special character"
               value={passwordOne}
               onChange={onChange}
-              />
+            />
             <TextField
               variant="outlined"
               margin="normal"
@@ -273,12 +284,12 @@ const SignUpFormBase = ({ firebase, history }) => {
                       aria-label="toggle password visibility"
                       onClick={handleClickShowPasswordTwo}
                       onMouseDown={handleMouseDownPasswordTwo}
-                      >
+                    >
                       {showPasswordTwo ? (
                         <Visibility />
-                        ) : (
-                          <VisibilityOff />
-                          )}
+                      ) : (
+                        <VisibilityOff />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -288,19 +299,31 @@ const SignUpFormBase = ({ firebase, history }) => {
               value={passwordTwo}
               onChange={onChange}
             />
-            <label>
-              Admin:
-              <input
-                name="isAdmin"
-                type="checkbox"
-                checked={isAdmin}
-                onChange={onChangeCheckbox}
-              />
-            </label>
-            {/* <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            /> */}
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="access code"
+              label="Access Code"
+              name="accessCode"
+              helperText="Access code will be supplied to you by MRN leadership"
+              value={accessCode}
+              onChange={onChange}
+            />
+            {accessCode === 'imanMRNadmin2021!' && (
+              <label>
+                Admin:
+                <input
+                  disabled={accessCode !== 'imanMRNadmin2021!'}
+                  name="isAdmin"
+                  type="checkbox"
+                  checked={isAdmin}
+                  onChange={onChangeCheckbox}
+                />
+              </label>
+            )}
+
             <Button
               disabled={isInvalid}
               type="submit"
