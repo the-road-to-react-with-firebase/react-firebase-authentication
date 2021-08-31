@@ -1,28 +1,75 @@
-import React, { Component } from 'react';
-import { Link as Link2, withRouter } from 'react-router-dom';
+import React, { Component, useState } from 'react';
+import { withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
-import Link from '@material-ui/core/Link';
-// import Grid from '@material-ui/core/Grid';
-
+import Alert from '@material-ui/lab/Alert';
+import { SignUpLink } from '../SignUp';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import { PasswordForgetLink } from '../PasswordForget';
 import { withFirebase } from '../Firebase';
+import { Container } from '@material-ui/core';
+import Avatar from '@material-ui/core/Avatar';
+import Button from '@material-ui/core/Button';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import TextField from '@material-ui/core/TextField';
+import Input from '@material-ui/core/Input';
+import IconButton from '@material-ui/core/IconButton';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
 import * as ROUTES from '../../constants/routes';
 import * as ROLES from '../../constants/roles';
+import Link from '@material-ui/core/Link';
+import Grid from '@material-ui/core/Grid';
+import Box from '@material-ui/core/Box';
+import Visibility from '@material-ui/icons/Visibility';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import Typography from '@material-ui/core/Typography';
+import { makeStyles } from '@material-ui/core/styles';
+function Copyright() {
+  return (
+    <Typography variant="body2" color="textSecondary" align="center">
+      {'Copyright © '}
+      <Link color="inherit" href="https://netwrk.biz">
+        netwrk.biz
+      </Link>{' '}
+      {new Date().getFullYear()}
+      {'.'}
+    </Typography>
+  );
+}
 
-const SignUpPage = () => (
-  <div>
-    <h1>SignUp</h1>
-    <SignUpForm />
-  </div>
-);
+const SignUpPage = () => {
+  return (
+    <Container component="main" maxWidth="xs">
+      <SignUpForm />
 
-const INITIAL_STATE = {
-  username: '',
-  email: '',
-  passwordOne: '',
-  passwordTwo: '',
-  isAdmin: false,
-  error: null,
+      {/* <SignUpLink /> */}
+      <Box mt={8}>
+        <Copyright />
+      </Box>
+    </Container>
+  );
 };
+
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    marginTop: theme.spacing(8),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  avatar: {
+    margin: theme.spacing(1),
+    backgroundColor: theme.palette.secondary.main,
+  },
+  form: {
+    width: '100%', // Fix IE 11 issue.
+    marginTop: theme.spacing(1),
+  },
+  submit: {
+    margin: theme.spacing(3, 0, 2),
+  },
+}));
 
 const ERROR_CODE_ACCOUNT_EXISTS = 'auth/email-already-in-use';
 
@@ -34,137 +81,249 @@ const ERROR_MSG_ACCOUNT_EXISTS = `
   on your personal account page.
 `;
 
-class SignUpFormBase extends Component {
-  constructor(props) {
-    super(props);
+const SignUpFormBase = ({ firebase, history }) => {
+  const classes = useStyles();
+  const [email, setEmail] = useState('');
+  const [passwordOne, setPasswordOne] = useState('');
+  const [passwordTwo, setPasswordTwo] = useState('');
+  const [username, setUsername] = useState('');
+  const [isAdmin, setIsAdmin] = useState('');
+  const [error, setError] = useState(undefined);
+  const [showPasswordOne, setShowPasswordOne] = useState(false)
+  const [showPasswordTwo, setShowPasswordTwo] = useState(false)
 
-    this.state = { ...INITIAL_STATE };
-  }
-
-  onSubmit = event => {
-    const { username, email, passwordOne, isAdmin } = this.state;
+  const onSubmit = (event) => {
+    event.preventDefault();
     const roles = {};
 
     if (isAdmin) {
       roles[ROLES.ADMIN] = ROLES.ADMIN;
     } else {
-      roles[ROLES.STANDARD] = ROLES.STANDARD
+      roles[ROLES.STANDARD] = ROLES.STANDARD;
     }
 
-    this.props.firebase
+    firebase
       .doCreateUserWithEmailAndPassword(email, passwordOne)
-      .then(authUser => {
+      .then((authUser) => {
         // Create a user in your Firebase realtime database
-        return this.props.firebase.user(authUser.user.uid).set({
+        return firebase.user(authUser.user.uid).set({
           username,
           email,
           roles,
         });
       })
       .then(() => {
-        return this.props.firebase.doSendEmailVerification();
+        console.log('confirm');
+        return firebase.doSendEmailVerification();
       })
       .then(() => {
-        this.setState({ ...INITIAL_STATE });
-        this.props.history.push(ROUTES.HOME);
+        setEmail('');
+        setPasswordOne('');
+        setPasswordTwo('');
+        setShowPasswordOne(false);
+        setShowPasswordTwo(false);
+        setUsername('');
+        setIsAdmin('');
+        history.push(ROUTES.HOME);
       })
-      .catch(error => {
+      .catch((error) => {
         if (error.code === ERROR_CODE_ACCOUNT_EXISTS) {
           error.message = ERROR_MSG_ACCOUNT_EXISTS;
         }
 
-        this.setState({ error });
+        setError({ error });
       });
 
     event.preventDefault();
   };
 
-  onChange = event => {
-    this.setState({ [event.target.name]: event.target.value });
-  };
-
-  onChangeCheckbox = event => {
-    this.setState({ [event.target.name]: event.target.checked });
-  };
-
-  render() {
-    const {
-      username,
-      email,
-      passwordOne,
-      passwordTwo,
-      isAdmin,
-      error,
-    } = this.state;
-
-    const isInvalid =
-      passwordOne !== passwordTwo ||
-      passwordOne === '' ||
-      email === '' ||
-      username === '';
-
-    return (
-      <form onSubmit={this.onSubmit}>
-        <input
-          name="username"
-          value={username}
-          onChange={this.onChange}
-          type="text"
-          placeholder="Full Name"
-        />
-        <input
-          name="email"
-          value={email}
-          onChange={this.onChange}
-          type="text"
-          placeholder="Email Address"
-        />
-        <input
-          name="passwordOne"
-          value={passwordOne}
-          onChange={this.onChange}
-          type="password"
-          placeholder="Password"
-        />
-        <input
-          name="passwordTwo"
-          value={passwordTwo}
-          onChange={this.onChange}
-          type="password"
-          placeholder="Confirm Password"
-        />
-        <label>
-          Admin:
-          <input
-            name="isAdmin"
-            type="checkbox"
-            checked={isAdmin}
-            onChange={this.onChangeCheckbox}
-          />
-        </label>
-        <button disabled={isInvalid} type="submit">
-          Sign Up
-        </button>
-
-        {error && <p>{error.message}</p>}
-      </form>
-    );
+  const handleClickShowPasswordOne = () => {
+    setShowPasswordOne(!showPasswordOne)
   }
-}
 
-const SignUpLink = () => (
-  <Link href="#" variant="body2">
-    <Link2 style={{ 'text-decoration': 'none' }} to={ROUTES.SIGN_UP}>
-      Don't have an account? Sign Up
-    </Link2>
-  </Link>
-);
+  const handleMouseDownPasswordOne = (event) => {
+    event.preventDefault();
+  };
 
-const SignUpForm = compose(
-  withRouter,
-  withFirebase,
-)(SignUpFormBase);
+  const handleClickShowPasswordTwo = () => {
+    setShowPasswordTwo(!showPasswordTwo)
+  }
+
+  const handleMouseDownPasswordTwo = (event) => {
+    event.preventDefault();
+  };
+  const onChange = (event) => {
+    if (event.target.name === 'username') {
+      setUsername(event.target.value);
+    }
+    if (event.target.name === 'email') {
+      setEmail(event.target.value);
+    }
+    if (event.target.name === 'passwordOne') {
+      setPasswordOne(event.target.value);
+    }
+    if (event.target.name === 'passwordTwo') {
+      setPasswordTwo(event.target.value);
+    }
+  };
+
+  const onChangeCheckbox = (event) => {
+    setIsAdmin(event.target.checked);
+  };
+  const isInvalid =
+    passwordOne.match(
+      /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
+    ) === null ||
+    passwordOne !== passwordTwo ||
+    passwordOne === '' ||
+    email === '' ||
+    username === '';
+
+  const isMatch = passwordOne === passwordTwo;
+  const isValidPassword =
+    passwordOne.match(
+      /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
+    ) === null;
+
+  return (
+    <>
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <div className={classes.paper}>
+          <Avatar className={classes.avatar}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Sign Up
+          </Typography>
+          <form
+            onSubmit={onSubmit}
+            className={classes.form}
+            noValidate
+          >
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="username"
+              label="Full Name"
+              name="username"
+              helperText="This will be used as your display name on activities"
+              // autoFocus
+              value={username}
+              onChange={onChange}
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
+              helperText="Must be a valid email address"
+              value={email}
+              onChange={onChange}
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPasswordOne}
+                      onMouseDown={handleMouseDownPasswordOne}
+                      >
+                      {showPasswordOne ? (
+                        <Visibility />
+                        ) : (
+                          <VisibilityOff />
+                          )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              name="passwordOne"
+              label="Password"
+              type={showPasswordOne ? 'text' : 'password'}
+              id="passwordOne"
+              hiddenLabel="Password must be at least 8 characters long and contain one uppercase, one lowercase and one number"
+              helperText="Password must be at least 8 characters long and contain one uppercase, one lowercase, one number and one special character"
+              value={passwordOne}
+              onChange={onChange}
+              />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              name="passwordTwo"
+              label="Confirm Password"
+              type={showPasswordTwo ? 'text' : 'password'}
+              id="passwordTwo"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPasswordTwo}
+                      onMouseDown={handleMouseDownPasswordTwo}
+                      >
+                      {showPasswordTwo ? (
+                        <Visibility />
+                        ) : (
+                          <VisibilityOff />
+                          )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              error={!isMatch}
+              helperText={!isMatch ? 'Passwords must match' : ''}
+              value={passwordTwo}
+              onChange={onChange}
+            />
+            <label>
+              Admin:
+              <input
+                name="isAdmin"
+                type="checkbox"
+                checked={isAdmin}
+                onChange={onChangeCheckbox}
+              />
+            </label>
+            {/* <FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
+              label="Remember me"
+            /> */}
+            <Button
+              disabled={isInvalid}
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+            >
+              Sign Up
+            </Button>
+
+            {error && <Alert severity="error">{error.message}</Alert>}
+            <PasswordForgetLink />
+          </form>
+        </div>
+      </Container>
+    </>
+  );
+};
+
+const SignUpForm = compose(withRouter, withFirebase)(SignUpFormBase);
 
 export default SignUpPage;
 
-export { SignUpForm, SignUpLink };
+export { SignUpForm };

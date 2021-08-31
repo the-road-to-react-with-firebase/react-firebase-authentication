@@ -166,27 +166,6 @@ const SignInFormBase = ({ firebase, history }) => {
           </form>
         </div>
       </Container>
-      {/* <form onSubmit={onSignIn}>
-        <input
-          name="email"
-          value={email}
-          onChange={onChangeEmail}
-          type="text"
-          placeholder="Email Address"
-        />
-        <input
-          name="password"
-          value={password}
-          onChange={onChangePassword}
-          type="password"
-          placeholder="Password"
-        />
-        <button disabled={isInvalid} type="submit">
-          Sign In
-        </button>
-
-        {error && <p>{error.message}</p>}
-      </form> */}
     </>
   );
 };
