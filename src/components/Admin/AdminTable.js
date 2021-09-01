@@ -45,7 +45,6 @@ const qbrColumns = [
         ? ''
         : currencyFormatter.format(Number(params.value));
     },
-    
   },
   {
     field: 'referrals_given',
@@ -73,19 +72,19 @@ const qbrColumns = [
     headerName: 'Events',
     width: 150,
   },
-  {
-    field: 'date',
-    headerName: 'Most Recent Activity',
-    type: 'date',
-    width: 120,
-    valueFormatter: (params) =>
-      new Date(params.value).toLocaleDateString(),
-    sortComparator: (v1, v2, cellParams1, cellParams2) => {
-      return (
-        new Date(cellParams1.value) - new Date(cellParams2.value)
-      );
-    },
-  },
+  // {
+  //   field: 'date',
+  //   headerName: 'Date of First Activity in Calculation',
+  //   type: 'date',
+  //   width: 120,
+  //   valueFormatter: (params) =>
+  //     new Date(params.value).toLocaleDateString(),
+  //   sortComparator: (v1, v2, cellParams1, cellParams2) => {
+  //     return (
+  //       new Date(cellParams1.value) - new Date(cellParams2.value)
+  //     );
+  //   },
+  // },
 ];
 
 const columns = [
@@ -227,6 +226,10 @@ const ActivityTable = ({
   const [users, setUsers] = useState([
     { username: 'Former Member', uid: 'former_member' },
     { username: 'All Members', uid: 'all_members' },
+    {
+      username: 'All Members - Quarterly',
+      uid: 'all_members_quarterly',
+    },
   ]);
   const [selectedMember, setSelectedMember] =
     useState('former_member');
@@ -247,13 +250,11 @@ const ActivityTable = ({
   };
   const handleChangeMember = (event) => {
     setSelectedMember(event.target.value);
-    if (event.target.value === 'all_members') {
-      console.log(event.target.value);
+    if (event.target.value === 'all_members_quarterly') {
       setTimeout(() => {
         calculateGroup();
       }, 250);
     } else {
-      console.log('else');
       setTimeout(() => {
         calculate();
       }, 250);
@@ -414,17 +415,9 @@ const ActivityTable = ({
   );
   const calculateGroup = () => {
     setFilterModel({
-      items: [
-        {
-          columnField: 'date',
-          id: 90144,
-          operatorValue: 'onOrAfter',
-          value: quarterlyDays,
-        },
-      ],
+      items: [{}],
     });
     if (activities.length > 0) {
-      console.log('calculating2...');
       const group = activities.reduce((acc, item) => {
         if (!acc[item.userId]) {
           acc[item.userId] = [];
@@ -452,7 +445,9 @@ const ActivityTable = ({
           events: 0,
           date: '',
         };
-        group[key].forEach((a) => {
+        group[key].forEach((a, idx) => {
+          userData.date = a.date;
+
           userData.member = a.this_username;
           userData.uid = a.userId;
           userData.business_received += Number(a.amount);
@@ -460,18 +455,18 @@ const ActivityTable = ({
           userData.events +=
             a.activityType === 'Networking Event' ? 1 : 0;
           userData.num_one_to_ones += Number(a.num_one_to_ones);
-          userData.referrals_given += a.activityType === 'Referral Given' ? 1 : 0;
-          userData.date = a.date
+          userData.referrals_given +=
+            a.activityType === 'Referral Given' ? 1 : 0;
         });
         userGroup.push(userData);
       });
-      console.log(userGroup);
+      
       setGroups(userGroup);
     }
   };
 
   const calculate = () => {
-    console.log('calculating1...');
+    
     if (activities.length > 0) {
       let totalAmountInit = 0;
       let totalAmountGivenInit = 0;
@@ -526,7 +521,7 @@ const ActivityTable = ({
 
   useEffect(() => {
     setTimeout(() => {
-      if (selectedMember === 'all_members') {
+      if (selectedMember === 'all_members_quarterly') {
         calculateGroup();
       } else {
         calculate();
@@ -559,7 +554,7 @@ const ActivityTable = ({
             })}
           </Select>
         </Grid>
-        {selectedMember !== 'all_members' ? (
+        {selectedMember !== 'all_members_quarterly' ? (
           <DataGrid
             loading={loading}
             onFilterModelChange={(props) => {
@@ -739,39 +734,45 @@ const ActivityTable = ({
           {body}
         </Modal> */}
       </div>
-      {selectedMember !== 'all_members' && (
-        <TableContainer component={Paper}>
-          {loading && <LinearProgress color="primary" />}
-          <Table className={classes.table} aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell>Total Business Received</TableCell>
-                <TableCell>Total Business Given</TableCell>
-                <TableCell>Total One to Ones</TableCell>
-                <TableCell>Total Referrals Given</TableCell>
-                <TableCell>Total Networking Events</TableCell>
-                <TableCell>Total Meetings Attended</TableCell>
-                <TableCell>Total Guests</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow key={'totalsRow'}>
-                <TableCell>
-                  {currencyFormatter.format(Number(totalAmount))}
-                </TableCell>
-                <TableCell>
-                  {currencyFormatter.format(Number(totalAmountGiven))}
-                </TableCell>
-                <TableCell>{totalOneToOnes}</TableCell>
-                <TableCell>{totalReferrals}</TableCell>
-                <TableCell>{totalEvents}</TableCell>
-                <TableCell>{totalAttendance}</TableCell>
-                <TableCell>{totalGuests}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+      {selectedMember !== 'all_members_quarterly' &&
+        selectedMember !== 'all_members' && (
+          <TableContainer component={Paper}>
+            {loading && <LinearProgress color="primary" />}
+            <Table
+              className={classes.table}
+              aria-label="simple table"
+            >
+              <TableHead>
+                <TableRow>
+                  <TableCell>Total Business Received</TableCell>
+                  <TableCell>Total Business Given</TableCell>
+                  <TableCell>Total One to Ones</TableCell>
+                  <TableCell>Total Referrals Given</TableCell>
+                  <TableCell>Total Networking Events</TableCell>
+                  <TableCell>Total Meetings Attended</TableCell>
+                  <TableCell>Total Guests</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow key={'totalsRow'}>
+                  <TableCell>
+                    {currencyFormatter.format(Number(totalAmount))}
+                  </TableCell>
+                  <TableCell>
+                    {currencyFormatter.format(
+                      Number(totalAmountGiven),
+                    )}
+                  </TableCell>
+                  <TableCell>{totalOneToOnes}</TableCell>
+                  <TableCell>{totalReferrals}</TableCell>
+                  <TableCell>{totalEvents}</TableCell>
+                  <TableCell>{totalAttendance}</TableCell>
+                  <TableCell>{totalGuests}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
     </>
   );
 };

@@ -144,6 +144,7 @@ const NewActivity = ({ firebase, history }) => {
       this_username: authUser.username,
       amount: activityType !== 'Business Received' ? '' : amount,
       date,
+      date_timestamp: new Date(date).getTime()/1000,
       note,
       num_one_to_ones: activityType !== 'One to One' ? '' : oneToOnes,
       attendance: activityType === 'Attendance' ? attendance : '',

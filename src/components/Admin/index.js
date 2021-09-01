@@ -39,7 +39,7 @@ const AdminPage = ({ firebase }) => {
 
   const onListenForGiven = (uid) => {
     setLoading(true);
-    if (uid === 'all_members') {
+    if (uid === 'all_members_quarterly') {
       setGiven([]);
       setLoading(false);
     } else {
@@ -81,10 +81,38 @@ const AdminPage = ({ firebase }) => {
     }
   };
 
+  let otherDay = new Date();
+  otherDay.setDate(otherDay.getDate() - 92);
+
+  const qbr = Math.round(otherDay.getTime() / 1000);
   const onListenForActivity = (uid) => {
     setLoading(true);
-    if (uid === 'all_members') {
-      firebase.activities().on('value',(snapshot) => {
+    if (uid === 'all_members_quarterly') {
+      firebase
+        .activities()
+        .orderByChild('date_timestamp')
+        .startAt(qbr)
+        .on('value', (snapshot) => {
+          const activityObject = snapshot.val();
+
+          if (activityObject) {
+            const activityList = Object.keys(activityObject).map(
+              (uid) => ({
+                ...activityObject[uid],
+                uid,
+              }),
+            );
+
+            setActivities(activityList);
+            setLoading(false);
+          } else {
+            setActivities([]);
+            setLoading(false);
+          }
+        });
+    } else if (uid === 'all_members') {
+      
+      firebase.activities().on('value', (snapshot) => {
         const activityObject = snapshot.val();
 
         if (activityObject) {
@@ -94,7 +122,7 @@ const AdminPage = ({ firebase }) => {
               uid,
             }),
           );
-          
+
           setActivities(activityList);
           setLoading(false);
         } else {
