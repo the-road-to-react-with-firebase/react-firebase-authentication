@@ -343,7 +343,7 @@ const ActivityTable = ({
           .length,
       );
       setTotalAttendance(
-        activities.filter((a) => a.attendance).length,
+        activities.reduce((a, b) => (+a + b.attendance ? 1 : 0), 0),
       );
 
       setTotalEvents(

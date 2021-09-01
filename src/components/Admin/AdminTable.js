@@ -29,6 +29,65 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
   currency: 'USD',
 });
 
+const qbrColumns = [
+  {
+    field: 'member',
+    headerName: 'Member',
+    width: 160,
+  },
+  {
+    field: 'business_received',
+    headerName: 'Business Received',
+    width: 160,
+    type: 'number',
+    valueFormatter: (params) => {
+      return !params.value
+        ? ''
+        : currencyFormatter.format(Number(params.value));
+    },
+    
+  },
+  {
+    field: 'referrals_given',
+    type: 'number',
+    headerName: 'Referrals Given',
+    width: 150,
+    // hide: true,
+  },
+  {
+    field: 'attendance',
+    type: 'number',
+    headerName: 'Attendance',
+    width: 150,
+  },
+  {
+    field: 'num_one_to_ones',
+    headerName: '# 1 to 1s',
+    type: 'number',
+    width: 150,
+    // hide: true,
+  },
+  {
+    field: 'events',
+    type: 'number',
+    headerName: 'Events',
+    width: 150,
+  },
+  {
+    field: 'date',
+    headerName: 'Most Recent Activity',
+    type: 'date',
+    width: 120,
+    valueFormatter: (params) =>
+      new Date(params.value).toLocaleDateString(),
+    sortComparator: (v1, v2, cellParams1, cellParams2) => {
+      return (
+        new Date(cellParams1.value) - new Date(cellParams2.value)
+      );
+    },
+  },
+];
+
 const columns = [
   {
     field: 'this_username',
@@ -127,24 +186,27 @@ const dateRanges = [7, 30, 60, 90, 180, 365];
 
 const ActivityTable = ({
   activities,
+  setActivities,
   given,
   firebase,
   onListenForActivity,
   onListenForGiven,
   loading,
-  setLoading,
   authUser,
 }) => {
   let today = new Date();
   today.setDate(today.getDate() - 7);
   let sevenDays = today.toISOString().slice(0, 10);
+  let otherDay = new Date();
+  otherDay.setDate(otherDay.getDate() - 92);
+  let quarterlyDays = otherDay.toISOString().slice(0, 10);
+
   const classes = useStyles();
   // getModalStyle is not a pure function, we roll the style only on the first render
   const [modalStyle] = useState(getModalStyle);
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [edit, setEdit] = useState(false);
-  const [newNote, setNewNote] = useState('');
   const [selectedItem, setSelectedItem] = useState({});
   const [dateRange, setDateRange] = useState(30);
   const [totalAmount, setTotalAmount] = useState(0);
@@ -154,6 +216,7 @@ const ActivityTable = ({
   const [totalEvents, setTotalEvents] = useState(0);
   const [totalGuests, setTotalGuests] = useState(0);
   const [totalAttendance, setTotalAttendance] = useState(0);
+  const [groups, setGroups] = useState([]);
   const [sortModel, setSortModel] = React.useState([
     {
       field: 'date',
@@ -167,6 +230,7 @@ const ActivityTable = ({
   ]);
   const [selectedMember, setSelectedMember] =
     useState('former_member');
+  const [newNote, setNewNote] = useState('');
 
   const handleOpenDelete = () => {
     setDeleteOpen(true);
@@ -183,9 +247,17 @@ const ActivityTable = ({
   };
   const handleChangeMember = (event) => {
     setSelectedMember(event.target.value);
-    setTimeout(() => {
-      calculate();
-    }, 250);
+    if (event.target.value === 'all_members') {
+      console.log(event.target.value);
+      setTimeout(() => {
+        calculateGroup();
+      }, 250);
+    } else {
+      console.log('else');
+      setTimeout(() => {
+        calculate();
+      }, 250);
+    }
   };
 
   const handleChangeNote = (event) => {
@@ -340,8 +412,66 @@ const ActivityTable = ({
       </Grid>
     </div>
   );
+  const calculateGroup = () => {
+    setFilterModel({
+      items: [
+        {
+          columnField: 'date',
+          id: 90144,
+          operatorValue: 'onOrAfter',
+          value: quarterlyDays,
+        },
+      ],
+    });
+    if (activities.length > 0) {
+      console.log('calculating2...');
+      const group = activities.reduce((acc, item) => {
+        if (!acc[item.userId]) {
+          acc[item.userId] = [];
+        }
+
+        acc[item.userId].push(item);
+        return acc;
+      }, {});
+      let userGroup = [];
+      let userData = {
+        business_received: 0,
+        attendance: 0,
+        num_one_to_ones: 0,
+        referrals_given: 0,
+        events: 0,
+        date: '',
+      };
+      let amountInit = 0;
+      Object.keys(group).forEach(function (key) {
+        userData = {
+          business_received: 0,
+          attendance: 0,
+          num_one_to_ones: 0,
+          referrals_given: 0,
+          events: 0,
+          date: '',
+        };
+        group[key].forEach((a) => {
+          userData.member = a.this_username;
+          userData.uid = a.userId;
+          userData.business_received += Number(a.amount);
+          userData.attendance += a.attendance ? 1 : 0;
+          userData.events +=
+            a.activityType === 'Networking Event' ? 1 : 0;
+          userData.num_one_to_ones += Number(a.num_one_to_ones);
+          userData.referrals_given += a.activityType === 'Referral Given' ? 1 : 0;
+          userData.date = a.date
+        });
+        userGroup.push(userData);
+      });
+      console.log(userGroup);
+      setGroups(userGroup);
+    }
+  };
 
   const calculate = () => {
+    console.log('calculating1...');
     if (activities.length > 0) {
       let totalAmountInit = 0;
       let totalAmountGivenInit = 0;
@@ -368,8 +498,7 @@ const ActivityTable = ({
       );
 
       setTotalAttendance(
-        activities.filter((a) => a.attendance)
-          .length,
+        activities.reduce((a, b) => (+a + b.attendance ? 1 : 0), 0),
       );
 
       setTotalEvents(
@@ -397,7 +526,11 @@ const ActivityTable = ({
 
   useEffect(() => {
     setTimeout(() => {
-      calculate();
+      if (selectedMember === 'all_members') {
+        calculateGroup();
+      } else {
+        calculate();
+      }
     }, 1000);
   }, [activities]);
 
@@ -426,65 +559,127 @@ const ActivityTable = ({
             })}
           </Select>
         </Grid>
-        <DataGrid
-          loading={loading}
-          onFilterModelChange={(props) => {
-            let filtered = Array.from(
-              props.visibleRows,
-              ([name, value]) => ({ ...value }),
-            );
-            let bufferTotalAmount = 0;
-            let bufferTotalAmountGiven = 0;
-            let bufferTotalOneToOnes = 0;
-            let bufferTotalReferrals = 0;
-            let bufferTotalEvents = 0;
-            let bufferTotalAttendance = 0;
-            let bufferTotalGuests = 0;
-            if (filtered) {
-              filtered.forEach((a) => {
-                if (a.activityType === 'Business Received') {
-                  bufferTotalAmount += Number(a.amount);
-                }
-                if (a.activityType === 'Referral Given') {
-                  bufferTotalReferrals += 1;
-                }
-                if (a.activityType === 'Networking Event') {
-                  bufferTotalEvents += 1;
-                  bufferTotalGuests += Number(a.num_guests);
-                }
-                if (a.activityType === 'Attendance') {
-                  bufferTotalAttendance += a.attendance ? 1 : 0;
-                  bufferTotalGuests += Number(a.num_guests);
-                }
-                if (a.activityType === 'Business Given') {
-                  bufferTotalAmountGiven += Number(a.amount);
-                }
-                if (a.activityType === 'One to One') {
-                  bufferTotalOneToOnes += Number(a.num_one_to_ones);
-                }
-              });
-              setTotalAmount(bufferTotalAmount);
-              setTotalAmountGiven(bufferTotalAmountGiven);
-              setTotalOneToOnes(bufferTotalOneToOnes);
-              setTotalReferrals(bufferTotalReferrals);
-              setTotalEvents(bufferTotalEvents);
-              setTotalAttendance(bufferTotalAttendance);
-              setTotalGuests(bufferTotalGuests);
-            } else {
-            }
-          }}
-          // style={{ marginBottom: '1em' }}
-          components={{
-            Toolbar: GridToolbar,
-          }}
-          onRowSelected={(e) => setSelectedItem(e.data)}
-          rows={[...given, ...activities]}
-          columns={columns}
-          pageSize={10}
-          getRowId={(row) => row.uid}
-          sortModel={sortModel}
-          filterModel={filterModel}
-        />
+        {selectedMember !== 'all_members' ? (
+          <DataGrid
+            loading={loading}
+            onFilterModelChange={(props) => {
+              let filtered = Array.from(
+                props.visibleRows,
+                ([name, value]) => ({ ...value }),
+              );
+              let bufferTotalAmount = 0;
+              let bufferTotalAmountGiven = 0;
+              let bufferTotalOneToOnes = 0;
+              let bufferTotalReferrals = 0;
+              let bufferTotalEvents = 0;
+              let bufferTotalAttendance = 0;
+              let bufferTotalGuests = 0;
+              if (filtered) {
+                filtered.forEach((a) => {
+                  if (a.activityType === 'Business Received') {
+                    bufferTotalAmount += Number(a.amount);
+                  }
+                  if (a.activityType === 'Referral Given') {
+                    bufferTotalReferrals += 1;
+                  }
+                  if (a.activityType === 'Networking Event') {
+                    bufferTotalEvents += 1;
+                    bufferTotalGuests += Number(a.num_guests);
+                  }
+                  if (a.activityType === 'Attendance') {
+                    bufferTotalAttendance += a.attendance ? 1 : 0;
+                    bufferTotalGuests += Number(a.num_guests);
+                  }
+                  if (a.activityType === 'Business Given') {
+                    bufferTotalAmountGiven += Number(a.amount);
+                  }
+                  if (a.activityType === 'One to One') {
+                    bufferTotalOneToOnes += Number(a.num_one_to_ones);
+                  }
+                });
+                setTotalAmount(bufferTotalAmount);
+                setTotalAmountGiven(bufferTotalAmountGiven);
+                setTotalOneToOnes(bufferTotalOneToOnes);
+                setTotalReferrals(bufferTotalReferrals);
+                setTotalEvents(bufferTotalEvents);
+                setTotalAttendance(bufferTotalAttendance);
+                setTotalGuests(bufferTotalGuests);
+              } else {
+              }
+            }}
+            // style={{ marginBottom: '1em' }}
+            components={{
+              Toolbar: GridToolbar,
+            }}
+            onRowSelected={(e) => setSelectedItem(e.data)}
+            rows={[...given, ...activities]}
+            columns={columns}
+            pageSize={10}
+            getRowId={(row) => row.uid}
+            sortModel={sortModel}
+            filterModel={filterModel}
+          />
+        ) : (
+          <DataGrid
+            loading={loading}
+            // onFilterModelChange={(props) => {
+            //   let filtered = Array.from(
+            //     props.visibleRows,
+            //     ([name, value]) => ({ ...value }),
+            //   );
+            //   let bufferTotalAmount = 0;
+            //   let bufferTotalAmountGiven = 0;
+            //   let bufferTotalOneToOnes = 0;
+            //   let bufferTotalReferrals = 0;
+            //   let bufferTotalEvents = 0;
+            //   let bufferTotalAttendance = 0;
+            //   let bufferTotalGuests = 0;
+            //   if (filtered) {
+            //     filtered.forEach((a) => {
+            //       if (a.activityType === 'Business Received') {
+            //         bufferTotalAmount += Number(a.amount);
+            //       }
+            //       if (a.activityType === 'Referral Given') {
+            //         bufferTotalReferrals += 1;
+            //       }
+            //       if (a.activityType === 'Networking Event') {
+            //         bufferTotalEvents += 1;
+            //         bufferTotalGuests += Number(a.num_guests);
+            //       }
+            //       if (a.activityType === 'Attendance') {
+            //         bufferTotalAttendance += a.attendance ? 1 : 0;
+            //         bufferTotalGuests += Number(a.num_guests);
+            //       }
+            //       if (a.activityType === 'Business Given') {
+            //         bufferTotalAmountGiven += Number(a.amount);
+            //       }
+            //       if (a.activityType === 'One to One') {
+            //         bufferTotalOneToOnes += Number(a.num_one_to_ones);
+            //       }
+            //     });
+            //     setTotalAmount(bufferTotalAmount);
+            //     setTotalAmountGiven(bufferTotalAmountGiven);
+            //     setTotalOneToOnes(bufferTotalOneToOnes);
+            //     setTotalReferrals(bufferTotalReferrals);
+            //     setTotalEvents(bufferTotalEvents);
+            //     setTotalAttendance(bufferTotalAttendance);
+            //     setTotalGuests(bufferTotalGuests);
+            //   } else {
+            //   }
+            // }}
+            // style={{ marginBottom: '1em' }}
+            components={{
+              Toolbar: GridToolbar,
+            }}
+            // onRowSelected={(e) => setSelectedItem(e.data)}
+            rows={groups}
+            columns={qbrColumns}
+            pageSize={10}
+            getRowId={(row) => row.uid}
+            sortModel={sortModel}
+            filterModel={filterModel}
+          />
+        )}
         {/* <Button
           disabled={!selectedItem.activityType}
           variant="contained"
@@ -544,37 +739,39 @@ const ActivityTable = ({
           {body}
         </Modal> */}
       </div>
-      <TableContainer component={Paper}>
-        {loading && <LinearProgress color="primary" />}
-        <Table className={classes.table} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell>Total Business Received</TableCell>
-              <TableCell>Total Business Given</TableCell>
-              <TableCell>Total One to Ones</TableCell>
-              <TableCell>Total Referrals Given</TableCell>
-              <TableCell>Total Networking Events</TableCell>
-              <TableCell>Total Meetings Attended</TableCell>
-              <TableCell>Total Guests</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <TableRow key={'totalsRow'}>
-              <TableCell>
-                {currencyFormatter.format(Number(totalAmount))}
-              </TableCell>
-              <TableCell>
-                {currencyFormatter.format(Number(totalAmountGiven))}
-              </TableCell>
-              <TableCell>{totalOneToOnes}</TableCell>
-              <TableCell>{totalReferrals}</TableCell>
-              <TableCell>{totalEvents}</TableCell>
-              <TableCell>{totalAttendance}</TableCell>
-              <TableCell>{totalGuests}</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </TableContainer>
+      {selectedMember !== 'all_members' && (
+        <TableContainer component={Paper}>
+          {loading && <LinearProgress color="primary" />}
+          <Table className={classes.table} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Total Business Received</TableCell>
+                <TableCell>Total Business Given</TableCell>
+                <TableCell>Total One to Ones</TableCell>
+                <TableCell>Total Referrals Given</TableCell>
+                <TableCell>Total Networking Events</TableCell>
+                <TableCell>Total Meetings Attended</TableCell>
+                <TableCell>Total Guests</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow key={'totalsRow'}>
+                <TableCell>
+                  {currencyFormatter.format(Number(totalAmount))}
+                </TableCell>
+                <TableCell>
+                  {currencyFormatter.format(Number(totalAmountGiven))}
+                </TableCell>
+                <TableCell>{totalOneToOnes}</TableCell>
+                <TableCell>{totalReferrals}</TableCell>
+                <TableCell>{totalEvents}</TableCell>
+                <TableCell>{totalAttendance}</TableCell>
+                <TableCell>{totalGuests}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
     </>
   );
 };
