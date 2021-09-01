@@ -32,13 +32,14 @@ import { withFirebase } from '../Firebase';
 const AdminPage = ({ firebase }) => {
   const classes = useStyles();
   const [activities, setActivities] = useState([]);
+  const [groups, setGroups] = useState({});
   const [given, setGiven] = useState([]);
   const [loading, setLoading] = useState(false);
   const [limit, setLimit] = useState(25);
 
   const onListenForGiven = (uid) => {
     setLoading(true);
-    if (uid === 'all_members') {
+    if (uid === 'all_members_quarterly') {
       setGiven([]);
       setLoading(false);
     } else {
@@ -73,18 +74,24 @@ const AdminPage = ({ firebase }) => {
             setGiven(givenList);
             setLoading(false);
           } else {
-            setGiven([])
+            setGiven([]);
             setLoading(false);
           }
         });
     }
   };
 
+  let otherDay = new Date();
+  otherDay.setDate(otherDay.getDate() - 92);
+
+  const qbr = Math.round(otherDay.getTime() / 1000);
   const onListenForActivity = (uid) => {
     setLoading(true);
-    if (uid === 'all_members') {
+    if (uid === 'all_members_quarterly') {
       firebase
         .activities()
+        .orderByChild('date_timestamp')
+        .startAt(qbr)
         .on('value', (snapshot) => {
           const activityObject = snapshot.val();
 
@@ -95,15 +102,35 @@ const AdminPage = ({ firebase }) => {
                 uid,
               }),
             );
+
             setActivities(activityList);
             setLoading(false);
           } else {
-            setActivities([])
+            setActivities([]);
             setLoading(false);
           }
         });
-    } else {
+    } else if (uid === 'all_members') {
       
+      firebase.activities().on('value', (snapshot) => {
+        const activityObject = snapshot.val();
+
+        if (activityObject) {
+          const activityList = Object.keys(activityObject).map(
+            (uid) => ({
+              ...activityObject[uid],
+              uid,
+            }),
+          );
+
+          setActivities(activityList);
+          setLoading(false);
+        } else {
+          setActivities([]);
+          setLoading(false);
+        }
+      });
+    } else {
       firebase
         .activities()
         .orderByChild('userId')
@@ -121,7 +148,7 @@ const AdminPage = ({ firebase }) => {
             setActivities(activityList);
             setLoading(false);
           } else {
-            setActivities([])
+            setActivities([]);
             setLoading(false);
           }
         });
@@ -139,7 +166,9 @@ const AdminPage = ({ firebase }) => {
             onListenForActivity={onListenForActivity}
             onListenForGiven={onListenForGiven}
             activities={activities}
+            setActivities={setActivities}
             given={given}
+            groups={groups}
           />
           <Switch>
             <div className={classes.root}>
