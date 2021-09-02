@@ -47,6 +47,17 @@ const qbrColumns = [
     },
   },
   {
+    field: 'business_given',
+    headerName: 'Business Given',
+    width: 160,
+    type: 'number',
+    valueFormatter: (params) => {
+      return !params.value
+        ? ''
+        : currencyFormatter.format(Number(params.value));
+    },
+  },
+  {
     field: 'referrals_given',
     type: 'number',
     headerName: 'Referrals Given',
@@ -422,13 +433,36 @@ const ActivityTable = ({
         if (!acc[item.userId]) {
           acc[item.userId] = [];
         }
-
         acc[item.userId].push(item);
+        return acc;
+      }, {});
+      let bufferItem = {}
+      const group2 = activities.reduce((acc, item) => {
+        bufferItem = {}
+        if (!acc[item.member_id] && item.member_id !== '') {
+          
+          acc[item.member_id] = [];
+        }
+        if (item.activityType === 'Business Received') {
+          bufferItem.this_username = item.username
+          bufferItem.username = item.this_username
+          bufferItem.activityType = 'Business Given'
+          bufferItem.business_received = 0
+          bufferItem.business_given = item.amount
+          bufferItem.userId = item.member_id
+          bufferItem.attendance = 0
+          bufferItem.num_guests = 0
+          bufferItem.num_one_to_ones = 0
+          bufferItem.referrals_given = 0
+          bufferItem.events = 0
+          acc[item.member_id].push(bufferItem);
+        }
         return acc;
       }, {});
       let userGroup = [];
       let userData = {
         business_received: 0,
+        business_given: 0,
         attendance: 0,
         num_one_to_ones: 0,
         referrals_given: 0,
@@ -436,21 +470,23 @@ const ActivityTable = ({
         date: '',
       };
       let amountInit = 0;
-      Object.keys(group).forEach(function (key) {
+      let combo = {...group, ...group2}
+      Object.keys(combo).forEach(function (key) {
         userData = {
           business_received: 0,
+          business_given: 0,
           attendance: 0,
           num_one_to_ones: 0,
           referrals_given: 0,
           events: 0,
           date: '',
         };
-        group[key].forEach((a, idx) => {
+        combo[key].forEach((a, idx) => {
           userData.date = a.date;
-
           userData.member = a.this_username;
           userData.uid = a.userId;
-          userData.business_received += Number(a.amount);
+          userData.business_received += a.activityType === 'Business Received' ?  Number(a.amount) : 0;
+          userData.business_given += a.activityType === 'Business Given' ?  Number(a.business_given) : 0;
           userData.attendance += a.attendance ? 1 : 0;
           userData.events +=
             a.activityType === 'Networking Event' ? 1 : 0;
@@ -460,13 +496,11 @@ const ActivityTable = ({
         });
         userGroup.push(userData);
       });
-      
       setGroups(userGroup);
     }
   };
 
   const calculate = () => {
-    
     if (activities.length > 0) {
       let totalAmountInit = 0;
       let totalAmountGivenInit = 0;
@@ -526,7 +560,7 @@ const ActivityTable = ({
       } else {
         calculate();
       }
-    }, 1000);
+    }, 500);
   }, [activities]);
 
   return (
