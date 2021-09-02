@@ -365,7 +365,9 @@ const ActivityTable = ({
   };
 
   useEffect(() => {
-    calculate();
+    setTimeout(() => {
+      calculate();
+    }, 500);
   }, [activities]);
   return (
     <>
