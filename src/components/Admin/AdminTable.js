@@ -83,7 +83,6 @@ const qbrColumns = [
     headerName: 'Events',
     width: 150,
   },
-
 ];
 
 const columns = [

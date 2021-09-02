@@ -36,10 +36,13 @@ const options = [
   'Business Received',
   'One to One',
   'Networking Event',
-  'Attendance'
+  'Attendance',
 ];
 
-const present = [{display: 'Present', value: true}, {display:'Absent', value: false}];
+const present = [
+  { display: 'Present', value: true },
+  { display: 'Absent', value: false },
+];
 
 const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -73,12 +76,11 @@ const NewActivity = ({ firebase, history }) => {
   };
 
   const handleChangeAttendance = (event) => {
-    const att = event.target.value
+    const att = event.target.value;
     if (att === 'Present') {
       setAttendance(true);
-
     } else {
-      setAttendance(false)
+      setAttendance(false);
     }
   };
 
@@ -122,11 +124,15 @@ const NewActivity = ({ firebase, history }) => {
             ...usersObject[uid],
             uid,
           }));
-          usersList.sort(function(a, b){
-            if(a.username < b.username) { return -1; }
-            if(a.username > b.username) { return 1; }
+          usersList.sort(function (a, b) {
+            if (a.username < b.username) {
+              return -1;
+            }
+            if (a.username > b.username) {
+              return 1;
+            }
             return 0;
-        })
+          });
           setUsers([...users, ...usersList]);
           // setLoading(false);
         } else {
@@ -144,7 +150,7 @@ const NewActivity = ({ firebase, history }) => {
       this_username: authUser.username,
       amount: activityType !== 'Business Received' ? '' : amount,
       date,
-      date_timestamp: new Date(date).getTime()/1000,
+      date_timestamp: new Date(date).getTime() / 1000,
       note,
       num_one_to_ones: activityType !== 'One to One' ? '' : oneToOnes,
       attendance: activityType === 'Attendance' ? attendance : '',
@@ -177,7 +183,6 @@ const NewActivity = ({ firebase, history }) => {
   };
 
   useEffect(() => {
-
     onListenForUsers();
   }, []);
 
@@ -197,8 +202,8 @@ const NewActivity = ({ firebase, history }) => {
             variant="subtitle1"
             gutterBottom
           >
-            Track a <strong>new activity</strong> by selecting from the options below,
-            hit save when you are finished.
+            Track a <strong>new activity</strong> by selecting from
+            the options below, hit save when you are finished.
           </Typography>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
@@ -238,15 +243,19 @@ const NewActivity = ({ firebase, history }) => {
               <Grid item xs={12} md={6}>
                 <InputLabel>Member</InputLabel>
                 <Select value={member} onChange={handleChangeMember}>
-                  {users.map((data, index) => (
-                    <MenuItem
-                      onClick={() => setUsername(data.username)}
-                      key={index}
-                      value={data.uid}
-                    >
-                      {data.username}
-                    </MenuItem>
-                  ))}
+                  {users.map((data, index) => {
+                    if (data.uid !== auth.uid) {
+                      return (
+                        <MenuItem
+                          onClick={() => setUsername(data.username)}
+                          key={index}
+                          value={data.uid}
+                        >
+                          {data.username}
+                        </MenuItem>
+                      );
+                    }
+                  })}
                 </Select>
               </Grid>
             )}
