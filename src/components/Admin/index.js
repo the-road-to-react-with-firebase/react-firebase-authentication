@@ -9,6 +9,8 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { Grid } from '@material-ui/core';
+import Chart from './Chart';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -32,10 +34,8 @@ import { withFirebase } from '../Firebase';
 const AdminPage = ({ firebase }) => {
   const classes = useStyles();
   const [activities, setActivities] = useState([]);
-  const [groups, setGroups] = useState({});
   const [given, setGiven] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [limit, setLimit] = useState(25);
 
   const onListenForGiven = (uid) => {
     setLoading(true);
@@ -111,7 +111,6 @@ const AdminPage = ({ firebase }) => {
           }
         });
     } else if (uid === 'all_members') {
-      
       firebase.activities().on('value', (snapshot) => {
         const activityObject = snapshot.val();
 
@@ -155,6 +154,32 @@ const AdminPage = ({ firebase }) => {
     }
   };
 
+  const userList = (
+    <Switch>
+      <div className={classes.root}>
+        <Accordion>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1a-content"
+            id="panel1a-header"
+          >
+            <Typography className={classes.heading}>
+              Users List
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Route
+              exact
+              path={ROUTES.ADMIN_DETAILS}
+              component={UserItem}
+            />
+            <Route exact path={ROUTES.ADMIN} component={UserList} />
+          </AccordionDetails>
+        </Accordion>
+      </div>
+    </Switch>
+  );
+
   return (
     <AuthUserContext.Consumer>
       {(authUser) => (
@@ -168,35 +193,8 @@ const AdminPage = ({ firebase }) => {
             activities={activities}
             setActivities={setActivities}
             given={given}
-            groups={groups}
+            userList={userList}
           />
-          <Switch>
-            <div className={classes.root}>
-              <Accordion>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1a-content"
-                  id="panel1a-header"
-                >
-                  <Typography className={classes.heading}>
-                    Users List
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Route
-                    exact
-                    path={ROUTES.ADMIN_DETAILS}
-                    component={UserItem}
-                  />
-                  <Route
-                    exact
-                    path={ROUTES.ADMIN}
-                    component={UserList}
-                  />
-                </AccordionDetails>
-              </Accordion>
-            </div>
-          </Switch>
         </Container>
       )}
     </AuthUserContext.Consumer>

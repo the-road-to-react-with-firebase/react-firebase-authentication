@@ -14,14 +14,22 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
-import { Grid } from '@material-ui/core';
 // import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
+import { Switch, Route } from 'react-router-dom';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import Typography from '@material-ui/core/Typography';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import * as ROUTES from '../../constants/routes';
 
+import { Grid } from '@material-ui/core';
+import Chart from './Chart';
 import { withFirebase } from '../Firebase';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
@@ -183,7 +191,7 @@ const dateRanges = [7, 30, 60, 90, 180, 365];
 
 const ActivityTable = ({
   activities,
-  setActivities,
+  userList,
   given,
   firebase,
   onListenForActivity,
@@ -194,18 +202,15 @@ const ActivityTable = ({
   let today = new Date();
   today.setDate(today.getDate() - 7);
   let sevenDays = today.toISOString().slice(0, 10);
-  let otherDay = new Date();
-  otherDay.setDate(otherDay.getDate() - 92);
-  let quarterlyDays = otherDay.toISOString().slice(0, 10);
 
   const classes = useStyles();
-  // getModalStyle is not a pure function, we roll the style only on the first render
   const [modalStyle] = useState(getModalStyle);
   const [open, setOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [edit, setEdit] = useState(false);
-  const [selectedItem, setSelectedItem] = useState({});
   const [dateRange, setDateRange] = useState(30);
+  const [newNote, setNewNote] = useState('');
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [selectedItem, setSelectedItem] = useState({});
   const [totalAmount, setTotalAmount] = useState(0);
   const [totalAmountGiven, setTotalAmountGiven] = useState(0);
   const [totalOneToOnes, setTotalOneToOnes] = useState(0);
@@ -231,7 +236,6 @@ const ActivityTable = ({
   ]);
   const [selectedMember, setSelectedMember] =
     useState('former_member');
-  const [newNote, setNewNote] = useState('');
 
   const handleOpenDelete = () => {
     setDeleteOpen(true);
@@ -259,25 +263,25 @@ const ActivityTable = ({
     }
   };
 
-  const handleChangeNote = (event) => {
-    setNote(event.target.value);
-  };
+  // const handleChangeNote = (event) => {
+  //   setNote(event.target.value);
+  // };
 
-  const handleOpen = () => {
-    setOpen(true);
-  };
+  // const handleOpen = () => {
+  //   setOpen(true);
+  // };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+  // const handleClose = () => {
+  //   setOpen(false);
+  // };
 
-  const handleChangeDateRange = (event) => {
-    setDateRange(event.target.value);
-  };
+  // const handleChangeDateRange = (event) => {
+  //   setDateRange(event.target.value);
+  // };
 
-  const handleRenderEdit = () => {
-    setEdit(true);
-  };
+  // const handleRenderEdit = () => {
+  //   setEdit(true);
+  // };
 
   const onListenForUsers = () => {
     firebase.users().on('value', (snapshot) => {
@@ -296,121 +300,6 @@ const ActivityTable = ({
     onListenForUsers();
   }, []);
 
-  const {
-    activityType,
-    note,
-    amount,
-    member,
-    date,
-    num_one_to_ones,
-    attendance,
-  } = selectedItem;
-  const body = (
-    <div style={modalStyle} className={classes.paper}>
-      <h2 id="simple-modal-title">Activity Detail</h2>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <TextField
-            disabled={true}
-            id="activity_type"
-            label="Activity Type"
-            helperText="You cannot change the Activity Type"
-            fullWidth
-            value={activityType}
-          />
-        </Grid>
-        {(activityType === 'Business Received' ||
-          activityType === 'Referral Given') && (
-          <Grid item xs={12} md={6}>
-            <TextField
-              disabled={!edit}
-              id="member"
-              label="Member"
-              helperText="Member involved in this activity"
-              fullWidth
-              value={member}
-            />
-          </Grid>
-        )}
-
-        {amount > 0 && (
-          <Grid item xs={12} md={6}>
-            <TextField
-              disabled={!edit}
-              id="notes"
-              label="Notes"
-              helperText="Amount of dollars closed"
-              fullWidth
-              value={note}
-            />
-          </Grid>
-        )}
-        {num_one_to_ones > 0 && (
-          <Grid item xs={12} md={6}>
-            <TextField
-              disabled={!edit}
-              id="num_one_to_ones"
-              label="# of One to Ones"
-              helperText="Number of One to Ones"
-              fullWidth
-              value={num_one_to_ones}
-            />
-          </Grid>
-        )}
-        {attendance && (
-          <Grid item xs={12} md={6}>
-            <TextField
-              disabled={!edit}
-              id="num_one_to_ones"
-              label="# of One to Ones"
-              helperText="Number of One to Ones"
-              fullWidth
-              value={num_one_to_ones}
-            />
-          </Grid>
-        )}
-
-        <Grid item xs={12} md={6}>
-          <TextField
-            disabled={!edit}
-            id="date"
-            label="Date"
-            helperText="Date of Activity"
-            fullWidth
-            value={date}
-          />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          {edit ? (
-            <Button
-              variant="contained"
-              onClick={() => setEdit(false)}
-              style={{ backgroundColor: '#309a2f', color: 'white' }}
-            >
-              Save
-            </Button>
-          ) : (
-            <Button
-              variant="contained"
-              onClick={() => setEdit(true)}
-              color="primary"
-            >
-              Edit
-            </Button>
-          )}
-
-          <Button
-            disabled={!selectedItem.activityType}
-            variant="contained"
-            onClick={handleDelete}
-            color="secondary"
-          >
-            Delete
-          </Button>
-        </Grid>
-      </Grid>
-    </div>
-  );
   const calculateGroup = () => {
     setFilterModel({
       items: [{}],
@@ -433,7 +322,6 @@ const ActivityTable = ({
           bufferItem.this_username = item.username;
           bufferItem.username = item.this_username;
           bufferItem.activityType = 'Business Given';
-          // bufferItem.business_received = 0
           bufferItem.business_given = item.amount;
           bufferItem.userId = item.member_id;
           bufferItem.attendance = 0;
@@ -455,7 +343,6 @@ const ActivityTable = ({
         events: 0,
         date: '',
       };
-      let amountInit = 0;
 
       function mergeObjectWithoutOverwriting(
         mainObject,
@@ -578,8 +465,11 @@ const ActivityTable = ({
       <div
         style={{ height: 500, width: '100%', marginBottom: '12em' }}
       >
-        <h1>Admin</h1>
-        <p>Select a member to view each members activites.</p>
+        <p>
+          Select a member to view each members activites. Select All
+          Members - Quarterly, to view an aggregate of all activites
+          over the last 92 days.
+        </p>
 
         <Grid item xs={12} md={6}>
           <InputLabel>Member</InputLabel>
@@ -661,56 +551,9 @@ const ActivityTable = ({
         ) : (
           <DataGrid
             loading={loading}
-            // onFilterModelChange={(props) => {
-            //   let filtered = Array.from(
-            //     props.visibleRows,
-            //     ([name, value]) => ({ ...value }),
-            //   );
-            //   let bufferTotalAmount = 0;
-            //   let bufferTotalAmountGiven = 0;
-            //   let bufferTotalOneToOnes = 0;
-            //   let bufferTotalReferrals = 0;
-            //   let bufferTotalEvents = 0;
-            //   let bufferTotalAttendance = 0;
-            //   let bufferTotalGuests = 0;
-            //   if (filtered) {
-            //     filtered.forEach((a) => {
-            //       if (a.activityType === 'Business Received') {
-            //         bufferTotalAmount += Number(a.amount);
-            //       }
-            //       if (a.activityType === 'Referral Given') {
-            //         bufferTotalReferrals += 1;
-            //       }
-            //       if (a.activityType === 'Networking Event') {
-            //         bufferTotalEvents += 1;
-            //         bufferTotalGuests += Number(a.num_guests);
-            //       }
-            //       if (a.activityType === 'Attendance') {
-            //         bufferTotalAttendance += a.attendance ? 1 : 0;
-            //         bufferTotalGuests += Number(a.num_guests);
-            //       }
-            //       if (a.activityType === 'Business Given') {
-            //         bufferTotalAmountGiven += Number(a.amount);
-            //       }
-            //       if (a.activityType === 'One to One') {
-            //         bufferTotalOneToOnes += Number(a.num_one_to_ones);
-            //       }
-            //     });
-            //     setTotalAmount(bufferTotalAmount);
-            //     setTotalAmountGiven(bufferTotalAmountGiven);
-            //     setTotalOneToOnes(bufferTotalOneToOnes);
-            //     setTotalReferrals(bufferTotalReferrals);
-            //     setTotalEvents(bufferTotalEvents);
-            //     setTotalAttendance(bufferTotalAttendance);
-            //     setTotalGuests(bufferTotalGuests);
-            //   } else {
-            //   }
-            // }}
-            // style={{ marginBottom: '1em' }}
             components={{
               Toolbar: GridToolbar,
             }}
-            // onRowSelected={(e) => setSelectedItem(e.data)}
             rows={groups}
             columns={qbrColumns}
             pageSize={10}
@@ -777,6 +620,9 @@ const ActivityTable = ({
         >
           {body}
         </Modal> */}
+        {selectedMember === 'all_members_quarterly' && (
+          <Chart activities={groups} />
+        )}
       </div>
       {selectedMember !== 'all_members_quarterly' &&
         selectedMember !== 'all_members' && (
@@ -815,6 +661,7 @@ const ActivityTable = ({
                 </TableRow>
               </TableBody>
             </Table>
+            {userList}
           </TableContainer>
         )}
     </>
