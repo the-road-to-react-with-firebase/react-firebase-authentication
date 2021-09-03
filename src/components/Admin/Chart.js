@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTheme } from '@material-ui/core/styles';
 import {
   BarChart,
@@ -12,12 +12,22 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import Title from './Title';
+
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
 });
 
 export default function Chart({ activities }) {
+  // const [typeOne, setTypeOne] = useState({
+  //   name: 'Business Given',
+  //   key: 'business_given'
+  // })
+  // const [typeTwo, setTypeTwo] = useState({
+  //   name: 'Business Received',
+  //   key: 'business_given'
+  // })
+
   return (
     <React.Fragment>
       <Title>Business Received & Business Given</Title>
@@ -59,6 +69,7 @@ export default function Chart({ activities }) {
             fill="#82ca9d"
           />
         </BarChart>
+        {/* <button></button> */}
       </ResponsiveContainer>
     </React.Fragment>
   );

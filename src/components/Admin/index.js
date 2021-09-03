@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Switch, Route } from 'react-router-dom';
 import { compose } from 'recompose';
 
-import { Container } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { Container } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
 import Chart from './Chart';
 

@@ -73,14 +73,21 @@ const qbrColumns = [
     // hide: true,
   },
   {
+    field: 'num_one_to_ones',
+    headerName: '# of 1 to 1s',
+    type: 'number',
+    width: 150,
+    // hide: true,
+  },
+  {
     field: 'attendance',
     type: 'number',
     headerName: 'Attendance',
     width: 150,
   },
   {
-    field: 'num_one_to_ones',
-    headerName: '# 1 to 1s',
+    field: 'num_guests',
+    headerName: '# of Guests',
     type: 'number',
     width: 150,
     // hide: true,
@@ -116,10 +123,10 @@ const columns = [
     headerName: 'Amount',
     width: 140,
   },
-  { field: 'note', headerName: 'Notes', width: 150 },
+  { field: 'note', hide: true, headerName: 'Notes', width: 150 },
   {
     field: 'num_one_to_ones',
-    headerName: '# 1 to 1s',
+    headerName: '# of 1 to 1s',
     width: 150,
     // hide: true,
   },
@@ -368,12 +375,14 @@ const ActivityTable = ({
           business_given: 0,
           attendance: 0,
           num_one_to_ones: 0,
+          num_guests: 0,
           referrals_given: 0,
           events: 0,
           date: '',
         };
         combo[key].forEach((a, idx) => {
           userData.date = a.date;
+          userData.num_guests = a.num_guests;
           userData.member = a.this_username;
           userData.uid = a.userId;
           userData.business_received +=
@@ -463,7 +472,7 @@ const ActivityTable = ({
   return (
     <>
       <div
-        style={{ height: 500, width: '100%', marginBottom: '12em' }}
+        style={{ height: 500, width: '100%', marginBottom: '8em' }}
       >
         <p>
           Select a member to view each members activites. Select All
@@ -490,6 +499,7 @@ const ActivityTable = ({
         </Grid>
         {selectedMember !== 'all_members_quarterly' ? (
           <DataGrid
+            density="compact"
             loading={loading}
             onFilterModelChange={(props) => {
               let filtered = Array.from(
@@ -536,7 +546,6 @@ const ActivityTable = ({
               } else {
               }
             }}
-            // style={{ marginBottom: '1em' }}
             components={{
               Toolbar: GridToolbar,
             }}
@@ -550,6 +559,7 @@ const ActivityTable = ({
           />
         ) : (
           <DataGrid
+            density="compact"
             loading={loading}
             components={{
               Toolbar: GridToolbar,
@@ -571,39 +581,6 @@ const ActivityTable = ({
           Delete Selected
         </Button> */}
 
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleOpenDelete}
-          disabled={!selectedItem.activityType}
-        >
-          Delete Selected
-        </Button>
-        <Dialog
-          open={deleteOpen}
-          onClose={handleCloseDelete}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">
-            {'Permanently Delete Activity?'}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              Are you sure you want to delete this Activity? This
-              action is permanent.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDelete} color="primary">
-              Cancel
-            </Button>
-            <Button onClick={handleDelete} color="primary" autoFocus>
-              Delete Permanently
-            </Button>
-          </DialogActions>
-        </Dialog>
-
         {/* <Button
           disabled={!selectedItem.activityType}
           variant="contained"
@@ -623,6 +600,47 @@ const ActivityTable = ({
         {selectedMember === 'all_members_quarterly' && (
           <Chart activities={groups} />
         )}
+        {selectedMember !== 'all_members_quarterly' &&
+          selectedMember !== 'all_members' && (
+            <>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleOpenDelete}
+                disabled={!selectedItem.activityType}
+              >
+                Delete Selected
+              </Button>
+              <Dialog
+                open={deleteOpen}
+                onClose={handleCloseDelete}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+              >
+                <DialogTitle id="alert-dialog-title">
+                  {'Permanently Delete Activity?'}
+                </DialogTitle>
+                <DialogContent>
+                  <DialogContentText id="alert-dialog-description">
+                    Are you sure you want to delete this Activity?
+                    This action is permanent.
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleCloseDelete} color="primary">
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleDelete}
+                    color="primary"
+                    autoFocus
+                  >
+                    Delete Permanently
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            </>
+          )}
       </div>
       {selectedMember !== 'all_members_quarterly' &&
         selectedMember !== 'all_members' && (
@@ -661,9 +679,9 @@ const ActivityTable = ({
                 </TableRow>
               </TableBody>
             </Table>
-            {userList}
           </TableContainer>
         )}
+      {selectedMember === 'all_members' && userList}
     </>
   );
 };

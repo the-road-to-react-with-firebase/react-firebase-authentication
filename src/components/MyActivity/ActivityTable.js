@@ -49,7 +49,7 @@ const columns = [
   { field: 'note', headerName: 'Notes', width: 150 },
   {
     field: 'num_one_to_ones',
-    headerName: '# 1 to 1s',
+    headerName: '# of 1 to 1s',
     width: 150,
     // hide: true,
   },
@@ -375,6 +375,7 @@ const ActivityTable = ({
         style={{ height: 500, width: '100%', marginBottom: '3em' }}
       >
         <DataGrid
+          density="compact"
           onFilterModelChange={(props) => {
             let filtered = Array.from(
               props.visibleRows,
