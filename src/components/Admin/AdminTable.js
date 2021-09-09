@@ -369,7 +369,7 @@ const ActivityTable = ({
 
       let combo = mergeObjectWithoutOverwriting(group, group2);
 
-      Object.keys(combo).forEach(function (key) {
+      Object.keys(combo).forEach(function (key, idx) {
         userData = {
           business_received: 0,
           business_given: 0,
@@ -400,7 +400,7 @@ const ActivityTable = ({
           userData.referrals_given +=
             a.activityType === 'Referral Given' ? 1 : 0;
         });
-        userGroup.push(userData);
+        if (userData.uid) userGroup.push(userData);
       });
       setGroups(userGroup);
     }
