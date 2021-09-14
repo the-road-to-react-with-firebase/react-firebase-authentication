@@ -25,6 +25,10 @@ import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
+const config = {
+  adminPasscode: process.env.REACT_APP_ADMIN_PASSCODE,
+  standardPasscode: process.env.REACT_APP_STANDARD_PASSCODE,
+};
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
@@ -97,8 +101,8 @@ const SignUpFormBase = ({ firebase, history }) => {
     event.preventDefault();
     const roles = {};
     if (
-      accessCode !== 'imanMRNer2021!' ||
-      accessCode !== 'imanMRNadmin2021!'
+      accessCode !== config.standardPasscode ||
+      accessCode !== config.adminPasscode
     ) {
       setError({
         message:
@@ -191,8 +195,8 @@ const SignUpFormBase = ({ firebase, history }) => {
     passwordOne === '' ||
     email === '' ||
     username === '' ||
-    (accessCode !== 'imanMRNer2021!' &&
-      accessCode !== 'imanMRNadmin2021!');
+    (accessCode !== standardPasscode &&
+      accessCode !== adminPasscode);
 
   const isMatch = passwordOne === passwordTwo;
 
@@ -312,11 +316,11 @@ const SignUpFormBase = ({ firebase, history }) => {
               value={accessCode}
               onChange={onChange}
             />
-            {accessCode === 'imanMRNadmin2021!' && (
+            {accessCode === adminPasscode && (
               <label>
                 Admin:
                 <input
-                  disabled={accessCode !== 'imanMRNadmin2021!'}
+                  disabled={accessCode !== adminPasscode}
                   name="isAdmin"
                   type="checkbox"
                   checked={isAdmin}
