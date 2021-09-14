@@ -185,9 +185,9 @@ const Navigation = () => {
               </Typography>
               {auth && (
                 <div>
-                  <Typography variant="span">
+                  <span>
                     {auth.username}
-                  </Typography>
+                  </span>
                   <IconButton
                     aria-label="account of current user"
                     aria-controls="menu-appbar"

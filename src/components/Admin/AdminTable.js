@@ -13,20 +13,12 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Paper from '@material-ui/core/Paper';
-import TextField from '@material-ui/core/TextField';
 // import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import { Switch, Route } from 'react-router-dom';
-import Accordion from '@material-ui/core/Accordion';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import Typography from '@material-ui/core/Typography';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import * as ROUTES from '../../constants/routes';
 
 import { Grid } from '@material-ui/core';
 import Chart from './Chart';
@@ -50,7 +42,7 @@ const qbrColumns = [
     type: 'number',
     valueFormatter: (params) => {
       return !params.value
-        ? ''
+        ? currencyFormatter.format(0)
         : currencyFormatter.format(Number(params.value));
     },
   },
@@ -61,7 +53,7 @@ const qbrColumns = [
     type: 'number',
     valueFormatter: (params) => {
       return !params.value
-        ? ''
+        ? currencyFormatter.format(0)
         : currencyFormatter.format(Number(params.value));
     },
   },
@@ -194,7 +186,7 @@ function getModalStyle() {
   };
 }
 
-const dateRanges = [7, 30, 60, 90, 180, 365];
+const dateRanges = [7, 30, 60, 90, 91, 92, 180, 365, 730];
 
 const ActivityTable = ({
   activities,
@@ -205,6 +197,8 @@ const ActivityTable = ({
   onListenForGiven,
   loading,
   authUser,
+  days,
+  setDays,
 }) => {
   let today = new Date();
   today.setDate(today.getDate() - 7);
@@ -268,6 +262,11 @@ const ActivityTable = ({
         calculate();
       }, 250);
     }
+  };
+
+  const handleChangeDays = (event) => {
+    setDays(event.target.value);
+    onListenForActivity(selectedMember, event.target.value);
   };
 
   // const handleChangeNote = (event) => {
@@ -347,6 +346,7 @@ const ActivityTable = ({
         attendance: 0,
         num_one_to_ones: 0,
         referrals_given: 0,
+        num_guests: 0,
         events: 0,
         date: '',
       };
@@ -382,17 +382,17 @@ const ActivityTable = ({
         };
         combo[key].forEach((a, idx) => {
           userData.date = a.date;
-          userData.num_guests = a.num_guests;
           userData.member = a.this_username;
           userData.uid = a.userId;
           userData.business_received +=
-            a.activityType === 'Business Received'
-              ? Number(a.amount)
-              : 0;
+          a.activityType === 'Business Received'
+          ? Number(a.amount)
+          : 0;
           userData.business_given +=
-            a.activityType === 'Business Given'
-              ? Number(a.business_given)
-              : 0;
+          a.activityType === 'Business Given'
+          ? Number(a.business_given)
+          : 0;
+          userData.num_guests += +a.num_guests;
           userData.attendance += a.attendance ? 1 : 0;
           userData.events +=
             a.activityType === 'Networking Event' ? 1 : 0;
@@ -457,7 +457,7 @@ const ActivityTable = ({
   useEffect(() => {
     onListenForGiven(selectedMember);
     onListenForActivity(selectedMember);
-  }, [selectedMember]);
+  }, [selectedMember, days]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -476,11 +476,11 @@ const ActivityTable = ({
       >
         <p>
           Select a member to view each members activites. Select All
-          Members - Quarterly, to view an aggregate of all activites
-          over the last 92 days.
+          Members - Quarterly, to view an aggregate of all member's
+          activites over a selected date range.
         </p>
 
-        <Grid item xs={12} md={6}>
+        <Grid item xs={6} md={6}>
           <InputLabel>Member</InputLabel>
           <Select
             value={selectedMember}
@@ -497,6 +497,21 @@ const ActivityTable = ({
             })}
           </Select>
         </Grid>
+        {selectedMember === 'all_members_quarterly' && (
+          <Grid item xs={6} md={6}>
+            <InputLabel style={{ marginTop: '1em' }}>Show</InputLabel>
+            Last{' '}
+            <Select value={days} onChange={handleChangeDays}>
+              {dateRanges.map((value, index) => (
+                <MenuItem key={index} value={value}>
+                  {value}
+                </MenuItem>
+              ))}
+            </Select>
+            Days
+          </Grid>
+        )}
+
         {selectedMember !== 'all_members_quarterly' ? (
           <DataGrid
             density="compact"

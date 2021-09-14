@@ -36,6 +36,8 @@ const AdminPage = ({ firebase }) => {
   const [activities, setActivities] = useState([]);
   const [given, setGiven] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [days, setDays] = useState(92);
+  const [qbr, setQBR] = useState(undefined);
 
   const onListenForGiven = (uid) => {
     setLoading(true);
@@ -81,17 +83,18 @@ const AdminPage = ({ firebase }) => {
     }
   };
 
-  let otherDay = new Date();
-  otherDay.setDate(otherDay.getDate() - 92);
-
-  const qbr = Math.round(otherDay.getTime() / 1000);
-  const onListenForActivity = (uid) => {
+  
+  
+  const onListenForActivity = (uid, dateRange) => {
     setLoading(true);
     if (uid === 'all_members_quarterly') {
+      let otherDay = new Date();
+      otherDay.setDate(otherDay.getDate() - days);
+      let qb = (Math.round(otherDay.getTime() / 1000));
       firebase
         .activities()
         .orderByChild('date_timestamp')
-        .startAt(qbr)
+        .startAt(qb)
         .on('value', (snapshot) => {
           const activityObject = snapshot.val();
 
@@ -192,6 +195,8 @@ const AdminPage = ({ firebase }) => {
             onListenForGiven={onListenForGiven}
             activities={activities}
             setActivities={setActivities}
+            days={days}
+            setDays={setDays}
             given={given}
             userList={userList}
           />

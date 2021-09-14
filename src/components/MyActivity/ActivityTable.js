@@ -51,7 +51,6 @@ const columns = [
     field: 'num_one_to_ones',
     headerName: '# of 1 to 1s',
     width: 150,
-    // hide: true,
   },
   {
     field: 'num_guests',

@@ -97,13 +97,14 @@ const SignUpFormBase = ({ firebase, history }) => {
     event.preventDefault();
     const roles = {};
     if (
-      accessCode !== 'imanmrner2021' ||
-      accessCode !== 'imanmrnadmin2021'
+      accessCode !== 'imanMRNer2021!' ||
+      accessCode !== 'imanMRNadmin2021!'
     ) {
       setError({
         message:
           'invalid access code, access denied... nice try hackers!',
       });
+      return;
     }
     if (isAdmin) {
       roles[ROLES.ADMIN] = ROLES.ADMIN;

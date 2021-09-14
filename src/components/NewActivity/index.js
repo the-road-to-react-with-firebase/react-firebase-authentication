@@ -345,7 +345,7 @@ const NewActivity = ({ firebase, history }) => {
             <Grid item xs={12}>
               {success && (
                 <Alert severity="success">
-                  Activity saved succesfully!
+                  Activity saved succesfully! View your activites on the My Activity page.
                 </Alert>
               )}
             </Grid>
