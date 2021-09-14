@@ -101,54 +101,53 @@ const SignUpFormBase = ({ firebase, history }) => {
   const onSubmit = (event) => {
     event.preventDefault();
     const roles = {};
-    if (
-      accessCode !== standardPasscode ||
-      accessCode !== adminPasscode
-    ) {
-      setError({
-        message:
-          'invalid access code, access denied... nice try hackers!',
-      });
-      return;
-    }
     if (isAdmin) {
       roles[ROLES.ADMIN] = ROLES.ADMIN;
     } else {
       roles[ROLES.STANDARD] = ROLES.STANDARD;
     }
-
-    firebase
-      .doCreateUserWithEmailAndPassword(email, passwordOne)
-      .then((authUser) => {
-        // Create a user in your Firebase realtime database
-        return firebase.user(authUser.user.uid).set({
-          username,
-          email,
-          roles,
-        });
-      })
-      .then(() => {
-        return firebase.doSendEmailVerification();
-      })
-      .then(() => {
-        setEmail('');
-        setPasswordOne('');
-        setPasswordTwo('');
-        setShowPasswordOne(false);
-        setShowPasswordTwo(false);
-        setAccessCode('');
-        setUsername('');
-        setIsAdmin('');
-        history.push(ROUTES.HOME);
-      })
-      .catch((error) => {
-        if (error.code === ERROR_CODE_ACCOUNT_EXISTS) {
-          error.message = ERROR_MSG_ACCOUNT_EXISTS;
-        }
-
-        setError({ error });
+    if (
+      accessCode !== standardPasscode &&
+      accessCode !== adminPasscode
+    ) {
+      setError({
+        message:
+          'Invalid access code. ACCESS DENIED... Nice try hackers!',
       });
+      return;
+    } else {
+      firebase
+        .doCreateUserWithEmailAndPassword(email, passwordOne)
+        .then((authUser) => {
+          // Create a user in your Firebase realtime database
+          return firebase.user(authUser.user.uid).set({
+            username,
+            email,
+            roles,
+          });
+        })
+        .then(() => {
+          return firebase.doSendEmailVerification();
+        })
+        .then(() => {
+          setEmail('');
+          setPasswordOne('');
+          setPasswordTwo('');
+          setShowPasswordOne(false);
+          setShowPasswordTwo(false);
+          setAccessCode('');
+          setUsername('');
+          setIsAdmin('');
+          history.push(ROUTES.HOME);
+        })
+        .catch((error) => {
+          if (error.code === ERROR_CODE_ACCOUNT_EXISTS) {
+            error.message = ERROR_MSG_ACCOUNT_EXISTS;
+          }
 
+          setError({ error });
+        });
+    }
     event.preventDefault();
   };
 
