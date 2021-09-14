@@ -29,6 +29,7 @@ const config = {
   adminPasscode: process.env.REACT_APP_ADMIN_PASSCODE,
   standardPasscode: process.env.REACT_APP_STANDARD_PASSCODE,
 };
+const { adminPasscode, standardPasscode } = config;
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
@@ -101,8 +102,8 @@ const SignUpFormBase = ({ firebase, history }) => {
     event.preventDefault();
     const roles = {};
     if (
-      accessCode !== config.standardPasscode ||
-      accessCode !== config.adminPasscode
+      accessCode !== standardPasscode ||
+      accessCode !== adminPasscode
     ) {
       setError({
         message:
@@ -195,8 +196,7 @@ const SignUpFormBase = ({ firebase, history }) => {
     passwordOne === '' ||
     email === '' ||
     username === '' ||
-    (accessCode !== standardPasscode &&
-      accessCode !== adminPasscode);
+    (accessCode !== standardPasscode && accessCode !== adminPasscode);
 
   const isMatch = passwordOne === passwordTwo;
 
