@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useTheme } from '@material-ui/core/styles';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
+import Box from '@material-ui/core/Box';
+import Link from '@material-ui/core/Link';
+import Typography from '@material-ui/core/Typography';
 import {
   BarChart,
   Bar,
@@ -40,7 +43,9 @@ export default function Chart({ activities }) {
 
   return (
     <React.Fragment>
-      <Title>Business Given, Received, Referrals and One to Ones</Title>
+      <Title>
+        Business Given, Received, Referrals and One to Ones
+      </Title>
       <ResponsiveContainer
         style={{ marginTop: '5em' }}
         width="100%"
@@ -60,8 +65,14 @@ export default function Chart({ activities }) {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="member" />
           <YAxis
-            tickFormatter={business ? (value) => currencyFormatter.format(value): undefined}
-            dataKey={business ? 'business_received' : "referrals_given"}
+            tickFormatter={
+              business
+                ? (value) => currencyFormatter.format(value)
+                : undefined
+            }
+            dataKey={
+              business ? 'business_received' : 'referrals_given'
+            }
           />
           <Tooltip />
           <Legend />
@@ -83,7 +94,6 @@ export default function Chart({ activities }) {
           )}
           {referrals && (
             <Bar
-              // formatter={(value) => currencyFormatter.format(value)}
               name="Referrals Given"
               dataKey="referrals_given"
               fill="#84b4d8"
@@ -91,7 +101,6 @@ export default function Chart({ activities }) {
           )}
           {oneToOnes && (
             <Bar
-              // formatter={(value) => currencyFormatter.format(value)}
               name="One to Ones"
               dataKey="num_one_to_ones"
               fill="#d884ad"
@@ -130,6 +139,27 @@ export default function Chart({ activities }) {
         }
         label="One To Ones"
       />
+      <Box  pt={1}>
+        <Copyright />
+      </Box>
     </React.Fragment>
+  );
+}
+
+function Copyright() {
+  return (
+    <Typography
+      variant="body2"
+      color="textSecondary"
+      align="center"
+      style={{ marginTop: '2em', }}
+    >
+      {'Copyright © Powered by '}
+      <Link color="inherit" href="https://netwrk.biz">
+        netwrk.biz
+      </Link>{' '}
+      {new Date().getFullYear()}
+      {'.'}
+    </Typography>
   );
 }

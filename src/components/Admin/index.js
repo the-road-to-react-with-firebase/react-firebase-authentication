@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Switch, Route } from 'react-router-dom';
 import { compose } from 'recompose';
-
+import Box from '@material-ui/core/Box';
+import Link from '@material-ui/core/Link';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
@@ -9,8 +10,6 @@ import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { Container } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { Grid } from '@material-ui/core';
-import Chart from './Chart';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -83,14 +82,12 @@ const AdminPage = ({ firebase }) => {
     }
   };
 
-  
-  
   const onListenForActivity = (uid, dateRange) => {
     setLoading(true);
     if (uid === 'all_members_quarterly') {
       let otherDay = new Date();
       otherDay.setDate(otherDay.getDate() - days);
-      let qb = (Math.round(otherDay.getTime() / 1000));
+      let qb = Math.round(otherDay.getTime() / 1000);
       firebase
         .activities()
         .orderByChild('date_timestamp')

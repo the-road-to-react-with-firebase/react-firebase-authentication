@@ -385,13 +385,13 @@ const ActivityTable = ({
           userData.member = a.this_username;
           userData.uid = a.userId;
           userData.business_received +=
-          a.activityType === 'Business Received'
-          ? Number(a.amount)
-          : 0;
+            a.activityType === 'Business Received'
+              ? Number(a.amount)
+              : 0;
           userData.business_given +=
-          a.activityType === 'Business Given'
-          ? Number(a.business_given)
-          : 0;
+            a.activityType === 'Business Given'
+              ? Number(a.business_given)
+              : 0;
           userData.num_guests += +a.num_guests;
           userData.attendance += a.attendance ? 1 : 0;
           userData.events +=
@@ -472,7 +472,7 @@ const ActivityTable = ({
   return (
     <>
       <div
-        style={{ height: 500, width: '100%', marginBottom: '8em' }}
+        style={{ height: 500, width: '100%', marginBottom: '10em' }}
       >
         <p>
           Select a member to view each members activites. Select All
@@ -617,7 +617,7 @@ const ActivityTable = ({
         )}
         {selectedMember !== 'all_members_quarterly' &&
           selectedMember !== 'all_members' && (
-            <>
+            <div>
               <Button
                 variant="contained"
                 color="secondary"
@@ -654,12 +654,15 @@ const ActivityTable = ({
                   </Button>
                 </DialogActions>
               </Dialog>
-            </>
+            </div>
           )}
       </div>
       {selectedMember !== 'all_members_quarterly' &&
         selectedMember !== 'all_members' && (
-          <TableContainer component={Paper}>
+          <TableContainer
+            style={{ marginBottom: '1em' }}
+            component={Paper}
+          >
             {loading && <LinearProgress color="primary" />}
             <Table
               className={classes.table}

@@ -1,8 +1,7 @@
-import React, { Component, useState } from 'react';
+import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
 import Alert from '@material-ui/lab/Alert';
-import { SignUpLink } from '../SignUp';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import { PasswordForgetLink } from '../PasswordForget';
 import { withFirebase } from '../Firebase';
@@ -11,14 +10,13 @@ import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import Input from '@material-ui/core/Input';
 import IconButton from '@material-ui/core/IconButton';
+import Input from '@material-ui/core/Input';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import * as ROUTES from '../../constants/routes';
 import * as ROLES from '../../constants/roles';
 import Link from '@material-ui/core/Link';
-import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
 import Visibility from '@material-ui/icons/Visibility';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
@@ -47,8 +45,6 @@ const SignUpPage = () => {
   return (
     <Container component="main" maxWidth="xs">
       <SignUpForm />
-
-      {/* <SignUpLink /> */}
       <Box mt={8}>
         <Copyright />
       </Box>
@@ -112,7 +108,7 @@ const SignUpFormBase = ({ firebase, history }) => {
     ) {
       setError({
         message:
-          'Invalid access code. ACCESS DENIED... Nice try hackers!',
+          'Invalid access code. ACCESS DENIED. Nice try, hackers!',
       });
       return;
     } else {
@@ -308,7 +304,7 @@ const SignUpFormBase = ({ firebase, history }) => {
               margin="normal"
               required
               fullWidth
-              id="access code"
+              id="accessCode"
               label="Access Code"
               name="accessCode"
               helperText="Access code will be supplied to you by MRN leadership"

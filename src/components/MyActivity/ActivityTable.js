@@ -16,12 +16,11 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import LinearProgress from '@material-ui/core/LinearProgress';
 
-import { Grid, Typography, Divider } from '@material-ui/core';
+import { Grid, Typography,} from '@material-ui/core';
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { withFirebase } from '../Firebase';
-import { componentFromStreamWithConfig } from 'recompose';
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -116,8 +115,6 @@ function getModalStyle() {
   };
 }
 
-const dateRanges = [7, 30, 60, 90, 180, 365];
-
 const ActivityTable = ({
   activities,
   given,
@@ -162,7 +159,8 @@ const ActivityTable = ({
     setDeleteOpen(false);
   };
 
-  const handleDelete = () => {
+  const handleDelete = (uid) => {
+    setSelectedItem({});
     firebase.activity(selectedItem.uid).remove();
     setOpen(false);
     setDeleteOpen(false);
