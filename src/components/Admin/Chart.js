@@ -71,7 +71,7 @@ export default function Chart({ activities }) {
                 : undefined
             }
             dataKey={
-              business ? 'business_received' : 'referrals_given'
+              business ? 'business_received' : 'num_one_to_ones'
             }
           />
           <Tooltip />
