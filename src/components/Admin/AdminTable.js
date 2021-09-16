@@ -366,11 +366,11 @@ const ActivityTable = ({
         });
         return mainObject;
       }
-
       let combo = mergeObjectWithoutOverwriting(group, group2);
 
       Object.keys(combo).forEach(function (key, idx) {
         userData = {
+          member: '',
           business_received: 0,
           business_given: 0,
           attendance: 0,
@@ -402,7 +402,15 @@ const ActivityTable = ({
         });
         if (userData.uid) userGroup.push(userData);
       });
-      setGroups(userGroup);
+      let sorted = userGroup.sort(function (a, b) {
+        return (
+          parseFloat(b.business_given) +
+          parseFloat(b.business_received) -
+          (parseFloat(a.business_given) +
+            parseFloat(a.business_received))
+        );
+      });
+      setGroups(sorted);
     }
   };
 

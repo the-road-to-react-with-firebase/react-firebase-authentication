@@ -51,7 +51,6 @@ const NewActivity = ({ firebase, history }) => {
   const [users, setUsers] = useState([
     { username: 'Former Member', uid: 'former_member' },
   ]);
-  const [thursday, setThursday] = useState(false);
   const classes = useStyles();
   const [guests, setGuests] = useState(0);
   const [member, setMember] = useState('former_member');
@@ -98,16 +97,6 @@ const NewActivity = ({ firebase, history }) => {
 
   const handleChangeAmount = (event) => {
     setAmount(event.target.value);
-  };
-
-  const onEditMessage = (message, text) => {
-    const { uid, ...messageSnapshot } = message;
-
-    firebase.message(message.uid).set({
-      ...messageSnapshot,
-      text,
-      editedAt: this.props.firebase.serverValue.TIMESTAMP,
-    });
   };
 
   const onListenForUsers = () => {
@@ -168,12 +157,14 @@ const NewActivity = ({ firebase, history }) => {
       createdAt: firebase.serverValue.TIMESTAMP,
     });
     if (await key) {
+      // setDate(event.target.value);
       setMember('former_member');
       setNote('');
-      // setDate(event.target.value);
       setOneToOnes(1);
       setAmount('');
+      setAttendance(true)
       setSuccess(true);
+      setUsername('Former Member')
       setTimeout(() => {
         setSuccess(false);
       }, 6000);
@@ -345,7 +336,8 @@ const NewActivity = ({ firebase, history }) => {
             <Grid item xs={12}>
               {success && (
                 <Alert severity="success">
-                  Activity saved succesfully! View your activites on the My Activity page.
+                  Activity saved succesfully! View your activites on
+                  the My Activity page.
                 </Alert>
               )}
             </Grid>
