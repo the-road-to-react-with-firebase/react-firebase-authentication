@@ -23,8 +23,6 @@ import { compose } from 'recompose';
 // import ListItem from '@material-ui/core/ListItem';
 // import ListItemText from '@material-ui/core/ListItemText';
 
-// import { ReferenceArea } from 'recharts';
-
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
@@ -47,7 +45,7 @@ const present = [
 const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 const NewActivity = ({ firebase, history }) => {
-  let today = new Date();
+  let today = convertUTCDateToLocalDate(new Date());
   const [users, setUsers] = useState([
     { username: 'Former Member', uid: 'former_member' },
   ]);
@@ -131,15 +129,28 @@ const NewActivity = ({ firebase, history }) => {
       });
   };
 
+  function convertUTCDateToLocalDate(date) {
+    var newDate = new Date(
+      date.getTime() + date.getTimezoneOffset() * 60 * 1000,
+    );
+
+    var offset = date.getTimezoneOffset() / 60;
+    var hours = date.getHours();
+
+    newDate.setHours(hours - offset);
+
+    return newDate;
+  }
   const onCreateActivity = async (event, authUser) => {
     event.preventDefault();
+    let zoned = convertUTCDateToLocalDate(new Date(date));
     let { key, ...results } = await firebase.activities().push({
       activityType,
       userId: authUser.uid,
       this_username: authUser.username,
       amount: activityType !== 'Business Received' ? '' : amount,
-      date,
-      date_timestamp: new Date(date).getTime() / 1000,
+      date: date,
+      date_timestamp: new Date(zoned).getTime() / 1000,
       note,
       num_one_to_ones: activityType !== 'One to One' ? '' : oneToOnes,
       attendance: activityType === 'Attendance' ? attendance : '',
@@ -162,9 +173,9 @@ const NewActivity = ({ firebase, history }) => {
       setNote('');
       setOneToOnes(1);
       setAmount('');
-      setAttendance(true)
+      setAttendance(true);
       setSuccess(true);
-      setUsername('Former Member')
+      setUsername('Former Member');
       setTimeout(() => {
         setSuccess(false);
       }, 6000);

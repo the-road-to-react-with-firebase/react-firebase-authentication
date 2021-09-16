@@ -22,6 +22,11 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import { withFirebase } from '../Firebase';
 
+function formatDate(date) {
+  const dateObj = new Date(date + 'T00:00:00');
+  return new Intl.DateTimeFormat('en-US').format(dateObj);
+}
+
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
@@ -76,7 +81,7 @@ const columns = [
     type: 'date',
     width: 120,
     valueFormatter: (params) =>
-      new Date(params.value).toLocaleDateString(),
+      formatDate(params.value),
     sortComparator: (v1, v2, cellParams1, cellParams2) => {
       return (
         new Date(cellParams1.value) - new Date(cellParams2.value)
