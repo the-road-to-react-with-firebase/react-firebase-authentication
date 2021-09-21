@@ -151,7 +151,7 @@ const columns = [
     headerName: 'Date',
     type: 'date',
     width: 120,
-    valueFormatter: (params) => formatDate(params.value),
+    valueGetter: (params) => formatDate(params.value),
     sortComparator: (v1, v2, cellParams1, cellParams2) => {
       return (
         new Date(cellParams1.value) - new Date(cellParams2.value)

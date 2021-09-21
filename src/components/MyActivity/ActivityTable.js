@@ -16,7 +16,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import LinearProgress from '@material-ui/core/LinearProgress';
 
-import { Grid, Typography,} from '@material-ui/core';
+import { Grid, Typography } from '@material-ui/core';
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -48,7 +48,7 @@ const columns = [
         : currencyFormatter.format(Number(params.value));
     },
     headerName: 'Amount',
-    width: 140,
+    width: 130,
   },
   { field: 'note', headerName: 'Notes', width: 150 },
   {
@@ -80,8 +80,9 @@ const columns = [
     headerName: 'Date',
     type: 'date',
     width: 120,
-    valueFormatter: (params) =>
-      formatDate(params.value),
+    // needed to replace valueFormatter with valueGetter for filtering
+    valueGetter: (params) => formatDate(params.value),
+    // valueFormatter: (params) => formatDate(params.value),
     sortComparator: (v1, v2, cellParams1, cellParams2) => {
       return (
         new Date(cellParams1.value) - new Date(cellParams2.value)
@@ -137,9 +138,7 @@ const ActivityTable = ({
   const [modalStyle] = useState(getModalStyle);
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState(false);
-  const [newNote, setNewNote] = useState('');
   const [selectedItem, setSelectedItem] = useState({});
-  const [dateRange, setDateRange] = useState(30);
   const [totalAmount, setTotalAmount] = useState(0);
   const [totalAmountGiven, setTotalAmountGiven] = useState(0);
   const [totalOneToOnes, setTotalOneToOnes] = useState(0);
@@ -147,6 +146,8 @@ const ActivityTable = ({
   const [totalEvents, setTotalEvents] = useState(0);
   const [totalAttendance, setTotalAttendance] = useState(0);
   const [totalGuests, setTotalGuests] = useState(0);
+  const [newNote, setNewNote] = useState('');
+  const [dateRange, setDateRange] = useState(30);
   const [isFiltered, setIsFiltered] = useState(false);
   const [sortModel, setSortModel] = useState([
     {
@@ -171,25 +172,25 @@ const ActivityTable = ({
     setDeleteOpen(false);
   };
 
-  const handleOpen = () => {
-    setOpen(true);
-  };
+  // const handleOpen = () => {
+  //   setOpen(true);
+  // };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+  // const handleClose = () => {
+  //   setOpen(false);
+  // };
 
-  const handleChangeNote = (event) => {
-    setNote(event.target.value);
-  };
+  // const handleChangeNote = (event) => {
+  //   setNote(event.target.value);
+  // };
 
-  const handleChangeDateRange = (event) => {
-    setDateRange(event.target.value);
-  };
+  // const handleChangeDateRange = (event) => {
+  //   setDateRange(event.target.value);
+  // };
 
-  const handleRenderEdit = () => {
-    setEdit(true);
-  };
+  // const handleRenderEdit = () => {
+  //   setEdit(true);
+  // };
 
   const {
     activityType,
