@@ -89,6 +89,7 @@ const TemporaryDrawer = ({ setSelected }) => {
         </Link2>
         {!!roles[ROLES.ADMIN] && (
           <Link2
+          onClick={() => setSelected(' - Admin')}
             style={{ textDecoration: 'none', color: '#000000de' }}
             to={ROUTES.ADMIN}
           >

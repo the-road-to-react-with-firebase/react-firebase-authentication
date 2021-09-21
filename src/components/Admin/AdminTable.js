@@ -151,8 +151,7 @@ const columns = [
     headerName: 'Date',
     type: 'date',
     width: 120,
-    valueFormatter: (params) =>
-      formatDate(params.value),
+    valueFormatter: (params) => formatDate(params.value),
     sortComparator: (v1, v2, cellParams1, cellParams2) => {
       return (
         new Date(cellParams1.value) - new Date(cellParams2.value)
@@ -302,7 +301,15 @@ const ActivityTable = ({
         ...usersObject[key],
         uid: key,
       }));
-
+      usersList.sort(function (a, b) {
+        if (a.username < b.username) {
+          return -1;
+        }
+        if (a.username > b.username) {
+          return 1;
+        }
+        return 0;
+      });
       setUsers([...users, ...usersList]);
     });
   };
@@ -467,6 +474,9 @@ const ActivityTable = ({
     });
   };
 
+  let onOrAfter = new Date();
+  onOrAfter.setDate(onOrAfter.getDate() - days);
+
   useEffect(() => {
     onListenForGiven(selectedMember);
     onListenForActivity(selectedMember);
@@ -521,7 +531,8 @@ const ActivityTable = ({
                 </MenuItem>
               ))}
             </Select>
-            Days
+            Days <em>or</em> On or After{' '}
+            {onOrAfter.toLocaleDateString()}
           </Grid>
         )}
 
