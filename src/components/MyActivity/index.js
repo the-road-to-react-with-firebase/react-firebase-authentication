@@ -47,14 +47,24 @@ const MyActivity = ({ firebase }) => {
               uid,
             }),
           );
-          const givenList = activityList2.map((obj) =>
-            obj.activityType === 'Business Received'
-              ? {
-                  ...obj,
-                  activityType: 'Business Given',
-                }
-              : obj,
-          );
+          const givenList = activityList2.map((obj) => {
+            console.log(obj)
+            if (obj.activityType === 'Business Received') {
+              return {
+                ...obj,
+                username: obj.this_username,
+                activityType: 'Business Given',
+              };
+            } else if (obj.activityType === 'Referral Given') {
+              return {
+                ...obj,
+                username: obj.this_username,
+                activityType: 'Referral Received',
+              };
+            } else {
+              return obj;
+            }
+          });
           setGiven(givenList);
           setLoading(false);
         } else {
