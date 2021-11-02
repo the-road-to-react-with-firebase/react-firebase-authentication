@@ -25,7 +25,7 @@ const MyActivity = ({ firebase }) => {
   const [activities, setActivities] = useState([]);
   const [given, setGiven] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [limit, setLimit] = useState(25);
+  const [limit, setLimit] = useState(100);
 
   const handleChangeLimit = (event) => {
     setLimit(event.target.value);
