@@ -60,6 +60,7 @@ const NewActivity = ({ firebase, history }) => {
   const [note, setNote] = useState('');
   const [oneToOnes, setOneToOnes] = useState(1);
   const [success, setSuccess] = useState(false);
+  const [disabled, setDisabled] = useState(false);
 
   const handleChangeMember = (event) => {
     setMember(event.target.value);
@@ -143,6 +144,7 @@ const NewActivity = ({ firebase, history }) => {
   }
   const onCreateActivity = async (event, authUser) => {
     event.preventDefault();
+    setDisabled(true)
     let zoned = convertUTCDateToLocalDate(new Date(date));
     let { key, ...results } = await firebase.activities().push({
       activityType,
@@ -178,8 +180,10 @@ const NewActivity = ({ firebase, history }) => {
       setUsername('Former Member');
       setTimeout(() => {
         setSuccess(false);
-      }, 6000);
+        setDisabled(false);
+      }, 3000);
     } else {
+      setDisabled(false)
       setSuccess(false);
     }
   };
@@ -334,6 +338,7 @@ const NewActivity = ({ firebase, history }) => {
             </Grid>
             <Grid item xs={12}>
               <Button
+                disabled={disabled}
                 onClick={(event) => onCreateActivity(event, auth)}
                 variant="contained"
                 color="primary"
