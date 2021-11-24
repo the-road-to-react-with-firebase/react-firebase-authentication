@@ -498,9 +498,9 @@ const ActivityTable = ({
         style={{ height: 500, width: '100%', marginBottom: '10em' }}
       >
         <p>
-          Select a member to view each members activites. Select All
-          Members - Quarterly, to view an aggregate of all member's
-          activites over a selected date range.
+          Select a member to view each members activites. Select{' '}
+          <em><strong>All Members - Quarterly</strong></em>, to view an aggregate of
+          all member's activites over a selected date range.
         </p>
 
         <Grid item xs={6} md={6}>

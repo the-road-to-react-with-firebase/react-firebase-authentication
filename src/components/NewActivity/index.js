@@ -15,6 +15,7 @@ import { AuthUserContext } from '../Session';
 import { withFirebase } from '../Firebase';
 import { withAuthorization, withEmailVerification } from '../Session';
 import { compose } from 'recompose';
+import { mobileAndTabletCheck } from './helpers';
 
 // import Menu from '@material-ui/core/Menu';
 // import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -61,6 +62,9 @@ const NewActivity = ({ firebase, history }) => {
   const [oneToOnes, setOneToOnes] = useState(1);
   const [success, setSuccess] = useState(false);
   const [disabled, setDisabled] = useState(false);
+  const [isMobile, setMobile] = useState(mobileAndTabletCheck());
+  console.log(isMobile, 'test 1');
+  // console.log(mobileAndTabletCheck(), 'test 1')
 
   const handleChangeMember = (event) => {
     setMember(event.target.value);
@@ -144,7 +148,7 @@ const NewActivity = ({ firebase, history }) => {
   }
   const onCreateActivity = async (event, authUser) => {
     event.preventDefault();
-    setDisabled(true)
+    setDisabled(true);
     let zoned = convertUTCDateToLocalDate(new Date(date));
     let { key, ...results } = await firebase.activities().push({
       activityType,
@@ -183,7 +187,7 @@ const NewActivity = ({ firebase, history }) => {
         setDisabled(false);
       }, 3000);
     } else {
-      setDisabled(false)
+      setDisabled(false);
       setSuccess(false);
     }
   };
@@ -209,7 +213,8 @@ const NewActivity = ({ firebase, history }) => {
             gutterBottom
           >
             Track a <strong>new activity</strong> by selecting from
-            the options below, hit save when you are finished.
+            the options below, {isMobile ? 'press' : 'click'} save
+            when you are finished.
           </Typography>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
