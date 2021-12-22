@@ -15,7 +15,9 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import LinearProgress from '@material-ui/core/LinearProgress';
-
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
 import { Grid, Typography } from '@material-ui/core';
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
@@ -110,17 +112,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function getModalStyle() {
-  const top = 50;
-  const left = 50;
-
-  return {
-    top: `${top}%`,
-    left: `${left}%`,
-    transform: `translate(-${top}%, -${left}%)`,
-  };
-}
-
 const ActivityTable = ({
   activities,
   given,
@@ -133,10 +124,15 @@ const ActivityTable = ({
   let today = new Date();
   today.setDate(today.getDate() - 7);
   let sevenDays = today.toISOString().slice(0, 10);
+
+  // ******************************************
+  // *************** STATE ********************
+  // ******************************************
+
   const classes = useStyles();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [modalStyle] = useState(getModalStyle);
-  const [open, setOpen] = useState(false);
+  const [openEdit, setEditOpen] = useState(false);
   const [edit, setEdit] = useState(false);
   const [selectedItem, setSelectedItem] = useState({});
   const [totalAmount, setTotalAmount] = useState(0);
@@ -156,6 +152,11 @@ const ActivityTable = ({
     },
   ]);
   const [filterModel, setFilterModel] = useState();
+  const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+  // ******************************************
+  // *************** STATE METHODS ************
+  // ******************************************
 
   const handleOpenDelete = () => {
     setDeleteOpen(true);
@@ -168,17 +169,28 @@ const ActivityTable = ({
   const handleDelete = (uid) => {
     setSelectedItem({});
     firebase.activity(selectedItem.uid).remove();
-    setOpen(false);
+    setEditOpen(false);
+    setEdit(false);
     setDeleteOpen(false);
   };
 
-  // const handleOpen = () => {
-  //   setOpen(true);
-  // };
+  const handleSave = (uid) => {
+    setSelectedItem({});
+    firebase.activity(selectedItem.uid).update({ num_guests: 2 });
+    setEdit(false);
+    setEditOpen(false);
+    setDeleteOpen(false);
+  };
 
-  // const handleClose = () => {
-  //   setOpen(false);
-  // };
+  const handleOpenEdit = () => {
+    console.log(selectedItem);
+    setEditOpen(true);
+  };
+
+  const handleCloseEdit = () => {
+    setEdit(false);
+    setEditOpen(false);
+  };
 
   // const handleChangeNote = (event) => {
   //   setNote(event.target.value);
@@ -188,20 +200,38 @@ const ActivityTable = ({
   //   setDateRange(event.target.value);
   // };
 
-  // const handleRenderEdit = () => {
-  //   setEdit(true);
-  // };
+  const handleRenderEdit = () => {
+    setEdit(true);
+  };
 
   const {
+    uid,
     activityType,
     note,
     amount,
     member,
     date,
     num_one_to_ones,
+    num_guests,
     attendance,
   } = selectedItem;
-  const body = (
+
+  // ******************************************
+  // *************** MODAL BODY ***************
+  // ******************************************
+
+  function getModalStyle() {
+    const top = 50;
+    const left = 50;
+
+    return {
+      top: `${top}%`,
+      left: `${left}%`,
+      transform: `translate(-${top}%, -${left}%)`,
+    };
+  }
+
+  const editBody = (
     <div style={modalStyle} className={classes.paper}>
       <h2 id="simple-modal-title">Activity Detail</h2>
       <Grid container spacing={3}>
@@ -230,21 +260,33 @@ const ActivityTable = ({
             />
           </Grid>
         )}
-
-        {amount > 0 && (
+        {activityType === 'Business Received' && (
           <Grid item xs={12} md={6}>
             <TextField
               disabled={!edit}
-              id="notes"
-              label="Notes"
+              id="amount"
+              label="Amount"
               helperText="Amount of dollars closed"
               fullWidth
-              value={note}
+              value={amount}
               // onChange={handleChangeNote}
             />
           </Grid>
         )}
-        {num_one_to_ones > 0 && (
+
+        <Grid item xs={12} md={6}>
+          <TextField
+            disabled={!edit}
+            id="notes"
+            label="Notes"
+            helperText="Amount of dollars closed"
+            fullWidth
+            value={note}
+            // onChange={handleChangeNote}
+          />
+        </Grid>
+
+        {activityType === 'One to One' && (
           <Grid item xs={12} md={6}>
             <TextField
               disabled={!edit}
@@ -257,18 +299,43 @@ const ActivityTable = ({
             />
           </Grid>
         )}
-        {attendance && (
-          <Grid item xs={12} md={6}>
-            <TextField
-              disabled={!edit}
-              id="num_one_to_ones"
-              label="# of One to Ones"
-              helperText="Number of One to Ones"
-              fullWidth
-              value={num_one_to_ones}
-              // onChange={handleChangeNote}
-            />
-          </Grid>
+        {activityType === 'Attendance' && (
+          <>
+            <Grid item xs={12} md={6}>
+              <TextField
+                disabled={!edit}
+                id="attendance"
+                label="Attendance"
+                helperText="Present or Absent"
+                fullWidth
+                value={attendance ? 'Present' : 'Absent'}
+                // onChange={handleChangeNote}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              {/* <TextField
+                disabled={!edit}
+                id="num_guests"
+                label="# of Guests"
+                helperText="Number of Guests"
+                fullWidth
+                value={num_guests}
+                // onChange={handleChangeNote}
+              /> */}
+              <InputLabel>Number of Guests</InputLabel>
+              <Select
+                disabled={!edit}
+                value={num_guests}
+                // onChange={handleChangeGuests}
+              >
+                {numbers.map((value, index) => (
+                  <MenuItem key={index} value={value}>
+                    {value}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Grid>
+          </>
         )}
 
         <Grid item xs={12} md={6}>
@@ -282,11 +349,11 @@ const ActivityTable = ({
             // onChange={handleChangeNote}
           />
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={12}>
           {edit ? (
             <Button
               variant="contained"
-              onClick={() => setEdit(false)}
+              onClick={() => handleSave(uid)}
               style={{ backgroundColor: '#309a2f', color: 'white' }}
             >
               Save
@@ -302,12 +369,23 @@ const ActivityTable = ({
           )}
 
           <Button
-            disabled={!selectedItem.activityType}
+            disabled={
+              selectedItem.activityType === 'Business Given' ||
+              selectedItem.activityType === 'Referral Received'
+            }
             variant="contained"
             onClick={handleDelete}
             color="secondary"
           >
             Delete
+          </Button>
+          <Button
+            disabled={!selectedItem.activityType}
+            variant="contained"
+            onClick={handleCloseEdit}
+            color="info"
+          >
+            Cancel
           </Button>
         </Grid>
       </Grid>
@@ -434,20 +512,16 @@ const ActivityTable = ({
           filterModel={filterModel}
           loading={loading}
         />
-        {/* <Button
-          disabled={!selectedItem.activityType}
-          variant="contained"
-          onClick={handleDelete}
-          color="secondary"
-        >
-          Delete Selected
-        </Button> */}
 
         <Button
           variant="contained"
           color="secondary"
           onClick={handleOpenDelete}
-          disabled={!selectedItem.activityType}
+          disabled={
+            !selectedItem.activityType ||
+            selectedItem.activityType === 'Business Given' ||
+            selectedItem.activityType === 'Referral Received'
+          }
         >
           Delete Selected
         </Button>
@@ -476,23 +550,30 @@ const ActivityTable = ({
           </DialogActions>
         </Dialog>
 
-        {/* <Button
-          disabled={!selectedItem.activityType}
+        <Button
+          disabled={
+            !selectedItem.activityType ||
+            selectedItem.activityType === 'Business Given' ||
+            selectedItem.activityType === 'Referral Received'
+          }
           variant="contained"
-          onClick={handleOpen}
+          onClick={handleOpenEdit}
           color="primary"
         >
           View/Edit Details
-        </Button> */}
-        {/* <Modal
-          open={open}
-          onClose={handleClose}
+        </Button>
+        <Modal
+          open={openEdit}
+          onClose={handleCloseEdit}
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description"
         >
-          {body}
-        </Modal> */}
+          {editBody}
+        </Modal>
       </div>
+      {/* ******************************************
+       *************** Totals Table *****************
+       ****************************************** */}
       <Typography variant="caption">
         The totals shown below are based on the last 7 days of
         activity unless the filter is changed.
