@@ -23,6 +23,7 @@ import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 
 import { withFirebase } from '../Firebase';
+import { HeadsetMic } from '@material-ui/icons';
 
 function formatDate(date) {
   const dateObj = new Date(date + 'T00:00:00');
@@ -124,17 +125,31 @@ const ActivityTable = ({
   let today = new Date();
   today.setDate(today.getDate() - 7);
   let sevenDays = today.toISOString().slice(0, 10);
+  const [selectedItem, setSelectedItem] = useState({});
+  const {
+    uid,
+    activityType,
+    note,
+    amount,
+    member,
+    date,
+    num_one_to_ones,
+    num_guests,
+    attendance,
+  } = selectedItem;
 
   // ******************************************
   // *************** STATE ********************
   // ******************************************
-
+  const [bufferGuests, setBufferGuests] = useState(num_guests);
+  const [bufferNotes, setBufferNotes] = useState(num_guests);
+  const [bufferActivityType, setBufferActivityType] =
+    useState(activityType);
   const classes = useStyles();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [modalStyle] = useState(getModalStyle);
   const [openEdit, setEditOpen] = useState(false);
   const [edit, setEdit] = useState(false);
-  const [selectedItem, setSelectedItem] = useState({});
   const [totalAmount, setTotalAmount] = useState(0);
   const [totalAmountGiven, setTotalAmountGiven] = useState(0);
   const [totalOneToOnes, setTotalOneToOnes] = useState(0);
@@ -142,6 +157,7 @@ const ActivityTable = ({
   const [totalEvents, setTotalEvents] = useState(0);
   const [totalAttendance, setTotalAttendance] = useState(0);
   const [totalGuests, setTotalGuests] = useState(0);
+  // const [newNote, setNewNote] = useState('');
   const [newNote, setNewNote] = useState('');
   const [dateRange, setDateRange] = useState(30);
   const [isFiltered, setIsFiltered] = useState(false);
@@ -176,20 +192,33 @@ const ActivityTable = ({
 
   const handleSave = (uid) => {
     setSelectedItem({});
-    firebase.activity(selectedItem.uid).update({ num_guests: 2 });
+    firebase
+      .activity(selectedItem.uid)
+      .update({ num_guests: bufferGuests, note: bufferNotes });
     setEdit(false);
     setEditOpen(false);
     setDeleteOpen(false);
   };
 
   const handleOpenEdit = () => {
-    console.log(selectedItem);
     setEditOpen(true);
   };
 
   const handleCloseEdit = () => {
     setEdit(false);
     setEditOpen(false);
+  };
+
+  const handleChangeGuests = (event) => {
+    setBufferGuests(event.target.value);
+  };
+
+  const handleChangeActivityType = (event) => {
+    setBufferActivityType(event.target.value);
+  };
+  const handleChangeNote = (event) => {
+  
+    setBufferNotes(event.target.value);
   };
 
   // const handleChangeNote = (event) => {
@@ -200,21 +229,15 @@ const ActivityTable = ({
   //   setDateRange(event.target.value);
   // };
 
+  const handleSelectItem = (event) => {
+    setSelectedItem(event.data);
+    setBufferGuests(event.data.num_guests);
+    setBufferActivityType(event.data.ActivityType);
+    setBufferNotes(event.data.note);
+  };
   const handleRenderEdit = () => {
     setEdit(true);
   };
-
-  const {
-    uid,
-    activityType,
-    note,
-    amount,
-    member,
-    date,
-    num_one_to_ones,
-    num_guests,
-    attendance,
-  } = selectedItem;
 
   // ******************************************
   // *************** MODAL BODY ***************
@@ -242,8 +265,8 @@ const ActivityTable = ({
             label="Activity Type"
             helperText="You cannot change the Activity Type"
             fullWidth
-            value={activityType}
-            // onChange={handleChangeNote}
+            value={bufferActivityType}
+            onChange={handleChangeActivityType}
           />
         </Grid>
         {(activityType === 'Business Received' ||
@@ -279,10 +302,10 @@ const ActivityTable = ({
             disabled={!edit}
             id="notes"
             label="Notes"
-            helperText="Amount of dollars closed"
+            helperText="Notes about your activity"
             fullWidth
-            value={note}
-            // onChange={handleChangeNote}
+            value={bufferNotes}
+            onChange={handleChangeNote}
           />
         </Grid>
 
@@ -313,20 +336,11 @@ const ActivityTable = ({
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              {/* <TextField
-                disabled={!edit}
-                id="num_guests"
-                label="# of Guests"
-                helperText="Number of Guests"
-                fullWidth
-                value={num_guests}
-                // onChange={handleChangeNote}
-              /> */}
               <InputLabel>Number of Guests</InputLabel>
               <Select
                 disabled={!edit}
-                value={num_guests}
-                // onChange={handleChangeGuests}
+                value={bufferGuests}
+                onChange={handleChangeGuests}
               >
                 {numbers.map((value, index) => (
                   <MenuItem key={index} value={value}>
@@ -503,7 +517,7 @@ const ActivityTable = ({
           components={{
             Toolbar: GridToolbar,
           }}
-          onRowSelected={(e) => setSelectedItem(e.data)}
+          onRowSelected={handleSelectItem}
           rows={[...activities, ...given]}
           columns={columns}
           pageSize={10}
