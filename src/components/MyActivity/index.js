@@ -48,7 +48,6 @@ const MyActivity = ({ firebase }) => {
             }),
           );
           const givenList = activityList2.map((obj) => {
-            console.log(obj)
             if (obj.activityType === 'Business Received') {
               return {
                 ...obj,
