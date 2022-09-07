@@ -255,7 +255,8 @@ const NewActivity = ({ firebase, history }) => {
                 <InputLabel>Member</InputLabel>
                 <Select value={member} onChange={handleChangeMember}>
                   {users.map((data, index) => {
-                    if (data.uid !== auth.uid) {
+                    console.log(data)
+                    if (data.uid !== auth.uid && !data.inactive) {
                       return (
                         <MenuItem
                           onClick={() => setUsername(data.username)}
