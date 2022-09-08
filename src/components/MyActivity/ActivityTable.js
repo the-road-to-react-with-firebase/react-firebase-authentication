@@ -21,6 +21,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import { Grid, Typography } from '@material-ui/core';
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
 import { withFirebase } from '../Firebase';
 import { HeadsetMic } from '@material-ui/icons';
@@ -38,7 +39,7 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
 const columns = [
   {
     field: 'activityType',
-    description: 'This is the type of activity tracked',
+    description: 'Type of activity tracked',
     headerName: 'Activity Type',
     width: 160,
   },
@@ -53,11 +54,12 @@ const columns = [
     headerName: 'Amount',
     width: 130,
   },
-  { field: 'note', headerName: 'Notes', width: 150 },
+  { field: 'note', headerName: 'Notes', width: 200 },
   {
     field: 'num_one_to_ones',
-    headerName: '# of 1 to 1s',
-    width: 150,
+    headerName: 'One to Ones',
+    description: 'Number of One to Ones',
+    width: 120,
   },
   {
     field: 'num_guests',
@@ -142,9 +144,11 @@ const ActivityTable = ({
   // *************** STATE ********************
   // ******************************************
   const [bufferGuests, setBufferGuests] = useState(num_guests);
-  const [bufferNotes, setBufferNotes] = useState(num_guests);
+  const [bufferNotes, setBufferNotes] = useState(note);
   const [bufferActivityType, setBufferActivityType] =
     useState(activityType);
+    const [bufferAmount, setBufferAmount] =
+    useState(amount);
   const classes = useStyles();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [modalStyle] = useState(getModalStyle);
@@ -194,7 +198,7 @@ const ActivityTable = ({
     setSelectedItem({});
     firebase
       .activity(selectedItem.uid)
-      .update({ num_guests: bufferGuests, note: bufferNotes });
+      .update({ num_guests: bufferGuests, note: bufferNotes, amount: bufferAmount });
     setEdit(false);
     setEditOpen(false);
     setDeleteOpen(false);
@@ -206,6 +210,9 @@ const ActivityTable = ({
 
   const handleCloseEdit = () => {
     setEdit(false);
+    setBufferAmount(amount)
+    setBufferGuests(num_guests)
+    setBufferNotes(note)
     setEditOpen(false);
   };
 
@@ -221,6 +228,11 @@ const ActivityTable = ({
     setBufferNotes(event.target.value);
   };
 
+  const handleChangeAmount = (event) => {
+  
+    setBufferAmount(event.target.value);
+  };
+
   // const handleChangeNote = (event) => {
   //   setNote(event.target.value);
   // };
@@ -234,6 +246,7 @@ const ActivityTable = ({
     setBufferGuests(event.data.num_guests);
     setBufferActivityType(event.data.ActivityType);
     setBufferNotes(event.data.note);
+    setBufferAmount(event.data.amount);
   };
   const handleRenderEdit = () => {
     setEdit(true);
@@ -263,20 +276,21 @@ const ActivityTable = ({
             disabled={true}
             id="activity_type"
             label="Activity Type"
-            helperText="You cannot change the Activity Type"
+            helperText="Cannot edit Activity Type"
             fullWidth
             value={bufferActivityType}
-            onChange={handleChangeActivityType}
+            // onChange={handleChangeActivityType}
           />
         </Grid>
         {(activityType === 'Business Received' ||
           activityType === 'Referral Given') && (
           <Grid item xs={12} md={6}>
             <TextField
-              disabled={!edit}
+            type="number"
+              disabled={true}
               id="member"
               label="Member"
-              helperText="Member involved in this activity"
+              helperText="Cannot edit Member"
               fullWidth
               value={member}
               // onChange={handleChangeNote}
@@ -291,8 +305,8 @@ const ActivityTable = ({
               label="Amount"
               helperText="Amount of dollars closed"
               fullWidth
-              value={amount}
-              // onChange={handleChangeNote}
+              value={bufferAmount}
+              onChange={handleChangeAmount}
             />
           </Grid>
         )}
@@ -300,6 +314,8 @@ const ActivityTable = ({
         <Grid item xs={12} md={6}>
           <TextField
             disabled={!edit}
+            multiline
+            rows={4}
             id="notes"
             label="Notes"
             helperText="Notes about your activity"
@@ -326,10 +342,10 @@ const ActivityTable = ({
           <>
             <Grid item xs={12} md={6}>
               <TextField
-                disabled={!edit}
+                disabled={true}
                 id="attendance"
                 label="Attendance"
-                helperText="Present or Absent"
+                helperText="Cannot edit Attendance"
                 fullWidth
                 value={attendance ? 'Present' : 'Absent'}
                 // onChange={handleChangeNote}
@@ -354,10 +370,12 @@ const ActivityTable = ({
 
         <Grid item xs={12} md={6}>
           <TextField
-            disabled={!edit}
+          startAdor
+          // startAdornment={<InputAdornment position="start">$</InputAdornment>}
+            disabled={true}
             id="date"
             label="Date"
-            helperText="Date of Activity"
+            helperText="Cannot Edit Date"
             fullWidth
             value={date}
             // onChange={handleChangeNote}
