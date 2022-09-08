@@ -10,6 +10,13 @@ import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { Container } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { withAuthorization, withEmailVerification } from '../Session';
+import { UserList, UserItem } from '../Users';
+import AdminTable from './AdminTable';
+import * as ROLES from '../../constants/roles';
+import * as ROUTES from '../../constants/routes';
+import { AuthUserContext } from '../Session';
+import { withFirebase } from '../Firebase';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,13 +30,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-import { withAuthorization, withEmailVerification } from '../Session';
-import { UserList, UserItem } from '../Users';
-import AdminTable from './AdminTable';
-import * as ROLES from '../../constants/roles';
-import * as ROUTES from '../../constants/routes';
-import { AuthUserContext } from '../Session';
-import { withFirebase } from '../Firebase';
 const AdminPage = ({ firebase }) => {
   const classes = useStyles();
   const [activities, setActivities] = useState([]);

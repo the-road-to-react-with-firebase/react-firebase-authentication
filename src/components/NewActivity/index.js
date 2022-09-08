@@ -63,8 +63,6 @@ const NewActivity = ({ firebase, history }) => {
   const [success, setSuccess] = useState(false);
   const [disabled, setDisabled] = useState(false);
   const [isMobile, setMobile] = useState(mobileAndTabletCheck());
-  console.log(isMobile, 'test 1');
-  // console.log(mobileAndTabletCheck(), 'test 1')
 
   const handleChangeMember = (event) => {
     setMember(event.target.value);
@@ -255,7 +253,7 @@ const NewActivity = ({ firebase, history }) => {
                 <InputLabel>Member</InputLabel>
                 <Select value={member} onChange={handleChangeMember}>
                   {users.map((data, index) => {
-                    if (data.uid !== auth.uid) {
+                    if (data.uid !== auth.uid && !data.inactive) {
                       return (
                         <MenuItem
                           onClick={() => setUsername(data.username)}
